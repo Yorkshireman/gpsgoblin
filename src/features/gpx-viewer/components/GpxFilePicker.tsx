@@ -2,7 +2,7 @@
 
 import { parseGpx } from '@/parsers/gpx/parseGpx';
 import { useState } from 'react';
-import { Alert, Button, FileUpload, Heading, Text } from '@chakra-ui/react';
+import { Alert, Button, FileUpload, Text } from '@chakra-ui/react';
 
 const readFileAsText = (file: File) => {
   return new Promise<string>((resolve, reject) => {
