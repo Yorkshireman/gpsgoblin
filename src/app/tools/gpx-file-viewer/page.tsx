@@ -1,5 +1,6 @@
-import { Badge, Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
+import { GpxFilePicker } from '@/features/gpx-viewer/components/gpx-file-picker';
 import type { Metadata } from 'next';
+import { Badge, Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
 
 export const metadata: Metadata = {
   title: 'GPX File Viewer — GPSGoblin',
@@ -26,11 +27,9 @@ export default function GpxFileViewerPage() {
           <Badge colorPalette='green' variant='subtle'>
             Processed locally
           </Badge>
-
           <Heading as='h1' size={{ base: '4xl', md: '5xl' }}>
             GPX File Viewer
           </Heading>
-
           <Text maxW='2xl' fontSize={{ base: 'lg', md: 'xl' }} color='fg.muted'>
             Open a GPX recording to inspect its route, track segments and calculated distance. Your
             activity file will be processed in your browser and will not be uploaded by this tool.
@@ -50,11 +49,11 @@ export default function GpxFileViewerPage() {
             <Heading as='h2' id='file-import-heading' size='2xl'>
               Open a GPX file
             </Heading>
-
             <Text color='fg.muted'>
               Choose or drop a file from your device. Files remain in memory only for the current
               browser session.
             </Text>
+            <GpxFilePicker />
           </Stack>
         </Box>
 
@@ -63,7 +62,6 @@ export default function GpxFileViewerPage() {
             <Heading as='h2' id='viewer-details-heading' size='2xl'>
               What the viewer will show
             </Heading>
-
             <Text color='fg.muted'>
               Supported GPX tracks will be displayed without joining separate track segments.
               Distance will be calculated from usable route geometry and clearly labelled with its
