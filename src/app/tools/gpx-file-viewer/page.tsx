@@ -1,4 +1,4 @@
-import { GpxFilePicker } from '@/features/gpx-viewer/components/gpx-file-picker';
+import { GpxFilePicker } from '@/features/gpx-viewer/components/GpxFilePicker';
 import type { Metadata } from 'next';
 import { Badge, Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
 

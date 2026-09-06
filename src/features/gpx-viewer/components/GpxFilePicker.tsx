@@ -2,7 +2,7 @@
 
 import { Button, FileUpload, Text } from '@chakra-ui/react';
 
-export function GpxFilePicker() {
+export const GpxFilePicker = () => {
   return (
     <FileUpload.Root
       accept={{
@@ -29,4 +29,4 @@ export function GpxFilePicker() {
       <FileUpload.List />
     </FileUpload.Root>
   );
-}
+};
