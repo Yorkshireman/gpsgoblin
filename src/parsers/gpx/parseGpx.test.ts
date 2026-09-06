@@ -1,8 +1,8 @@
 import { parseGpx } from './parseGpx';
 
 describe('parseGpx', () => {
-  it('keeps track segments separate and points in source order', () => {
-    const result = parseGpx(`
+  it('returns the complete activity document for a valid GPX file', () => {
+    const fileText = `
       <?xml version="1.0" encoding="UTF-8"?>
       <gpx
         version="1.1"
@@ -22,41 +22,49 @@ describe('parseGpx', () => {
           </trkseg>
         </trk>
       </gpx>
-    `);
+    `;
 
-    expect(result.ok).toBe(true);
-
-    if (!result.ok) {
-      throw new Error('Expected the GPX document to parse successfully');
-    }
-
-    expect(result.document.tracks[0]?.segments).toEqual([
-      {
-        id: 'track-0-segment-0',
-        samples: [
+    expect(parseGpx(fileText)).toEqual({
+      ok: true,
+      document: {
+        format: 'gpx',
+        originalContents: fileText,
+        tracks: [
           {
-            id: 'track-0-segment-0-sample-0',
-            latitudeDegrees: 53.1,
-            longitudeDegrees: -1.2
-          },
-          {
-            id: 'track-0-segment-0-sample-1',
-            latitudeDegrees: 53.2,
-            longitudeDegrees: -1.3
+            id: 'track-0',
+            name: 'Morning route',
+            segments: [
+              {
+                id: 'track-0-segment-0',
+                samples: [
+                  {
+                    id: 'track-0-segment-0-sample-0',
+                    latitudeDegrees: 53.1,
+                    longitudeDegrees: -1.2
+                  },
+                  {
+                    id: 'track-0-segment-0-sample-1',
+                    latitudeDegrees: 53.2,
+                    longitudeDegrees: -1.3
+                  }
+                ]
+              },
+              {
+                id: 'track-0-segment-1',
+                samples: [
+                  {
+                    id: 'track-0-segment-1-sample-0',
+                    latitudeDegrees: 53.3,
+                    longitudeDegrees: -1.4
+                  }
+                ]
+              }
+            ]
           }
-        ]
-      },
-      {
-        id: 'track-0-segment-1',
-        samples: [
-          {
-            id: 'track-0-segment-1-sample-0',
-            latitudeDegrees: 53.3,
-            longitudeDegrees: -1.4
-          }
-        ]
+        ],
+        version: '1.1'
       }
-    ]);
+    });
   });
 
   it('rejects malformed XML', () => {

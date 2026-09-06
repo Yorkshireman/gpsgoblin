@@ -41,4 +41,39 @@ describe('GPX file viewer', () => {
 
     expect(screen.getByText('route.gpx')).toBeVisible();
   });
+
+  it('"Morning route" is visible after selecting a valid GPX file', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+        <gpx
+          version="1.1"
+          creator="GPSGoblin test"
+          xmlns="http://www.topografix.com/GPX/1/1"
+        >
+          <trk>
+            <name>Morning route</name>
+            <trkseg>
+              <trkpt lat="53.1000" lon="-1.2000" />
+            </trkseg>
+          </trk>
+        </gpx>
+      `
+      ],
+      'route.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    expect(await screen.findByText('Morning route')).toBeVisible();
+  });
 });
