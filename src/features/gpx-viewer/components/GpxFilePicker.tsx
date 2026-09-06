@@ -2,7 +2,7 @@
 
 import { parseGpx } from '@/parsers/gpx/parseGpx';
 import { useState } from 'react';
-import { Button, FileUpload, Heading, Text } from '@chakra-ui/react';
+import { Alert, Button, FileUpload, Heading, Text } from '@chakra-ui/react';
 
 const readFileAsText = (file: File) => {
   return new Promise<string>((resolve, reject) => {
@@ -21,6 +21,7 @@ const readFileAsText = (file: File) => {
 };
 
 export const GpxFilePicker = () => {
+  const [error, setError] = useState<string>();
   const [trackName, setTrackName] = useState<string>();
 
   const handleFileAccept = async (details: FileUpload.FileAcceptDetails) => {
@@ -35,9 +36,11 @@ export const GpxFilePicker = () => {
 
     if (!result.ok) {
       setTrackName(undefined);
+      setError(result.error);
       return;
     }
 
+    setError(undefined);
     setTrackName(result.document.tracks[0]?.name ?? 'Unnamed track');
   };
 
@@ -70,6 +73,15 @@ export const GpxFilePicker = () => {
         <Heading as='h3' size='lg'>
           {trackName}
         </Heading>
+      ) : null}
+      {error ? (
+        <Alert.Root status='error'>
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Title>Unable to open GPX file</Alert.Title>
+            <Alert.Description>{error}</Alert.Description>
+          </Alert.Content>
+        </Alert.Root>
       ) : null}
     </FileUpload.Root>
   );

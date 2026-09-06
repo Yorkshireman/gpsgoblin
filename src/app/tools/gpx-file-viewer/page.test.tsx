@@ -76,4 +76,22 @@ describe('GPX file viewer', () => {
 
     expect(await screen.findByText('Morning route')).toBeVisible();
   });
+
+  it('shows an error after selecting a malformed GPX file', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(['<gpx version="1.1"><trk></gpx>'], 'broken.gpx', {
+      type: 'application/gpx+xml'
+    });
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    expect(await screen.findByText('The file contains malformed XML.')).toBeVisible();
+  });
 });
