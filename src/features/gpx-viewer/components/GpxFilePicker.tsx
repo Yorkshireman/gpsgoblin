@@ -50,13 +50,14 @@ export const GpxFilePicker = () => {
         'application/gpx+xml': ['.gpx'],
         'application/xml': ['.gpx']
       }}
+      colorPalette='green'
       onFileAccept={handleFileAccept}
       maxFiles={1}
     >
       <FileUpload.Label>GPX file</FileUpload.Label>
       <FileUpload.HiddenInput />
 
-      <FileUpload.Dropzone disableClick>
+      <FileUpload.Dropzone _hover={{ bg: 'bg' }} cursor='default' disableClick>
         <FileUpload.DropzoneContent>
           <Text fontWeight='medium'>Drag and drop a GPX file here</Text>
           <Text color='fg.muted'>GPX files only</Text>
@@ -70,9 +71,13 @@ export const GpxFilePicker = () => {
       </FileUpload.Trigger>
       <FileUpload.List />
       {trackName ? (
-        <Heading as='h3' size='lg'>
-          {trackName}
-        </Heading>
+        <Alert.Root status='success'>
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Title>Your GPX file is ready</Alert.Title>
+            <Alert.Description>{trackName}</Alert.Description>
+          </Alert.Content>
+        </Alert.Root>
       ) : null}
       {error ? (
         <Alert.Root status='error'>
