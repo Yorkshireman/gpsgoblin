@@ -533,6 +533,8 @@ Do not describe client-side code or monitoring alerts as an enforceable supplier
 
 Each published tool has a permanent independent URL, the actual usable tool, a unique title/description and helpful static content. Explain supported data, how to use the tool, output meaning, limitations, privacy and related tools.
 
+Treat every metadata description as a release-scoped product claim. When a tool is added, removed, renamed or its supported behaviour changes, review the default site description and every affected page description; each must describe only tested behaviour available at that URL in the current release.
+
 Keep generic pages sport-neutral. Create sport-specific pages only for distinct useful content/functionality; do not generate duplicate run/ride pages with changed nouns. Useful content and avoidance of doorway pages align with Google's published guidance. [S12, S13]
 
 Provide absolute canonical URLs and a sitemap of published routes using `https://gpsgoblin.com` as their origin. Use the same origin for Open Graph page URLs, site-hosted sharing assets and applicable structured-data site/page URLs; set the Open Graph site name to GPSGoblin. Use descriptive tool titles with the GPSGoblin brand, for example **“GPX File Viewer — GPSGoblin”**. Provide appropriate robots directives and structured data only where truthful and applicable. The production robots file must reference the sitemap on `https://gpsgoblin.com`. Exclude preview hosts, the production `pages.dev` hostname, unfinished tools and user-specific results from the sitemap. Never fabricate reviews or expect structured data to guarantee a search enhancement.
