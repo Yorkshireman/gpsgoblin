@@ -94,4 +94,42 @@ describe('GPX file viewer', () => {
 
     expect(await screen.findByText('The file contains malformed XML.')).toBeVisible();
   });
+
+  it('shows the calculated track distance and its basis', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+          <gpx
+            version="1.1"
+            creator="GPSGoblin test"
+            xmlns="http://www.topografix.com/GPX/1/1"
+          >
+            <trk>
+              <name>Equator route</name>
+              <trkseg>
+                <trkpt lat="0" lon="0" />
+                <trkpt lat="0" lon="1" />
+              </trkseg>
+            </trk>
+          </gpx>
+        `
+      ],
+      'equator-route.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    expect(await screen.findByText('Calculated distance')).toBeVisible();
+    expect(screen.getByText('111.2 km')).toBeVisible();
+    expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
+  });
 });

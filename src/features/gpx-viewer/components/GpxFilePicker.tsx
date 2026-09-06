@@ -1,8 +1,14 @@
 'use client';
 
+import { calculateTrackDistanceMetres } from '@/analysis/geometry/calculateTrackDistanceMetres';
+import type { ImportedGpxDocument } from '@/domain/activityDocument';
 import { parseGpx } from '@/parsers/gpx/parseGpx';
 import { useState } from 'react';
-import { Alert, Button, FileUpload, Text } from '@chakra-ui/react';
+import { Alert, Button, FileUpload, Stack, Stat, Text } from '@chakra-ui/react';
+
+const formatDistance = (distanceMetres: number) => {
+  return `${(distanceMetres / 1000).toFixed(1)} km`;
+};
 
 const readFileAsText = (file: File) => {
   return new Promise<string>((resolve, reject) => {
@@ -22,7 +28,7 @@ const readFileAsText = (file: File) => {
 
 export const GpxFilePicker = () => {
   const [error, setError] = useState<string>();
-  const [trackName, setTrackName] = useState<string>();
+  const [document, setDocument] = useState<ImportedGpxDocument>();
 
   const handleFileAccept = async (details: FileUpload.FileAcceptDetails) => {
     const file = details.files[0];
@@ -35,14 +41,17 @@ export const GpxFilePicker = () => {
     const result = parseGpx(fileText);
 
     if (!result.ok) {
-      setTrackName(undefined);
+      setDocument(undefined);
       setError(result.error);
       return;
     }
 
     setError(undefined);
-    setTrackName(result.document.tracks[0]?.name ?? 'Unnamed track');
+    setDocument(result.document);
   };
+
+  const track = document?.tracks[0];
+  const distanceMetres = calculateTrackDistanceMetres(track?.segments ?? []);
 
   return (
     <FileUpload.Root
@@ -70,14 +79,22 @@ export const GpxFilePicker = () => {
         </Button>
       </FileUpload.Trigger>
       <FileUpload.List />
-      {trackName ? (
-        <Alert.Root status='success'>
-          <Alert.Indicator />
-          <Alert.Content>
-            <Alert.Title>Your GPX file is ready</Alert.Title>
-            <Alert.Description>{trackName}</Alert.Description>
-          </Alert.Content>
-        </Alert.Root>
+      {document ? (
+        <Stack gap={4} width='full'>
+          <Alert.Root status='success'>
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>Your GPX file is ready</Alert.Title>
+              <Alert.Description>{track?.name ?? 'Unnamed track'}</Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+
+          <Stat.Root>
+            <Stat.Label>Calculated distance</Stat.Label>
+            <Stat.ValueText>{formatDistance(distanceMetres)}</Stat.ValueText>
+            <Stat.HelpText>Based on the recorded GPS points</Stat.HelpText>
+          </Stat.Root>
+        </Stack>
       ) : null}
       {error ? (
         <Alert.Root status='error'>
