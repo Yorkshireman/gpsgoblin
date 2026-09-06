@@ -1,11 +1,11 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
-**Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.  
-**Version:** 0.2  
-**Date:** 6 September 2026  
-**Owner:** Andy  
-**Product name:** GPSGoblin — settled.  
-**Owned production domain:** `https://gpsgoblin.com` — purchased; a placeholder site is live. This is the canonical production origin.  
+**Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
+**Version:** 0.2
+**Date:** 6 September 2026
+**Owner:** Yorkshireman
+**Product name:** GPSGoblin — settled.
+**Owned production domain:** `https://gpsgoblin.com` — purchased; a placeholder site is live. This is the canonical production origin.
 **Suggested repository location:** `docs/product-spec.md`
 
 ## 1. How to use this specification
@@ -64,16 +64,16 @@ Commercial strategy informs prioritisation; it does not justify thin pages, exag
 
 ### 3.1 Tools — agreed
 
-| Tool | Core job | Suggested permanent URL |
-|---|---|---|
-| GPX File Viewer | Inspect routes, tracks, segments and available measurements | `/tools/gpx-file-viewer` |
-| FIT File Viewer | Inspect activity recordings and available training measurements | `/tools/fit-file-viewer` |
-| TCX File Viewer | Inspect activity/course data and available training measurements | `/tools/tcx-file-viewer` |
-| FIT to GPX | Export supported geographic content as GPX, disclosing losses | `/tools/fit-to-gpx` |
-| TCX to GPX | Export supported geographic content as GPX, disclosing losses | `/tools/tcx-to-gpx` |
-| GPX Merge — conditional | Combine files without inventing one continuous activity | `/tools/merge-gpx` |
-| Compare Activity Files | Compare routes, summaries and available measurements, including different routes | `/tools/compare-activities` |
-| Same-Route Performance Comparison | Compare repeat attempts geographically, with time differences and replay | `/tools/compare-route-performance` |
+| Tool                              | Core job                                                                         | Suggested permanent URL            |
+| --------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------- |
+| GPX File Viewer                   | Inspect routes, tracks, segments and available measurements                      | `/tools/gpx-file-viewer`           |
+| FIT File Viewer                   | Inspect activity recordings and available training measurements                  | `/tools/fit-file-viewer`           |
+| TCX File Viewer                   | Inspect activity/course data and available training measurements                 | `/tools/tcx-file-viewer`           |
+| FIT to GPX                        | Export supported geographic content as GPX, disclosing losses                    | `/tools/fit-to-gpx`                |
+| TCX to GPX                        | Export supported geographic content as GPX, disclosing losses                    | `/tools/tcx-to-gpx`                |
+| GPX Merge — conditional           | Combine files without inventing one continuous activity                          | `/tools/merge-gpx`                 |
+| Compare Activity Files            | Compare routes, summaries and available measurements, including different routes | `/tools/compare-activities`        |
+| Same-Route Performance Comparison | Compare repeat attempts geographically, with time differences and replay         | `/tools/compare-route-performance` |
 
 The paths above are recommended defaults; settle them before their first indexable release. All published tool URLs use the settled origin `https://gpsgoblin.com` (for example, `https://gpsgoblin.com/tools/gpx-file-viewer`). The two comparison tools may share components and imported data but serve different jobs. Efficiency indicators belong within general comparison, not a separate mandatory SEO page.
 
@@ -81,14 +81,14 @@ GPX Merge is included only if a bounded implementation is genuinely inexpensive 
 
 ### 3.2 Delivery stages — agreed
 
-| Stage | Deliverable | Exit condition |
-|---|---|---|
-| 1 | End-to-end GPX viewer, indexable page and static deployment | A real file can be inspected on the production build; relevant public-release gates pass |
-| 2 | FIT and TCX viewers | Supported data, missing-data cases and representative exporter fixtures work |
-| 3 | FIT→GPX and TCX→GPX; optionally GPX Merge | Downloads are valid, preservation/loss behaviour is tested and disclosed |
-| 4 | General comparison | Different routes can be compared without implying geographic equivalence |
-| 5 | Same-route analysis, replay and stop exclusion | Spatial/timing acceptance tests and conservative rejection behaviour pass |
-| 6 | Fitness & Efficiency Indicators | Each released calculation has an approved documented method and defensible interpretation |
+| Stage | Deliverable                                                 | Exit condition                                                                            |
+| ----- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 1     | End-to-end GPX viewer, indexable page and static deployment | A real file can be inspected on the production build; relevant public-release gates pass  |
+| 2     | FIT and TCX viewers                                         | Supported data, missing-data cases and representative exporter fixtures work              |
+| 3     | FIT→GPX and TCX→GPX; optionally GPX Merge                   | Downloads are valid, preservation/loss behaviour is tested and disclosed                  |
+| 4     | General comparison                                          | Different routes can be compared without implying geographic equivalence                  |
+| 5     | Same-route analysis, replay and stop exclusion              | Spatial/timing acceptance tests and conservative rejection behaviour pass                 |
+| 6     | Fitness & Efficiency Indicators                             | Each released calculation has an approved documented method and defensible interpretation |
 
 Each stage leaves a working, tested application. Publish completed tools independently. Unfinished routes must not masquerade as products or be submitted in the sitemap. Advertising is not a prerequisite for publishing a useful tool.
 
@@ -142,13 +142,13 @@ A file is not necessarily a single continuous activity. GPX supports tracks, rou
 
 Conceptual responsibilities:
 
-| Model area | Required responsibility |
-|---|---|
-| Imported document | Locally retained original file, detected format/subtype, source metadata, warnings and contained entities |
-| Activity or path | Recorded activity versus planned route, sessions/laps, track and segment boundaries, source sport |
-| Source samples/events | Original sequence, timestamps, coordinates and available measurements; pause/timer events where present |
-| Derived analysis | Calculated distance, gradient, speed, stop candidates, quality flags and metric results with method/settings |
-| Comparison | Selected entities/extents, spatial mappings, reference, time basis, exclusions and calculated deltas |
+| Model area            | Required responsibility                                                                                      |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Imported document     | Locally retained original file, detected format/subtype, source metadata, warnings and contained entities    |
+| Activity or path      | Recorded activity versus planned route, sessions/laps, track and segment boundaries, source sport            |
+| Source samples/events | Original sequence, timestamps, coordinates and available measurements; pause/timer events where present      |
+| Derived analysis      | Calculated distance, gradient, speed, stop candidates, quality flags and metric results with method/settings |
+| Comparison            | Selected entities/extents, spatial mappings, reference, time basis, exclusions and calculated deltas         |
 
 These are responsibilities, not a mandate for exactly five interfaces or separate packages.
 
@@ -384,13 +384,13 @@ Metrics must be restricted to same-person interpretation; do not silently assume
 
 ### 12.2 Sport/data policy
 
-| Data/context | Intended treatment |
-|---|---|
-| Running with adequate HR, speed and reliable gradient | Evaluate a documented grade-adjusted speed/pace versus HR method |
-| Cycling with adequate recorded power and HR | Prefer output-versus-HR indicators; use gradient as context, not another automatic multiplier on measured power |
-| Cycling without reliable power | Raw speed, HR and gradient remain descriptive; any efficiency inference requires a separately justified model |
-| Missing HR | Do not offer HR-based aerobic efficiency or cardiac-drift interpretation |
-| Different sports, heavily intermittent efforts or inadequate coverage | Suppress inappropriate indicators and explain why |
+| Data/context                                                          | Intended treatment                                                                                              |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Running with adequate HR, speed and reliable gradient                 | Evaluate a documented grade-adjusted speed/pace versus HR method                                                |
+| Cycling with adequate recorded power and HR                           | Prefer output-versus-HR indicators; use gradient as context, not another automatic multiplier on measured power |
+| Cycling without reliable power                                        | Raw speed, HR and gradient remain descriptive; any efficiency inference requires a separately justified model   |
+| Missing HR                                                            | Do not offer HR-based aerobic efficiency or cardiac-drift interpretation                                        |
+| Different sports, heavily intermittent efforts or inadequate coverage | Suppress inappropriate indicators and explain why                                                               |
 
 Gradient is a first-class input when relevant. Elevation source, smoothing and supported gradient range matter. Do not calculate a plausible-looking grade-adjusted metric from unreliable altitude or assume device temperature fully represents ambient conditions.
 
@@ -434,18 +434,18 @@ Do not claim that browser-only processing guarantees isolation from all third-pa
 
 ## 14. Agreed stack and repository structure
 
-| Concern | Decision |
-|---|---|
-| Application | Next.js App Router, React and TypeScript |
-| Package management | pnpm |
-| UI | Chakra UI |
-| Maps | MapLibre GL JS; replaceable basemap provider |
-| Charts | Recharts |
-| Domain tests | Jest |
-| Frontend integration and appropriate component tests | React Testing Library with Jest |
-| Browser integration | Focused Playwright where necessary |
-| Hosting | Cloudflare Pages with a Next.js static export |
-| Runtime processing | Browser-only; workers for expensive operations |
+| Concern                                              | Decision                                       |
+| ---------------------------------------------------- | ---------------------------------------------- |
+| Application                                          | Next.js App Router, React and TypeScript       |
+| Package management                                   | pnpm                                           |
+| UI                                                   | Chakra UI                                      |
+| Maps                                                 | MapLibre GL JS; replaceable basemap provider   |
+| Charts                                               | Recharts                                       |
+| Domain tests                                         | Jest                                           |
+| Frontend integration and appropriate component tests | React Testing Library with Jest                |
+| Browser integration                                  | Focused Playwright where necessary             |
+| Hosting                                              | Cloudflare Pages with a Next.js static export  |
+| Runtime processing                                   | Browser-only; workers for expensive operations |
 
 Use a single application repository initially, not a monorepo. Suggested responsibility boundaries:
 
@@ -660,19 +660,19 @@ Do not implement empty services, speculative databases or a generic plugin frame
 
 O1 is retained below as a resolved decision for traceability. All other open items remain unchanged.
 
-| ID | Item / status | Required by |
-|---|---|---|
-| O1 | Resolved: GPSGoblin; `gpsgoblin.com` purchased; canonical origin `https://gpsgoblin.com`. Record actual registration/renewal costs under operating expenses. | Name/domain selection and purchase are complete; verify production configuration before Stage 1 release |
-| O2 | Production basemap: terms, attribution, actual metering, privacy, limits and graceful failure | First public map-enabled release |
-| O3 | GPX/TCX/FIT parser choices, licence checks and published format/extension coverage | Each affected format release |
-| O4 | Benchmark-derived file/sample limits and browser support matrix | Each affected tool release |
-| O5 | Privacy wording, contact details, security headers and third-party inventory | First public release; update before new suppliers |
-| O6 | Analytics supplier, consent/legal assessment and event implementation | Before product telemetry is enabled |
-| O7 | AdSense approval, ad placement, CMP and advertising privacy verification | Before advertisements are enabled |
-| O8 | Matching algorithm, correspondence/coverage thresholds, offsets and ambiguity rules | Stage 5 release |
-| O9 | Stop detector, interval eligibility and significant-section extraction methods | Stage 5 release |
-| O10 | Efficiency formulas, effort-selection rules, grade adjustment and interpretation validation | Stage 6 release |
-| O11 | Whether simple GPX Merge remains inexpensive enough | Stage 3 scope checkpoint |
+| ID  | Item / status                                                                                                                                                | Required by                                                                                             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| O1  | Resolved: GPSGoblin; `gpsgoblin.com` purchased; canonical origin `https://gpsgoblin.com`. Record actual registration/renewal costs under operating expenses. | Name/domain selection and purchase are complete; verify production configuration before Stage 1 release |
+| O2  | Production basemap: terms, attribution, actual metering, privacy, limits and graceful failure                                                                | First public map-enabled release                                                                        |
+| O3  | GPX/TCX/FIT parser choices, licence checks and published format/extension coverage                                                                           | Each affected format release                                                                            |
+| O4  | Benchmark-derived file/sample limits and browser support matrix                                                                                              | Each affected tool release                                                                              |
+| O5  | Privacy wording, contact details, security headers and third-party inventory                                                                                 | First public release; update before new suppliers                                                       |
+| O6  | Analytics supplier, consent/legal assessment and event implementation                                                                                        | Before product telemetry is enabled                                                                     |
+| O7  | AdSense approval, ad placement, CMP and advertising privacy verification                                                                                     | Before advertisements are enabled                                                                       |
+| O8  | Matching algorithm, correspondence/coverage thresholds, offsets and ambiguity rules                                                                          | Stage 5 release                                                                                         |
+| O9  | Stop detector, interval eligibility and significant-section extraction methods                                                                               | Stage 5 release                                                                                         |
+| O10 | Efficiency formulas, effort-selection rules, grade adjustment and interpretation validation                                                                  | Stage 6 release                                                                                         |
+| O11 | Whether simple GPX Merge remains inexpensive enough                                                                                                          | Stage 3 scope checkpoint                                                                                |
 
 Only the affected milestone is blocked by an unresolved item. For example, O10 must not delay the GPX viewer. O1 is settled; the domain, redirect and indexing checks in Sections 19–20 remain release requirements.
 
@@ -706,59 +706,59 @@ At the end of the stage report what works, tests actually run, build status, kno
 
 These references support specific technical and policy facts, not a claim that the business will be profitable. Checked on 6 September 2026. Recheck pricing, policies and version compatibility when implementing or enabling the relevant service. URLs are included for the implementation agent.
 
-**[S1] Topografix — GPX 1.1 schema documentation.** Tracks/routes/waypoints, segments, optional time/elevation and extensions.  
+**[S1] Topografix — GPX 1.1 schema documentation.** Tracks/routes/waypoints, segments, optional time/elevation and extensions.
 `https://www.topografix.com/GPX/1/1/`
 
-**[S2] Garmin — Decoding FIT activity files.** Activity/session/lap and recorded-data concepts.  
+**[S2] Garmin — Decoding FIT activity files.** Activity/session/lap and recorded-data concepts.
 `https://developer.garmin.com/fit/cookbook/decoding-activity-files/`
 
-**[S3] Garmin — Official FIT JavaScript SDK repository.** Browser-compatible runtime, decoder and source for licence/dependency evaluation.  
+**[S3] Garmin — Official FIT JavaScript SDK repository.** Browser-compatible runtime, decoder and source for licence/dependency evaluation.
 `https://github.com/garmin/fit-javascript-sdk`
 
-**[S4] Garmin — Elapsed, timer and moving durations.** Distinct duration concepts.  
+**[S4] Garmin — Elapsed, timer and moving durations.** Distinct duration concepts.
 `https://developer.garmin.com/fit/cookbook/durations/`
 
-**[S5] TrainingPeaks — Advanced Analysis Metrics.** Reference definitions for related metrics, not validation of this product.  
+**[S5] TrainingPeaks — Advanced Analysis Metrics.** Reference definitions for related metrics, not validation of this product.
 `https://help.trainingpeaks.com/hc/en-us/articles/204072154-Advanced-Analysis-Metrics`
 
-**[S6] Chakra UI — Next.js App Router integration.** Current compatibility/setup guidance.  
+**[S6] Chakra UI — Next.js App Router integration.** Current compatibility/setup guidance.
 `https://chakra-ui.com/docs/get-started/frameworks/next-app`
 
-**[S7] Next.js — Jest testing guide.** Jest/RTL setup and async Server Component limitation.  
+**[S7] Next.js — Jest testing guide.** Jest/RTL setup and async Server Component limitation.
 `https://nextjs.org/docs/app/guides/testing/jest`
 
-**[S8] Next.js — Static exports.** Build-time HTML, output export and unsupported runtime features.  
+**[S8] Next.js — Static exports.** Build-time HTML, output export and unsupported runtime features.
 `https://nextjs.org/docs/app/guides/static-exports`
 
-**[S9] Recharts — LineChart API.** Synchronisation options and default index behaviour.  
+**[S9] Recharts — LineChart API.** Synchronisation options and default index behaviour.
 `https://recharts.github.io/en-US/api/LineChart/`
 
-**[S10] Mapbox — Use Mapbox APIs in MapLibre GL JS.** Third-party-renderer tile-request billing; tile request mechanics.  
+**[S10] Mapbox — Use Mapbox APIs in MapLibre GL JS.** Third-party-renderer tile-request billing; tile request mechanics.
 `https://docs.mapbox.com/help/dive-deeper/mapbox-in-maplibre/`
 
-**[S11] OpenStreetMap Foundation — Tile Usage Policy.** Public tile infrastructure limits and conditions.  
+**[S11] OpenStreetMap Foundation — Tile Usage Policy.** Public tile infrastructure limits and conditions.
 `https://operations.osmfoundation.org/policies/tiles/`
 
-**[S12] Google Search Central — Creating helpful, reliable, people-first content.** Content principles.  
+**[S12] Google Search Central — Creating helpful, reliable, people-first content.** Content principles.
 `https://developers.google.com/search/docs/fundamentals/creating-helpful-content`
 
-**[S13] Google Search Central — Spam policies.** Doorway/scaled-content boundaries.  
+**[S13] Google Search Central — Spam policies.** Doorway/scaled-content boundaries.
 `https://developers.google.com/search/docs/essentials/spam-policies`
 
-**[S14] Google AdSense — Consent-management requirements for EEA, UK and Switzerland.** Certified CMP/TCF requirements; check the applicable publisher configuration before enabling ads.  
+**[S14] Google AdSense — Consent-management requirements for EEA, UK and Switzerland.** Certified CMP/TCF requirements; check the applicable publisher configuration before enabling ads.
 `https://support.google.com/adsense/answer/13554020?hl=en`
 
-**[S15] Cloudflare Pages — Pricing.** Static asset request pricing versus Functions.  
+**[S15] Cloudflare Pages — Pricing.** Static asset request pricing versus Functions.
 `https://developers.cloudflare.com/pages/functions/pricing/`
 
-**[S16] Cloudflare Pages — Limits.** Plan-specific platform constraints.  
+**[S16] Cloudflare Pages — Limits.** Plan-specific platform constraints.
 `https://developers.cloudflare.com/pages/platform/limits/`
 
-**[S17] Cloudflare Pages — Custom domains.** Domain attachment.  
+**[S17] Cloudflare Pages — Custom domains.** Domain attachment.
 `https://developers.cloudflare.com/pages/configuration/custom-domains/`
 
-**[S18] Cloudflare Pages — Redirecting pages.dev to a custom domain.** Production canonical-host setup.  
+**[S18] Cloudflare Pages — Redirecting pages.dev to a custom domain.** Production canonical-host setup.
 `https://developers.cloudflare.com/pages/how-to/redirect-to-custom-domain/`
 
-**[S19] Cloudflare Pages — Preview deployments.** Default noindex behaviour.  
+**[S19] Cloudflare Pages — Preview deployments.** Default noindex behaviour.
 `https://developers.cloudflare.com/pages/configuration/preview-deployments/`
