@@ -31,3 +31,17 @@ This pacing applies to the user's actions. During an authorised `/agent` request
 Before product planning, implementation or review, read `docs/product-spec.md` and consult the sections relevant to the task. It is the source of truth for GPSGoblin's product requirements, agreed stack, release stages and open decisions.
 
 Preserve the distinction between agreed requirements, recommended defaults and unresolved release gates. Follow the incremental release sequence; implement only the requested stage or scope. Surface conflicts with the specification before changing product direction, and keep unresolved decisions explicit.
+
+## Agent skills
+
+### Issue tracker
+
+Use GitHub Issues for work tracking. Before issue operations, read `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the five default triage labels. Before triaging, read `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Use a single-context layout. Before codebase exploration, read `docs/agents/domain.md`.
