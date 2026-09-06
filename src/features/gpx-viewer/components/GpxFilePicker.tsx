@@ -53,7 +53,7 @@ export const GpxFilePicker = () => {
       <FileUpload.Label>GPX file</FileUpload.Label>
       <FileUpload.HiddenInput />
 
-      <FileUpload.Dropzone>
+      <FileUpload.Dropzone disableClick>
         <FileUpload.DropzoneContent>
           <Text fontWeight='medium'>Drag and drop a GPX file here</Text>
           <Text color='fg.muted'>GPX files only</Text>
