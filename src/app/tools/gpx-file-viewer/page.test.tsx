@@ -277,6 +277,24 @@ describe('GPX file viewer', () => {
     ).toBeVisible();
   });
 
+  it('explains when the selected file is not a GPX file', async () => {
+    const user = userEvent.setup({ applyAccept: false });
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(['Not a GPX document'], 'route.txt', {
+      type: 'text/plain'
+    });
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    expect(await screen.findByText('Choose a file with a .gpx filename.')).toBeVisible();
+  });
+
   describe('map region', () => {
     it('shows a readable route map region after selecting a valid GPX file', async () => {
       const user = userEvent.setup();

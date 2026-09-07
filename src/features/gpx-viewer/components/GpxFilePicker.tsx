@@ -60,12 +60,16 @@ export const GpxFilePicker = () => {
   };
 
   const handleFileChange = (details: FileUpload.FileChangeDetails) => {
-    if (details.acceptedFiles.length > 0) {
+    if (details.acceptedFiles.length > 0 || details.rejectedFiles.length > 0) {
       return;
     }
 
     setDocument(undefined);
     setError(undefined);
+  };
+
+  const handleFileReject = () => {
+    setError('Choose a file with a .gpx filename.');
   };
 
   const track = document?.tracks[0];
@@ -81,6 +85,7 @@ export const GpxFilePicker = () => {
       disabled={isLoading}
       onFileAccept={handleFileAccept}
       onFileChange={handleFileChange}
+      onFileReject={handleFileReject}
       maxFiles={1}
     >
       <FileUpload.Label>GPX file</FileUpload.Label>
