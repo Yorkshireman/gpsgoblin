@@ -28,6 +28,9 @@ It rejects:
 - GPX versions other than 1.1
 - files containing a `DOCTYPE` declaration
 - track points with missing, non-numeric, or out-of-range coordinates
+- GPX documents with no tracks
+- tracks containing no track points
+- empty, non-numeric, or infinite elevation values
 
 The viewer does not currently claim support for GPX 1.0, routes, waypoints,
 timestamps, extensions, or complete GPX schema validation.
