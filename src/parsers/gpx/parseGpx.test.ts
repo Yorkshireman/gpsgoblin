@@ -1,4 +1,4 @@
-import { parseGpx } from './parseGpx';
+import { parseGpx } from '.';
 
 describe('parseGpx', () => {
   it('returns the complete activity document for a valid GPX file', () => {

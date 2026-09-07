@@ -54,6 +54,10 @@ const foobar = () => {
 };
 ```
 
+## Module interfaces
+
+When multiple files in a directory implement one coherent module, use `index.ts` as its external seam. Export only the intended public interface from that entry point. Callers outside the directory import from the directory entry point; implementation files use relative imports within the directory. Leave directories that merely group unrelated files without an entry point.
+
 ## Product requirements
 
 Before product planning, implementation or review, read `docs/product-spec.md` and consult the sections relevant to the task. It is the source of truth for GPSGoblin's product requirements, agreed stack, release stages and open decisions.

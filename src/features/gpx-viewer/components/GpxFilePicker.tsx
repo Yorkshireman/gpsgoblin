@@ -2,7 +2,7 @@
 
 import { calculateTrackDistanceMetres } from '@/analysis/geometry/calculateTrackDistanceMetres';
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
-import { parseGpx } from '@/parsers/gpx/parseGpx';
+import { parseGpx } from '@/parsers/gpx';
 import { RouteMap } from './RouteMap';
 import { useState } from 'react';
 import { Alert, Button, FileUpload, Spinner, Stack, Stat, Text } from '@chakra-ui/react';
