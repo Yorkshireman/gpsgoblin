@@ -10,15 +10,13 @@ type ProviderProps = {
 
 export function Provider({ children }: ProviderProps) {
   return (
-    <ChakraProvider value={defaultSystem}>
-      <NextThemesProvider
-        attribute='class'
-        defaultTheme='system'
-        disableTransitionOnChange
-        enableSystem
-      >
-        {children}
-      </NextThemesProvider>
-    </ChakraProvider>
+    <NextThemesProvider
+      attribute='class'
+      defaultTheme='system'
+      disableTransitionOnChange
+      enableSystem
+    >
+      <ChakraProvider value={defaultSystem}>{children}</ChakraProvider>
+    </NextThemesProvider>
   );
 }
