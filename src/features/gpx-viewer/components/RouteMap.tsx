@@ -23,6 +23,10 @@ export const RouteMap = ({ track }: RouteMapProps) => {
       return;
     }
 
+    mapContainer.scrollIntoView({
+      block: 'nearest'
+    });
+
     let map: MapLibreMapInstance | undefined;
     let cancelled = false;
 
