@@ -178,6 +178,41 @@ describe('GPX file viewer', () => {
     expect(screen.getByText('Morning route')).toBeVisible();
   });
 
+  it('clears the opened route when the user clears the file', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+          <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+            <trk>
+              <name>Morning route</name>
+              <trkseg>
+                <trkpt lat="53.1" lon="-1.2" />
+              </trkseg>
+            </trk>
+          </gpx>
+        `
+      ],
+      'route.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+    expect(await screen.findByText('Morning route')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Clear file' }));
+
+    expect(screen.queryByText('Morning route')).not.toBeInTheDocument();
+    expect(screen.queryByText('route.gpx')).not.toBeInTheDocument();
+  });
+
   describe('map region', () => {
     it('shows a readable route map region after selecting a valid GPX file', async () => {
       const user = userEvent.setup();

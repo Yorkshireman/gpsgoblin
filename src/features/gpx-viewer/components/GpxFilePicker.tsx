@@ -50,6 +50,15 @@ export const GpxFilePicker = () => {
     setDocument(result.document);
   };
 
+  const handleFileChange = (details: FileUpload.FileChangeDetails) => {
+    if (details.acceptedFiles.length > 0) {
+      return;
+    }
+
+    setDocument(undefined);
+    setError(undefined);
+  };
+
   const track = document?.tracks[0];
   const distanceMetres = calculateTrackDistanceMetres(track?.segments ?? []);
 
@@ -61,6 +70,7 @@ export const GpxFilePicker = () => {
       }}
       colorPalette='green'
       onFileAccept={handleFileAccept}
+      onFileChange={handleFileChange}
       maxFiles={1}
     >
       <FileUpload.Label>GPX file</FileUpload.Label>
@@ -79,6 +89,18 @@ export const GpxFilePicker = () => {
         </Button>
       </FileUpload.Trigger>
       <FileUpload.List />
+      {document || error ? (
+        <FileUpload.ClearTrigger asChild>
+          <Button
+            colorPalette='gray'
+            type='button'
+            variant='outline'
+            width={{ base: 'full', md: 'auto' }}
+          >
+            Clear file
+          </Button>
+        </FileUpload.ClearTrigger>
+      ) : null}
       {document ? (
         <Stack gap={4} width='full'>
           <Alert.Root status='success'>
