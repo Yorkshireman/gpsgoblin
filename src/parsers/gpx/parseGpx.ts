@@ -1,7 +1,8 @@
 import type { GpxParseResult } from '@/domain/activityDocument';
-
-import { findDirectChildren, findDirectChildText } from './gpxElementQueries';
+import { parseGpxRoutes } from './parseGpxRoutes';
 import { parseGpxTracks } from './parseGpxTracks';
+import { parseGpxWaypoints } from './parseGpxWaypoints';
+import { findDirectChildren, findDirectChildText } from './gpxElementQueries';
 
 export const parseGpx = (fileText: string): GpxParseResult => {
   if (/<!DOCTYPE[\s>]/i.test(fileText)) {
@@ -53,6 +54,13 @@ export const parseGpx = (fileText: string): GpxParseResult => {
         }
       : undefined;
 
+  const routesResult = parseGpxRoutes(rootElement);
+
+  if (!routesResult.ok) {
+    return routesResult;
+  }
+
+  const { routes } = routesResult;
   const tracksResult = parseGpxTracks(rootElement);
 
   if (!tracksResult.ok) {
@@ -60,8 +68,15 @@ export const parseGpx = (fileText: string): GpxParseResult => {
   }
 
   const { tracks } = tracksResult;
+  const waypointsResult = parseGpxWaypoints(rootElement);
 
-  if (tracks.length === 0) {
+  if (!waypointsResult.ok) {
+    return waypointsResult;
+  }
+
+  const { waypoints } = waypointsResult;
+
+  if (routes.length === 0 && tracks.length === 0 && waypoints.length === 0) {
     return {
       ok: false,
       error: 'This GPX file does not contain a track to display.'
@@ -74,7 +89,7 @@ export const parseGpx = (fileText: string): GpxParseResult => {
     });
   });
 
-  if (!hasTrackPoints) {
+  if (!hasTrackPoints && routes.length === 0 && waypoints.length === 0) {
     return {
       ok: false,
       error: 'This GPX file does not contain any track points to display.'
@@ -88,10 +103,10 @@ export const parseGpx = (fileText: string): GpxParseResult => {
       format: 'gpx',
       ...(metadata ? { metadata } : {}),
       originalContents: fileText,
-      routes: [],
+      routes,
       tracks,
       version: '1.1',
-      waypoints: []
+      waypoints
     }
   };
 };

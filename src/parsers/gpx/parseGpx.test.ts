@@ -295,4 +295,284 @@ describe('parseGpx', () => {
     });
     expect(result.document.tracks[0]?.description).toBe('A wet and windy recording');
   });
+
+  it('parses a waypoint-only document and preserves waypoint order', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <wpt lat="53.1" lon="-1.2">
+          <ele>0</ele>
+          <name>Trailhead</name>
+          <desc>Start beside the gate</desc>
+        </wpt>
+        <wpt lat="53.2" lon="-1.3">
+          <name>Summit</name>
+        </wpt>
+      </gpx>
+    `);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      throw new Error('Expected the GPX document to parse successfully');
+    }
+
+    expect(result.document.routes).toEqual([]);
+    expect(result.document.tracks).toEqual([]);
+    expect(result.document.waypoints).toEqual([
+      {
+        description: 'Start beside the gate',
+        elevationMetres: 0,
+        id: 'waypoint-0',
+        latitudeDegrees: 53.1,
+        longitudeDegrees: -1.2,
+        name: 'Trailhead'
+      },
+      {
+        id: 'waypoint-1',
+        latitudeDegrees: 53.2,
+        longitudeDegrees: -1.3,
+        name: 'Summit'
+      }
+    ]);
+  });
+
+  it('rejects a waypoint with missing coordinates', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <wpt lat="53.1">
+          <name>Trailhead</name>
+        </wpt>
+      </gpx>
+    `);
+
+    expect(result).toEqual({
+      ok: false,
+      error: 'A waypoint is missing its coordinates.'
+    });
+  });
+
+  it('rejects a waypoint with invalid coordinates', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <wpt lat="north" lon="-1.2">
+          <name>Trailhead</name>
+        </wpt>
+      </gpx>
+    `);
+
+    expect(result).toEqual({
+      error: 'A waypoint contains invalid coordinates.',
+      ok: false
+    });
+  });
+
+  it('rejects a waypoint with invalid elevation', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <wpt lat="53.1" lon="-1.2">
+          <ele>unknown</ele>
+          <name>Trailhead</name>
+        </wpt>
+      </gpx>
+    `);
+
+    expect(result).toEqual({
+      error: 'A waypoint contains an invalid elevation.',
+      ok: false
+    });
+  });
+
+  it('parses a planned route and preserves route-point order', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <rte>
+          <name>Summit plan</name>
+          <desc>A planned walking route</desc>
+          <rtept lat="53.1" lon="-1.2">
+            <ele>0</ele>
+            <name>Trailhead</name>
+          </rtept>
+          <rtept lat="53.2" lon="-1.3">
+            <desc>Turn beside the cairn</desc>
+          </rtept>
+        </rte>
+      </gpx>
+    `);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      throw new Error('Expected the GPX document to parse successfully');
+    }
+
+    expect(result.document.routes).toEqual([
+      {
+        description: 'A planned walking route',
+        id: 'route-0',
+        name: 'Summit plan',
+        points: [
+          {
+            elevationMetres: 0,
+            id: 'route-0-point-0',
+            latitudeDegrees: 53.1,
+            longitudeDegrees: -1.2,
+            name: 'Trailhead'
+          },
+          {
+            description: 'Turn beside the cairn',
+            id: 'route-0-point-1',
+            latitudeDegrees: 53.2,
+            longitudeDegrees: -1.3
+          }
+        ]
+      }
+    ]);
+    expect(result.document.tracks).toEqual([]);
+    expect(result.document.waypoints).toEqual([]);
+  });
+
+  it('rejects a route point with missing coordinates', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <rte>
+          <name>Summit plan</name>
+          <rtept lat="53.1" />
+        </rte>
+      </gpx>
+    `);
+
+    expect(result).toEqual({
+      error: 'A route point is missing its coordinates.',
+      ok: false
+    });
+  });
+
+  it('rejects a route point with invalid coordinates', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <rte>
+          <name>Summit plan</name>
+          <rtept lat="north" lon="-1.2" />
+        </rte>
+      </gpx>
+    `);
+
+    expect(result).toEqual({
+      error: 'A route point contains invalid coordinates.',
+      ok: false
+    });
+  });
+
+  it('rejects a route point with invalid elevation', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <rte>
+          <name>Summit plan</name>
+          <rtept lat="53.1" lon="-1.2">
+            <ele>unknown</ele>
+          </rtept>
+        </rte>
+      </gpx>
+    `);
+
+    expect(result).toEqual({
+      error: 'A route point contains an invalid elevation.',
+      ok: false
+    });
+  });
+
+  it('preserves multiple entities and their source order', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <wpt lat="53.1" lon="-1.1">
+          <name>First waypoint</name>
+        </wpt>
+        <wpt lat="53.2" lon="-1.2">
+          <name>Second waypoint</name>
+        </wpt>
+        <rte>
+          <name>First route</name>
+          <rtept lat="53.3" lon="-1.3" />
+        </rte>
+        <rte>
+          <name>Second route</name>
+          <rtept lat="53.4" lon="-1.4" />
+        </rte>
+        <trk>
+          <name>First track</name>
+          <trkseg>
+            <trkpt lat="53.5" lon="-1.5" />
+          </trkseg>
+          <trkseg>
+            <trkpt lat="53.6" lon="-1.6" />
+          </trkseg>
+        </trk>
+        <trk>
+          <name>Second track</name>
+          <trkseg>
+            <trkpt lat="53.7" lon="-1.7" />
+          </trkseg>
+        </trk>
+      </gpx>
+    `);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      throw new Error('Expected the GPX document to parse successfully');
+    }
+
+    expect(result.document.waypoints.map(waypoint => waypoint.name)).toEqual([
+      'First waypoint',
+      'Second waypoint'
+    ]);
+    expect(result.document.routes.map(route => route.name)).toEqual([
+      'First route',
+      'Second route'
+    ]);
+    expect(result.document.tracks.map(track => track.name)).toEqual([
+      'First track',
+      'Second track'
+    ]);
+    expect(result.document.tracks[0]?.segments.map(segment => segment.id)).toEqual([
+      'track-0-segment-0',
+      'track-0-segment-1'
+    ]);
+  });
 });
