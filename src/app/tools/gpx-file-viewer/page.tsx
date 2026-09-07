@@ -5,14 +5,14 @@ import { Badge, Box, Card, Container, Heading, Stack, Text } from '@chakra-ui/re
 export const metadata: Metadata = {
   title: 'GPX File Viewer — GPSGoblin',
   description:
-    'View a GPX file’s route, track segments and calculated distance without uploading the file.',
+    "View a GPX file's route, track segments and calculated distance without uploading the file.",
   alternates: {
     canonical: 'https://gpsgoblin.com/tools/gpx-file-viewer'
   },
   openGraph: {
     title: 'GPX File Viewer — GPSGoblin',
     description:
-      'View a GPX file’s route, track segments and calculated distance without uploading the file.',
+      "View a GPX file's route, track segments and calculated distance without uploading the file.",
     siteName: 'GPSGoblin',
     url: 'https://gpsgoblin.com/tools/gpx-file-viewer',
     type: 'website'

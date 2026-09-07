@@ -133,7 +133,6 @@ describe('GPX file viewer', () => {
     expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
   });
 
-  // src/app/tools/gpx-file-viewer/page.test.tsx
   it('keeps the previous route visible when another GPX file cannot be opened', async () => {
     const user = userEvent.setup();
 
