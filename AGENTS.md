@@ -1,3 +1,13 @@
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
 # GPSGoblin working agreement
 
 ## Default: discuss and guide
@@ -20,11 +30,29 @@ Authorisation applies only to that prefixed request. Each subsequent user messag
 
 Whenever the user must perform a sequence of actions, give only the current actionable step. Include its purpose, the exact action and how the user can recognise completion. Then wait for the user to confirm completion or provide evidence that it is complete before giving the next step.
 
+Calibrate the size of each step and the amount of explanation to the user's demonstrated ability. Move briskly through familiar work, explain unfamiliar concepts when they arise, and adjust immediately when the user asks for more or less detail.
+
 Keep the current step active through questions, explanations, errors and discussion. Answer within that step, and help resolve problems before advancing. A question, silence or an ambiguous acknowledgement is not completion. If the user explicitly asks to skip or change the step, follow that direction.
 
 Do not bundle several actions into one nominal step, or append future instructions under “next” or “after that”. If the user explicitly requests an overview, provide it briefly, then return to the current step when guiding execution. Lists of findings or comparisons are fine; the restriction concerns actions the user must carry out.
 
 This pacing applies to the user's actions. During an authorised `/agent` request, carry out your own routine implementation steps autonomously.
+
+## Run static checks directly
+
+Run non-mutating static checks such as typechecking and linting yourself when they help answer the current request. Do not ask the user to run a check that the agent can run in the workspace. These checks are permitted during read-only investigation as long as they do not use fix, write or update modes. Report the exact commands run and their results.
+
+## TypeScript conventions
+
+Use PascalCase for React component filenames. Use camelCase for other TypeScript and TSX filenames, except framework-mandated filenames such as `page.tsx` and `layout.tsx`.
+
+Declare named functions as `const` arrow functions with a block body and an explicit `return`, for example:
+
+```ts
+const foobar = () => {
+  return null;
+};
+```
 
 ## Product requirements
 

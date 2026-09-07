@@ -1,8 +1,8 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.2
-**Date:** 6 September 2026
+**Version:** 0.3
+**Date:** 7 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
 **Owned production domain:** `https://gpsgoblin.com` — purchased; a placeholder site is live. This is the canonical production origin.
@@ -107,6 +107,8 @@ The default flow is:
 Provide drag-and-drop and a normal file picker. Support multi-file selection where the tool requires it. No registration, mandatory onboarding or email capture. Show supported file types and tested size limits before selection.
 
 Provide clear loading, success, partial-success and failure states. Keep successful imports when a different selected file fails. Allow users to remove or replace a file and clear the current workspace. File contents and filenames remain local.
+
+Write user-facing privacy copy in everyday language that explains what happens to the person's file. Prefer direct statements such as **“Your file stays on your device”** and **“This tool does not upload your file.”** Standalone labels such as **“processed locally”**, **“client-side”**, **“browser-local”** and **“in-browser processing”** are implementation language, not explanations for a general audience; do not use them in the interface without a plain-language explanation.
 
 Errors should distinguish unsupported format, unsupported file subtype, corrupt structure, missing required data and configured resource limits. Explain what the user can still do; never turn an absent metric into a generic invalid-file error.
 
@@ -414,7 +416,7 @@ Activity files and derived activity contents are processed locally in the browse
 
 Suggested public wording:
 
-> Your activity files are processed in your browser and are not uploaded by this tool.
+> Your activity file stays on your device. This tool does not upload it.
 
 Do not expand that into “nothing ever leaves your device”. Website hosting, online basemaps and optional advertising/analytics generate network requests. Map tile requests may reveal the viewed area to the provider; that is a consequence of requesting the relevant geographic tiles, even though our GeoJSON stays local. Explain this distinction in the privacy information and supplier assessment. [S10]
 
@@ -532,6 +534,8 @@ Do not describe client-side code or monitoring alerts as an enforceable supplier
 ## 17. SEO and public content
 
 Each published tool has a permanent independent URL, the actual usable tool, a unique title/description and helpful static content. Explain supported data, how to use the tool, output meaning, limitations, privacy and related tools.
+
+Treat every metadata description as a release-scoped product claim. When a tool is added, removed, renamed or its supported behaviour changes, review the default site description and every affected page description; each must describe only tested behaviour available at that URL in the current release.
 
 Keep generic pages sport-neutral. Create sport-specific pages only for distinct useful content/functionality; do not generate duplicate run/ride pages with changed nouns. Useful content and avoidance of doorway pages align with Google's published guidance. [S12, S13]
 
