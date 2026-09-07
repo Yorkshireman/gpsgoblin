@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 
 import GpxFileViewerPage from './page';
 
@@ -131,5 +131,51 @@ describe('GPX file viewer', () => {
     expect(await screen.findByText('Calculated distance')).toBeVisible();
     expect(screen.getByText('111.2 km')).toBeVisible();
     expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
+  });
+
+  describe('map region', () => {
+    it('shows a readable route map region after selecting a valid GPX file', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <ChakraProvider value={defaultSystem}>
+          <GpxFileViewerPage />
+        </ChakraProvider>
+      );
+
+      const file = new File(
+        [
+          `
+            <gpx
+              version="1.1"
+              creator="GPSGoblin test"
+              xmlns="http://www.topografix.com/GPX/1/1"
+            >
+              <trk>
+                <name>Morning route</name>
+                <trkseg>
+                  <trkpt lat="53.1" lon="-1.2" />
+                </trkseg>
+                <trkseg>
+                  <trkpt lat="53.2" lon="-1.3" />
+                </trkseg>
+              </trk>
+            </gpx>
+          `
+        ],
+        'route.gpx',
+        { type: 'application/gpx+xml' }
+      );
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      const routeMap = await screen.findByRole('region', {
+        name: 'Route map'
+      });
+
+      expect(routeMap).toBeVisible();
+      expect(within(routeMap).getByText('Morning route')).toBeVisible();
+      expect(within(routeMap).getByText('2 track segments')).toBeVisible();
+    });
   });
 });

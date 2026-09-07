@@ -3,6 +3,7 @@
 import { calculateTrackDistanceMetres } from '@/analysis/geometry/calculateTrackDistanceMetres';
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
 import { parseGpx } from '@/parsers/gpx/parseGpx';
+import { RouteMap } from './RouteMap';
 import { useState } from 'react';
 import { Alert, Button, FileUpload, Stack, Stat, Text } from '@chakra-ui/react';
 
@@ -85,7 +86,6 @@ export const GpxFilePicker = () => {
             <Alert.Indicator />
             <Alert.Content>
               <Alert.Title>Your GPX file is ready</Alert.Title>
-              <Alert.Description>{track?.name ?? 'Unnamed track'}</Alert.Description>
             </Alert.Content>
           </Alert.Root>
 
@@ -94,6 +94,7 @@ export const GpxFilePicker = () => {
             <Stat.ValueText>{formatDistance(distanceMetres)}</Stat.ValueText>
             <Stat.HelpText>Based on the recorded GPS points</Stat.HelpText>
           </Stat.Root>
+          {track ? <RouteMap track={track} /> : null}
         </Stack>
       ) : null}
       {error ? (

@@ -40,7 +40,7 @@ This pacing applies to the user's actions. During an authorised `/agent` request
 
 ## TypeScript conventions
 
-Use camelCase for TypeScript and TSX filenames.
+Use PascalCase for React component filenames. Use camelCase for other TypeScript and TSX filenames, except framework-mandated filenames such as `page.tsx` and `layout.tsx`.
 
 Declare named functions as `const` arrow functions with a block body and an explicit `return`, for example:
 
