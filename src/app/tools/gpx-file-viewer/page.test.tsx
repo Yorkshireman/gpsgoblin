@@ -133,6 +133,51 @@ describe('GPX file viewer', () => {
     expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
   });
 
+  // src/app/tools/gpx-file-viewer/page.test.tsx
+  it('keeps the previous route visible when another GPX file cannot be opened', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const fileInput = screen.getByLabelText('GPX file');
+    const validFile = new File(
+      [
+        `
+          <gpx
+            version="1.1"
+            creator="GPSGoblin test"
+            xmlns="http://www.topografix.com/GPX/1/1"
+          >
+            <trk>
+              <name>Morning route</name>
+              <trkseg>
+                <trkpt lat="53.1" lon="-1.2" />
+              </trkseg>
+            </trk>
+          </gpx>
+        `
+      ],
+      'route.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    const malformedFile = new File(['<gpx version="1.1"><trk></gpx>'], 'broken.gpx', {
+      type: 'application/gpx+xml'
+    });
+
+    await user.upload(fileInput, validFile);
+    expect(await screen.findByText('Morning route')).toBeVisible();
+
+    await user.upload(fileInput, malformedFile);
+
+    expect(await screen.findByText('The file contains malformed XML.')).toBeVisible();
+    expect(screen.getByText('Morning route')).toBeVisible();
+  });
+
   describe('map region', () => {
     it('shows a readable route map region after selecting a valid GPX file', async () => {
       const user = userEvent.setup();

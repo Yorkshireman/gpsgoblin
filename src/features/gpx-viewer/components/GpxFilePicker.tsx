@@ -42,7 +42,6 @@ export const GpxFilePicker = () => {
     const result = parseGpx(fileText);
 
     if (!result.ok) {
-      setDocument(undefined);
       setError(result.error);
       return;
     }
