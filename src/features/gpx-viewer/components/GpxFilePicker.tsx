@@ -5,7 +5,17 @@ import type { ImportedGpxDocument } from '@/domain/activityDocument';
 import { parseGpx } from '@/parsers/gpx';
 import { RouteMap } from './RouteMap';
 import { useState } from 'react';
-import { Alert, Button, FileUpload, Spinner, Stack, Stat, Text } from '@chakra-ui/react';
+import {
+  Alert,
+  Button,
+  Field,
+  FileUpload,
+  NativeSelect,
+  Spinner,
+  Stack,
+  Stat,
+  Text
+} from '@chakra-ui/react';
 
 const formatDistance = (distanceMetres: number) => {
   return `${(distanceMetres / 1000).toFixed(1)} km`;
@@ -31,6 +41,7 @@ export const GpxFilePicker = () => {
   const [error, setError] = useState<string>();
   const [document, setDocument] = useState<ImportedGpxDocument>();
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedTrackId, setSelectedTrackId] = useState<string>();
 
   const handleFileAccept = async (details: FileUpload.FileAcceptDetails) => {
     const file = details.files[0];
@@ -52,6 +63,7 @@ export const GpxFilePicker = () => {
       }
 
       setDocument(result.document);
+      setSelectedTrackId(result.document.tracks[0]?.id);
     } catch {
       setError('The file could not be read.');
     } finally {
@@ -65,6 +77,7 @@ export const GpxFilePicker = () => {
     }
 
     setDocument(undefined);
+    setSelectedTrackId(undefined);
     setError(undefined);
   };
 
@@ -72,7 +85,10 @@ export const GpxFilePicker = () => {
     setError('Choose a file with a .gpx filename.');
   };
 
-  const track = document?.tracks[0];
+  const track = document?.tracks.find(candidate => {
+    return candidate.id === selectedTrackId;
+  });
+
   const distanceMetres = calculateTrackDistanceMetres(track?.segments ?? []);
 
   return (
@@ -132,7 +148,29 @@ export const GpxFilePicker = () => {
               <Alert.Title>Your GPX file is ready</Alert.Title>
             </Alert.Content>
           </Alert.Root>
-
+          {document.tracks.length > 1 ? (
+            <Field.Root>
+              <Field.Label>Item to inspect</Field.Label>
+              <NativeSelect.Root>
+                <NativeSelect.Field
+                  onChange={event => {
+                    setSelectedTrackId(event.currentTarget.value);
+                  }}
+                  value={selectedTrackId}
+                >
+                  {document.tracks.map((candidate, index) => {
+                    return (
+                      <option key={candidate.id} value={candidate.id}>
+                        {candidate.name ?? `Unnamed track ${index + 1}`}
+                      </option>
+                    );
+                  })}
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+              <Field.HelperText>Choose which recorded track to display.</Field.HelperText>
+            </Field.Root>
+          ) : null}
           <Stat.Root>
             <Stat.Label>Calculated distance</Stat.Label>
             <Stat.ValueText>{formatDistance(distanceMetres)}</Stat.ValueText>

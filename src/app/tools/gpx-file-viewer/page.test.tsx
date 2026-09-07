@@ -294,6 +294,52 @@ describe('GPX file viewer', () => {
     expect(await screen.findByText('Choose a file with a .gpx filename.')).toBeVisible();
   });
 
+  it('lets the user select which recorded track to inspect', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+          <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+            <trk>
+              <name>Morning track</name>
+              <trkseg>
+                <trkpt lat="53.1" lon="-1.2" />
+              </trkseg>
+            </trk>
+            <trk>
+              <name>Evening track</name>
+              <trkseg>
+                <trkpt lat="53.2" lon="-1.3" />
+              </trkseg>
+            </trk>
+          </gpx>
+        `
+      ],
+      'tracks.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    const selector = await screen.findByRole('combobox', {
+      name: 'Item to inspect'
+    });
+
+    expect(selector).toHaveValue('track-0');
+
+    await user.selectOptions(selector, 'track-1');
+
+    const routeMap = screen.getByRole('region', { name: 'Route map' });
+    expect(within(routeMap).getByText('Evening track')).toBeVisible();
+  });
+
   describe('map region', () => {
     it('shows a readable route map region after selecting a valid GPX file', async () => {
       const user = userEvent.setup();
