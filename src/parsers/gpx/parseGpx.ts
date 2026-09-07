@@ -75,6 +75,27 @@ export const parseGpx = (fileText: string): GpxParseResult => {
     };
   }
 
+  const hasInvalidElevation = Array.from(xmlDocument.getElementsByTagNameNS('*', 'trkpt')).some(
+    pointElement => {
+      const elevationElement = findChildren(pointElement, 'ele')[0];
+
+      if (!elevationElement) {
+        return false;
+      }
+
+      const elevationText = elevationElement.textContent?.trim();
+
+      return !elevationText || !Number.isFinite(Number(elevationText));
+    }
+  );
+
+  if (hasInvalidElevation) {
+    return {
+      ok: false,
+      error: 'A track point contains an invalid elevation.'
+    };
+  }
+
   const tracks = findChildren(xmlDocument.documentElement, 'trk').map(
     (trackElement, trackIndex) => {
       const name = findChildren(trackElement, 'name')[0]?.textContent?.trim();
@@ -112,6 +133,26 @@ export const parseGpx = (fileText: string): GpxParseResult => {
       };
     }
   );
+
+  if (tracks.length === 0) {
+    return {
+      ok: false,
+      error: 'This GPX file does not contain a track to display.'
+    };
+  }
+
+  const hasTrackPoints = tracks.some(track => {
+    return track.segments.some(segment => {
+      return segment.samples.length > 0;
+    });
+  });
+
+  if (!hasTrackPoints) {
+    return {
+      ok: false,
+      error: 'This GPX file does not contain any track points to display.'
+    };
+  }
 
   return {
     ok: true,

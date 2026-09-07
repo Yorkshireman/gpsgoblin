@@ -218,7 +218,9 @@ describe('parseGpx', () => {
       >
         <trk>
           <name>Morning route</name>
-          <trkseg />
+          <trkseg>
+            <trkpt lat="53.1" lon="-1.2" />
+          </trkseg>
         </trk>
       </gpx>
     `);
@@ -230,5 +232,28 @@ describe('parseGpx', () => {
     }
 
     expect(result.document.tracks[0]?.name).toBe('Morning route');
+  });
+
+  it('rejects a non-numeric track-point elevation', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="GPSGoblin test"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <trk>
+          <trkseg>
+            <trkpt lat="53.1" lon="-1.2">
+              <ele>unknown</ele>
+            </trkpt>
+          </trkseg>
+        </trk>
+      </gpx>
+    `);
+
+    expect(result).toEqual({
+      ok: false,
+      error: 'A track point contains an invalid elevation.'
+    });
   });
 });

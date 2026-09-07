@@ -213,6 +213,70 @@ describe('GPX file viewer', () => {
     expect(screen.queryByText('route.gpx')).not.toBeInTheDocument();
   });
 
+  it('explains when a GPX file contains no track to display', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+          <gpx
+            version="1.1"
+            creator="GPSGoblin test"
+            xmlns="http://www.topografix.com/GPX/1/1"
+          />
+        `
+      ],
+      'empty.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    expect(
+      await screen.findByText('This GPX file does not contain a track to display.')
+    ).toBeVisible();
+  });
+
+  it('explains when a GPX track contains no points to display', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+          <gpx
+            version="1.1"
+            creator="GPSGoblin test"
+            xmlns="http://www.topografix.com/GPX/1/1"
+          >
+            <trk>
+              <trkseg />
+            </trk>
+          </gpx>
+        `
+      ],
+      'empty-track.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    expect(
+      await screen.findByText('This GPX file does not contain any track points to display.')
+    ).toBeVisible();
+  });
+
   describe('map region', () => {
     it('shows a readable route map region after selecting a valid GPX file', async () => {
       const user = userEvent.setup();
