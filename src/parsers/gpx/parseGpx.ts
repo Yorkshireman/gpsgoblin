@@ -1,16 +1,7 @@
-import type { GeographicSample, GpxParseResult, TrackSegment } from '@/domain/activityDocument';
+import type { GpxParseResult } from '@/domain/activityDocument';
 
-const findChildren = (element: Element, name: string) => {
-  return Array.from(element.children).filter(child => {
-    return child.localName === name;
-  });
-};
-
-const findChildText = (element: Element, name: string) => {
-  const text = findChildren(element, name)[0]?.textContent?.trim();
-
-  return text || undefined;
-};
+import { findDirectChildren, findDirectChildText } from './gpxElementQueries';
+import { parseGpxTracks } from './parseGpxTracks';
 
 export const parseGpx = (fileText: string): GpxParseResult => {
   if (/<!DOCTYPE[\s>]/i.test(fileText)) {
@@ -47,10 +38,12 @@ export const parseGpx = (fileText: string): GpxParseResult => {
 
   const rootElement = xmlDocument.documentElement;
   const creator = rootElement.getAttribute('creator')?.trim() || undefined;
-  const metadataElement = findChildren(rootElement, 'metadata')[0];
+  const metadataElement = findDirectChildren(rootElement, 'metadata')[0];
 
-  const metadataName = metadataElement ? findChildText(metadataElement, 'name') : undefined;
-  const metadataDescription = metadataElement ? findChildText(metadataElement, 'desc') : undefined;
+  const metadataName = metadataElement ? findDirectChildText(metadataElement, 'name') : undefined;
+  const metadataDescription = metadataElement
+    ? findDirectChildText(metadataElement, 'desc')
+    : undefined;
 
   const metadata =
     metadataName || metadataDescription
@@ -60,102 +53,13 @@ export const parseGpx = (fileText: string): GpxParseResult => {
         }
       : undefined;
 
-  const hasMissingCoordinates = Array.from(xmlDocument.getElementsByTagNameNS('*', 'trkpt')).some(
-    pointElement => {
-      return !pointElement.hasAttribute('lat') || !pointElement.hasAttribute('lon');
-    }
-  );
+  const tracksResult = parseGpxTracks(rootElement);
 
-  if (hasMissingCoordinates) {
-    return {
-      ok: false,
-      error: 'A track point is missing its coordinates.'
-    };
+  if (!tracksResult.ok) {
+    return tracksResult;
   }
 
-  const hasInvalidCoordinates = Array.from(xmlDocument.getElementsByTagNameNS('*', 'trkpt')).some(
-    pointElement => {
-      const latitude = Number(pointElement.getAttribute('lat'));
-      const longitude = Number(pointElement.getAttribute('lon'));
-
-      return (
-        !Number.isFinite(latitude) ||
-        !Number.isFinite(longitude) ||
-        latitude < -90 ||
-        latitude > 90 ||
-        longitude < -180 ||
-        longitude > 180
-      );
-    }
-  );
-
-  if (hasInvalidCoordinates) {
-    return {
-      ok: false,
-      error: 'A track point contains invalid coordinates.'
-    };
-  }
-
-  const hasInvalidElevation = Array.from(xmlDocument.getElementsByTagNameNS('*', 'trkpt')).some(
-    pointElement => {
-      const elevationElement = findChildren(pointElement, 'ele')[0];
-
-      if (!elevationElement) {
-        return false;
-      }
-
-      const elevationText = elevationElement.textContent?.trim();
-
-      return !elevationText || !Number.isFinite(Number(elevationText));
-    }
-  );
-
-  if (hasInvalidElevation) {
-    return {
-      ok: false,
-      error: 'A track point contains an invalid elevation.'
-    };
-  }
-
-  const tracks = findChildren(xmlDocument.documentElement, 'trk').map(
-    (trackElement, trackIndex) => {
-      const description = findChildText(trackElement, 'desc');
-      const name = findChildText(trackElement, 'name');
-
-      const segments: TrackSegment[] = findChildren(trackElement, 'trkseg').map(
-        (segmentElement, segmentIndex) => {
-          const segmentId = `track-${trackIndex}-segment-${segmentIndex}`;
-
-          const samples: GeographicSample[] = findChildren(segmentElement, 'trkpt').map(
-            (pointElement, sampleIndex) => {
-              const elevationElement = findChildren(pointElement, 'ele')[0];
-
-              return {
-                id: `${segmentId}-sample-${sampleIndex}`,
-                latitudeDegrees: Number(pointElement.getAttribute('lat')),
-                longitudeDegrees: Number(pointElement.getAttribute('lon')),
-                ...(elevationElement
-                  ? { elevationMetres: Number(elevationElement.textContent) }
-                  : {})
-              };
-            }
-          );
-
-          return {
-            id: segmentId,
-            samples
-          };
-        }
-      );
-
-      return {
-        ...(description ? { description } : {}),
-        id: `track-${trackIndex}`,
-        ...(name ? { name } : {}),
-        segments
-      };
-    }
-  );
+  const { tracks } = tracksResult;
 
   if (tracks.length === 0) {
     return {
