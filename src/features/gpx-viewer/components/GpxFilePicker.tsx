@@ -5,7 +5,7 @@ import type { ImportedGpxDocument } from '@/domain/activityDocument';
 import { parseGpx } from '@/parsers/gpx/parseGpx';
 import { RouteMap } from './RouteMap';
 import { useState } from 'react';
-import { Alert, Button, FileUpload, Stack, Stat, Text } from '@chakra-ui/react';
+import { Alert, Button, FileUpload, Spinner, Stack, Stat, Text } from '@chakra-ui/react';
 
 const formatDistance = (distanceMetres: number) => {
   return `${(distanceMetres / 1000).toFixed(1)} km`;
@@ -30,6 +30,7 @@ const readFileAsText = (file: File) => {
 export const GpxFilePicker = () => {
   const [error, setError] = useState<string>();
   const [document, setDocument] = useState<ImportedGpxDocument>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileAccept = async (details: FileUpload.FileAcceptDetails) => {
     const file = details.files[0];
@@ -38,16 +39,24 @@ export const GpxFilePicker = () => {
       return;
     }
 
-    const fileText = await readFileAsText(file);
-    const result = parseGpx(fileText);
-
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-
+    setIsLoading(true);
     setError(undefined);
-    setDocument(result.document);
+
+    try {
+      const fileText = await readFileAsText(file);
+      const result = parseGpx(fileText);
+
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+
+      setDocument(result.document);
+    } catch {
+      setError('The file could not be read.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFileChange = (details: FileUpload.FileChangeDetails) => {
@@ -69,6 +78,7 @@ export const GpxFilePicker = () => {
         'application/xml': ['.gpx']
       }}
       colorPalette='green'
+      disabled={isLoading}
       onFileAccept={handleFileAccept}
       onFileChange={handleFileChange}
       maxFiles={1}
@@ -89,6 +99,14 @@ export const GpxFilePicker = () => {
         </Button>
       </FileUpload.Trigger>
       <FileUpload.List />
+      {isLoading ? (
+        <Alert.Root role='status' status='info'>
+          <Spinner aria-hidden='true' size='sm' />
+          <Alert.Content>
+            <Alert.Title>Opening GPX file</Alert.Title>
+          </Alert.Content>
+        </Alert.Root>
+      ) : null}
       {document || error ? (
         <FileUpload.ClearTrigger asChild>
           <Button

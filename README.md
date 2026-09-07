@@ -1,34 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GPSGoblin
 
-## Getting Started
+Free tools for GPS and activity files.
 
-First, run the development server:
+GPSGoblin processes files in the browser. Files and filenames are not uploaded.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
+## Current tool
+
+The GPX File Viewer opens GPX 1.1 track recordings, displays their route and
+segments, and calculates geometric distance from the recorded GPS points.
+
+See [GPX support](docs/gpx-support.md) for the tested format scope and current
+limitations.
+
+## Development
+
+Requirements:
+
+- Node.js 20.9 or newer
+- pnpm 12.3.4
+
+Install dependencies and start the development server:
+
+```sh
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000/tools/gpx-file-viewer>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Checks
 
-## Learn More
+```sh
+pnpm tsc
+pnpm lint
+pnpm test
+pnpm build
+```
 
-To learn more about Next.js, take a look at the following resources:
+The production build is a static export written to `out/`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The tested Stage 1 stack is:
 
-## Deploy on Vercel
+- Next.js 16.3.4 with the App Router
+- React 19.2.8
+- TypeScript 5
+- Chakra UI 3.37.0
+- MapLibre GL JS 6.7.0
+- Jest 30 with React Testing Library
+- pnpm 12.3.4
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Exact dependency versions and resolutions are recorded in `package.json` and
+`pnpm-lock.yaml`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Product direction
+
+The agreed product scope and release stages are documented in
+[the product specification](docs/product-spec.md).
