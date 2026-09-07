@@ -27,8 +27,10 @@ describe('parseGpx', () => {
     expect(parseGpx(fileText)).toEqual({
       ok: true,
       document: {
+        creator: 'GPSGoblin test',
         format: 'gpx',
         originalContents: fileText,
+        routes: [],
         tracks: [
           {
             id: 'track-0',
@@ -62,7 +64,8 @@ describe('parseGpx', () => {
             ]
           }
         ],
-        version: '1.1'
+        version: '1.1',
+        waypoints: []
       }
     });
   });
@@ -255,5 +258,41 @@ describe('parseGpx', () => {
       ok: false,
       error: 'A track point contains an invalid elevation.'
     });
+  });
+
+  it('preserves document and track metadata', () => {
+    const result = parseGpx(`
+      <gpx
+        version="1.1"
+        creator="Trail recorder"
+        xmlns="http://www.topografix.com/GPX/1/1"
+      >
+        <metadata>
+          <name>Peak District collection</name>
+          <desc>Routes recorded during September</desc>
+        </metadata>
+
+        <trk>
+          <name>Morning route</name>
+          <desc>A wet and windy recording</desc>
+          <trkseg>
+            <trkpt lat="53.1" lon="-1.2" />
+          </trkseg>
+        </trk>
+      </gpx>
+    `);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      throw new Error('Expected the GPX document to parse successfully');
+    }
+
+    expect(result.document.creator).toBe('Trail recorder');
+    expect(result.document.metadata).toEqual({
+      description: 'Routes recorded during September',
+      name: 'Peak District collection'
+    });
+    expect(result.document.tracks[0]?.description).toBe('A wet and windy recording');
   });
 });

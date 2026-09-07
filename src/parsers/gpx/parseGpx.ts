@@ -6,6 +6,12 @@ const findChildren = (element: Element, name: string) => {
   });
 };
 
+const findChildText = (element: Element, name: string) => {
+  const text = findChildren(element, name)[0]?.textContent?.trim();
+
+  return text || undefined;
+};
+
 export const parseGpx = (fileText: string): GpxParseResult => {
   if (/<!DOCTYPE[\s>]/i.test(fileText)) {
     return {
@@ -38,6 +44,21 @@ export const parseGpx = (fileText: string): GpxParseResult => {
       error: 'Only GPX 1.1 files are currently supported.'
     };
   }
+
+  const rootElement = xmlDocument.documentElement;
+  const creator = rootElement.getAttribute('creator')?.trim() || undefined;
+  const metadataElement = findChildren(rootElement, 'metadata')[0];
+
+  const metadataName = metadataElement ? findChildText(metadataElement, 'name') : undefined;
+  const metadataDescription = metadataElement ? findChildText(metadataElement, 'desc') : undefined;
+
+  const metadata =
+    metadataName || metadataDescription
+      ? {
+          ...(metadataDescription ? { description: metadataDescription } : {}),
+          ...(metadataName ? { name: metadataName } : {})
+        }
+      : undefined;
 
   const hasMissingCoordinates = Array.from(xmlDocument.getElementsByTagNameNS('*', 'trkpt')).some(
     pointElement => {
@@ -98,7 +119,8 @@ export const parseGpx = (fileText: string): GpxParseResult => {
 
   const tracks = findChildren(xmlDocument.documentElement, 'trk').map(
     (trackElement, trackIndex) => {
-      const name = findChildren(trackElement, 'name')[0]?.textContent?.trim();
+      const description = findChildText(trackElement, 'desc');
+      const name = findChildText(trackElement, 'name');
 
       const segments: TrackSegment[] = findChildren(trackElement, 'trkseg').map(
         (segmentElement, segmentIndex) => {
@@ -127,6 +149,7 @@ export const parseGpx = (fileText: string): GpxParseResult => {
       );
 
       return {
+        ...(description ? { description } : {}),
         id: `track-${trackIndex}`,
         ...(name ? { name } : {}),
         segments
@@ -157,10 +180,14 @@ export const parseGpx = (fileText: string): GpxParseResult => {
   return {
     ok: true,
     document: {
+      ...(creator ? { creator } : {}),
       format: 'gpx',
+      ...(metadata ? { metadata } : {}),
       originalContents: fileText,
+      routes: [],
       tracks,
-      version: '1.1'
+      version: '1.1',
+      waypoints: []
     }
   };
 };
