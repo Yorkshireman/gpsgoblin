@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
     "build": "next build --webpack",
+    "dev": "next dev --webpack",
     "lint": "eslint",
+    "prebuild": "node ./scripts/copyMapLibreWorker.mjs",
+    "predev": "node ./scripts/copyMapLibreWorker.mjs",
     "start": "next start",
     "test": "jest",
     "tsc": "tsc --noEmit"

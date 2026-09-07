@@ -27,11 +27,11 @@ export const RouteMap = ({ track }: RouteMapProps) => {
     let cancelled = false;
 
     const initialiseMap = async () => {
-      const { LngLatBounds, Map: MapLibreMap } = await import('maplibre-gl');
+      const { LngLatBounds, Map: MapLibreMap, setWorkerUrl } = await import('maplibre-gl');
 
-      if (cancelled) {
-        return;
-      }
+      setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
+
+      if (cancelled) return;
 
       map = new MapLibreMap({
         attributionControl: false,
