@@ -48,6 +48,65 @@ describe('GPX file viewer', () => {
     });
   });
 
+  describe('source metadata', () => {
+    it('shows file details as text and keeps them when the selection changes', async () => {
+      const user = userEvent.setup();
+      const file = createTestFile('sourceMetadata');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      const details = await screen.findByRole('region', { name: 'File details' });
+      expect(within(details).getByText('Weekend walk')).toBeVisible();
+      expect(within(details).getByText('GPSGoblin test exporter')).toBeVisible();
+      expect(within(details).getByText('<strong>Original file notes</strong>')).toBeVisible();
+      expect(details.querySelector('strong')).toBeNull();
+
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Item to inspect' }), 'route-0');
+
+      expect(within(details).getByText('Weekend walk')).toBeVisible();
+      expect(within(details).getByText('GPSGoblin test exporter')).toBeVisible();
+    });
+
+    it('hides absent fields and removes the section when the next file has no metadata', async () => {
+      const user = userEvent.setup();
+      const fileInput = screen.getByLabelText('GPX file');
+
+      await user.upload(fileInput, createTestFile('singleTrack'));
+
+      const details = await screen.findByRole('region', { name: 'File details' });
+      expect(within(details).getByText('GPSGoblin test')).toBeVisible();
+      expect(within(details).queryByText('Name')).not.toBeInTheDocument();
+      expect(within(details).queryByText('Description')).not.toBeInTheDocument();
+
+      await user.upload(fileInput, createTestFile('multipleTracks'));
+      await screen.findByRole('combobox', { name: 'Item to inspect' });
+
+      expect(screen.queryByRole('region', { name: 'File details' })).not.toBeInTheDocument();
+    });
+
+    it('shows only the selected track or route description, as text', async () => {
+      const user = userEvent.setup();
+      const file = createTestFile('sourceMetadata');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      const selector = await screen.findByRole('combobox', { name: 'Item to inspect' });
+      const map = screen.getByRole('region', { name: 'Route map' });
+      expect(within(map).getByText('<em>Recorded walk notes</em>')).toBeVisible();
+      expect(map.querySelector('em')).toBeNull();
+
+      await user.selectOptions(selector, 'track-1');
+
+      expect(screen.queryByText('<em>Recorded walk notes</em>')).not.toBeInTheDocument();
+
+      await user.selectOptions(selector, 'route-0');
+
+      const routeMap = screen.getByRole('region', { name: 'Route map' });
+      expect(within(routeMap).getByText('Follow the ridge')).toBeVisible();
+      expect(screen.queryByText('<em>Recorded walk notes</em>')).not.toBeInTheDocument();
+    });
+  });
+
   describe('invalid files', () => {
     it('explains malformed XML', async () => {
       const user = userEvent.setup();

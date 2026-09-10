@@ -6,6 +6,32 @@ type FileFixture = Readonly<{
 
 // Synthetic examples only. Equatorial points one degree apart give 111.2 km.
 const fixtures = {
+  sourceMetadata: {
+    name: 'metadata.gpx',
+    contents: `
+      <gpx version="1.1" creator="GPSGoblin test exporter" xmlns="http://www.topografix.com/GPX/1/1">
+        <metadata>
+          <name>Weekend walk</name>
+          <desc>&lt;strong&gt;Original file notes&lt;/strong&gt;</desc>
+        </metadata>
+        <rte>
+          <name>Ridge route</name>
+          <desc>Follow the ridge</desc>
+          <rtept lat="0" lon="0" />
+          <rtept lat="0" lon="1" />
+        </rte>
+        <trk>
+          <name>Morning track</name>
+          <desc>&lt;em&gt;Recorded walk notes&lt;/em&gt;</desc>
+          <trkseg><trkpt lat="0" lon="0" /></trkseg>
+        </trk>
+        <trk>
+          <name>Track without notes</name>
+          <trkseg><trkpt lat="0" lon="1" /></trkseg>
+        </trk>
+      </gpx>
+    `
+  },
   filenameOnly: {
     name: 'route.gpx',
     contents: '<gpx version="1.1"></gpx>'

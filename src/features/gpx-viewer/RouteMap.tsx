@@ -73,6 +73,7 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
           : '1 waypoint';
 
   const headingId = waypoint ? 'waypoint-map-heading' : 'route-map-heading';
+  const description = track?.description ?? route?.description;
 
   return (
     <Box as='section' aria-labelledby={headingId} width='full'>
@@ -82,6 +83,9 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
             {waypoint ? 'Waypoint map' : 'Route map'}
           </Heading>
           <Text fontWeight='medium'>{itemName}</Text>
+          {description ? (
+            <Text overflowWrap='anywhere' whiteSpace='pre-wrap'>{description}</Text>
+          ) : null}
           <Text color='fg.muted' fontSize='sm'>
             {itemDescription}
           </Text>

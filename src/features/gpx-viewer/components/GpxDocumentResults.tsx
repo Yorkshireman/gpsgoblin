@@ -11,6 +11,7 @@ import type { SelectedGpxItem } from '../selectedGpxItem';
 import { GpxItemSelector } from './GpxItemSelector';
 import { WaypointDetails } from './WaypointDetails';
 import { TrackSegmentSelector } from './TrackSegmentSelector';
+import { GpxFileDetails } from './GpxFileDetails';
 
 type GpxDocumentResultsProps = Readonly<{
   document: ImportedGpxDocument;
@@ -108,6 +109,7 @@ export const GpxDocumentResults = ({
         </Stack>
       ) : null}
       {waypoint ? <WaypointDetails waypoint={waypoint} /> : null}
+      <GpxFileDetails document={document} />
     </Stack>
   );
 };
