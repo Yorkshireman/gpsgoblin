@@ -16,7 +16,10 @@ export const validateGpxPoints = (
   pointKind: GpxPointKind
 ): GpxPointValidationResult => {
   const hasMissingCoordinates = pointElements.some(pointElement => {
-    return !pointElement.hasAttribute('lat') || !pointElement.hasAttribute('lon');
+    return (
+      !pointElement.getAttribute('lat')?.trim() ||
+      !pointElement.getAttribute('lon')?.trim()
+    );
   });
 
   if (hasMissingCoordinates) {

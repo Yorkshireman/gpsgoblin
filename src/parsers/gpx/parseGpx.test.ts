@@ -1,6 +1,57 @@
 import { parseGpx } from '.';
 
 describe('parseGpx', () => {
+  describe.each([
+    { kind: 'track point', before: '<trk><trkseg>', point: 'trkpt', after: '</trkseg></trk>' },
+    { kind: 'route point', before: '<rte>', point: 'rtept', after: '</rte>' },
+    { kind: 'waypoint', before: '', point: 'wpt', after: '' }
+  ])('$kind coordinates', ({ kind, before, point, after }) => {
+    it('preserves genuine zero coordinates', () => {
+      const result = parseGpx(`
+        <gpx version="1.1" creator="GPSGoblin test" xmlns="http://www.topografix.com/GPX/1/1">
+          ${before}<${point} lat="0" lon="0" />${after}
+        </gpx>
+      `);
+
+      if (!result.ok) {
+        throw new Error('Expected the GPX document to parse successfully');
+      }
+
+      const samples = [
+        ...result.document.tracks.flatMap(track => {
+          return track.segments.flatMap(segment => {
+            return segment.samples;
+          });
+        }),
+        ...result.document.routes.flatMap(route => {
+          return route.points;
+        }),
+        ...result.document.waypoints
+      ];
+
+      expect(samples).toHaveLength(1);
+      expect(samples[0]).toMatchObject({ latitudeDegrees: 0, longitudeDegrees: 0 });
+    });
+
+    it.each([
+      { latitude: '', longitude: '1' },
+      { latitude: '1', longitude: '' },
+      { latitude: '   ', longitude: '1' },
+      { latitude: '1', longitude: '   ' }
+    ])('rejects blank coordinates: $latitude / $longitude', ({ latitude, longitude }) => {
+      const result = parseGpx(`
+        <gpx version="1.1" creator="GPSGoblin test" xmlns="http://www.topografix.com/GPX/1/1">
+          ${before}<${point} lat="${latitude}" lon="${longitude}" />${after}
+        </gpx>
+      `);
+
+      expect(result).toEqual({
+        ok: false,
+        error: `A ${kind} is missing its coordinates.`
+      });
+    });
+  });
+
   it('returns the complete activity document for a valid GPX file', () => {
     const fileText = `
       <?xml version="1.0" encoding="UTF-8"?>

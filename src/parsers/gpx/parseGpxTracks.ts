@@ -2,6 +2,7 @@ import type { GeographicSample, Track, TrackSegment } from '@/domain/activityDoc
 
 import { findDirectChildren, findDirectChildText } from './gpxElementQueries';
 import { validateGpxPoints } from './validateGpxPoints';
+import { readGpxSample } from './readGpxPoint';
 
 type GpxTracksParseResult =
   | Readonly<{
@@ -31,16 +32,7 @@ export const parseGpxTracks = (rootElement: Element): GpxTracksParseResult => {
 
         const samples: GeographicSample[] = findDirectChildren(segmentElement, 'trkpt').map(
           (pointElement, sampleIndex) => {
-            const elevationElement = findDirectChildren(pointElement, 'ele')[0];
-
-            return {
-              id: `${segmentId}-sample-${sampleIndex}`,
-              latitudeDegrees: Number(pointElement.getAttribute('lat')),
-              longitudeDegrees: Number(pointElement.getAttribute('lon')),
-              ...(elevationElement
-                ? { elevationMetres: Number(elevationElement.textContent) }
-                : {})
-            };
+            return readGpxSample(pointElement, `${segmentId}-sample-${sampleIndex}`);
           }
         );
 

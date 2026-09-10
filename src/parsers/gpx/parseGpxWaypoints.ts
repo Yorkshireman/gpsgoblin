@@ -1,7 +1,8 @@
 import type { Waypoint } from '@/domain/activityDocument';
 
-import { findDirectChildren, findDirectChildText } from './gpxElementQueries';
+import { findDirectChildren } from './gpxElementQueries';
 import { validateGpxPoints } from './validateGpxPoints';
+import { readNamedGpxPoint } from './readGpxPoint';
 
 type GpxWaypointsParseResult =
   | Readonly<{
@@ -22,20 +23,7 @@ export const parseGpxWaypoints = (rootElement: Element): GpxWaypointsParseResult
   }
 
   const waypoints = waypointElements.map((waypointElement, waypointIndex) => {
-    const description = findDirectChildText(waypointElement, 'desc');
-    const elevationElement = findDirectChildren(waypointElement, 'ele')[0];
-    const name = findDirectChildText(waypointElement, 'name');
-
-    const waypoint: Waypoint = {
-      ...(description ? { description } : {}),
-      ...(elevationElement ? { elevationMetres: Number(elevationElement.textContent) } : {}),
-      id: `waypoint-${waypointIndex}`,
-      latitudeDegrees: Number(waypointElement.getAttribute('lat')),
-      longitudeDegrees: Number(waypointElement.getAttribute('lon')),
-      ...(name ? { name } : {})
-    };
-
-    return waypoint;
+    return readNamedGpxPoint(waypointElement, `waypoint-${waypointIndex}`);
   });
 
   return {

@@ -2,6 +2,7 @@ import type { Route, RoutePoint } from '@/domain/activityDocument';
 
 import { findDirectChildren, findDirectChildText } from './gpxElementQueries';
 import { validateGpxPoints } from './validateGpxPoints';
+import { readNamedGpxPoint } from './readGpxPoint';
 
 type GpxRoutesParseResult =
   | Readonly<{
@@ -30,20 +31,7 @@ export const parseGpxRoutes = (rootElement: Element): GpxRoutesParseResult => {
 
     const points: RoutePoint[] = findDirectChildren(routeElement, 'rtept').map(
       (pointElement, pointIndex) => {
-        const pointDescription = findDirectChildText(pointElement, 'desc');
-        const elevationElement = findDirectChildren(pointElement, 'ele')[0];
-        const pointName = findDirectChildText(pointElement, 'name');
-
-        return {
-          ...(pointDescription ? { description: pointDescription } : {}),
-          ...(elevationElement
-            ? { elevationMetres: Number(elevationElement.textContent) }
-            : {}),
-          id: `route-${routeIndex}-point-${pointIndex}`,
-          latitudeDegrees: Number(pointElement.getAttribute('lat')),
-          longitudeDegrees: Number(pointElement.getAttribute('lon')),
-          ...(pointName ? { name: pointName } : {})
-        };
+        return readNamedGpxPoint(pointElement, `route-${routeIndex}-point-${pointIndex}`);
       }
     );
 
