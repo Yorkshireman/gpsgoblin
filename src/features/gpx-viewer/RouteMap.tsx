@@ -1,10 +1,10 @@
 'use client';
 
-import { Box, Heading, Stack, Text, useToken } from '@chakra-ui/react';
+import { Alert, Box, Heading, Stack, Text, useToken } from '@chakra-ui/react';
 import type { Route, Track, TrackSegment, Waypoint } from '@/domain/activityDocument';
-import { useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 
-import { initialiseRouteMap } from './initialiseRouteMap';
+import { MapCanvas } from './components/MapCanvas';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -14,21 +14,10 @@ type RouteMapProps =
   | Readonly<{ route?: never; track?: never; waypoint: Waypoint; segment?: never }>;
 
 export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
   const [routeColor] = useToken('colors', 'green.500');
 
-  useEffect(() => {
-    const mapContainer = mapContainerRef.current;
-
-    if (!mapContainer || typeof WebGLRenderingContext === 'undefined') {
-      return;
-    }
-
-    mapContainer.scrollIntoView({
-      block: 'nearest'
-    });
-
-    const paths = track
+  const paths = useMemo(() => {
+    return track
       ? (segment ? [segment] : track.segments).map(segment => {
           return {
             id: segment.id,
@@ -44,8 +33,21 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
           ]
         : [];
 
-    return initialiseRouteMap({ container: mapContainer, paths, routeColor, point: waypoint });
-  }, [route, routeColor, track, waypoint, segment]);
+  }, [route, track, segment]);
+
+  const hasLine = paths.some(path => {
+    return path.samples.length > 1;
+  });
+  const hasShortSegments = Boolean(track) && paths.some(path => {
+    return path.samples.length < 2;
+  });
+  const geometryMessage = waypoint
+    ? undefined
+    : !hasLine
+      ? 'There are not enough points to draw a line. Each route or track segment needs at least two points; separate segments are not joined.'
+      : hasShortSegments
+        ? 'Some track segments have fewer than two points and are not shown as lines. The other segments are still displayed.'
+        : undefined;
 
   const itemName = track
     ? track.name ?? 'Unnamed track'
@@ -91,14 +93,18 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
           </Text>
         </Stack>
 
-        <Box
-          bg='bg.muted'
-          borderWidth='1px'
-          minH={{ base: 'xs', md: 'sm' }}
-          overflow='hidden'
-          ref={mapContainerRef}
-          rounded='lg'
-        />
+        {geometryMessage ? (
+          <Alert.Root status='info'>
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>{hasLine ? 'Some segments have no line' : 'No line to display'}</Alert.Title>
+              <Alert.Description>{geometryMessage}</Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+        ) : null}
+        {waypoint || hasLine ? (
+          <MapCanvas paths={paths} point={waypoint} routeColor={routeColor} />
+        ) : null}
       </Stack>
     </Box>
   );

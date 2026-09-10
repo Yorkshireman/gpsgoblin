@@ -33,6 +33,78 @@ const track: Track = {
 };
 
 describe('RouteMap segment selection', () => {
+  beforeEach(() => {
+    jest.mocked(initialiseRouteMap).mockReset();
+  });
+
+  it('explains why disconnected singleton segments cannot form a line', () => {
+    const singletonTrack: Track = {
+      ...track,
+      segments: [
+        { id: 'segment-0', samples: firstSegment.samples.slice(0, 1) },
+        { id: 'segment-1', samples: secondSegment.samples.slice(0, 1) }
+      ]
+    };
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <RouteMap track={singletonTrack} />
+      </ChakraProvider>
+    );
+
+    expect(screen.getByText('No line to display')).toBeVisible();
+    expect(screen.getByText(/separate segments are not joined/)).toBeVisible();
+    expect(initialiseRouteMap).not.toHaveBeenCalled();
+  });
+
+  it('explains a route with only one point', () => {
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <RouteMap route={{ id: 'route-0', points: firstSegment.samples.slice(0, 1) }} />
+      </ChakraProvider>
+    );
+    expect(screen.getByText('No line to display')).toBeVisible();
+    expect(initialiseRouteMap).not.toHaveBeenCalled();
+  });
+
+  it('warns about short segments while retaining drawable segments', () => {
+    jest.mocked(initialiseRouteMap).mockReturnValue(jest.fn());
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <RouteMap track={{ ...track, segments: [firstSegment, { id: 'empty', samples: [] }] }} />
+      </ChakraProvider>
+    );
+    expect(screen.getByText('Some segments have no line')).toBeVisible();
+    expect(initialiseRouteMap).toHaveBeenCalled();
+  });
+
+  it('keeps the item summary visible on failure and clears the warning for a new selection', () => {
+    jest.mocked(initialiseRouteMap).mockImplementationOnce(({ onStatusChange }) => {
+      onStatusChange?.('failed');
+      return jest.fn();
+    });
+    const { rerender } = render(
+      <ChakraProvider value={defaultSystem}>
+        <RouteMap track={track} />
+      </ChakraProvider>
+    );
+
+    expect(screen.getByText('Map unavailable')).toBeVisible();
+    expect(screen.getByText('Segmented walk')).toBeVisible();
+
+    jest.mocked(initialiseRouteMap).mockImplementationOnce(({ onStatusChange }) => {
+      onStatusChange?.('loading');
+      onStatusChange?.('ready');
+      return jest.fn();
+    });
+    rerender(
+      <ChakraProvider value={defaultSystem}>
+        <RouteMap track={track} segment={secondSegment} />
+      </ChakraProvider>
+    );
+    expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
+    expect(screen.getByText('Track segment 2 of 2')).toBeVisible();
+  });
+
   it('redraws only the selected segment and restores all segments with cleanup', () => {
     const originalWebGl = Object.getOwnPropertyDescriptor(globalThis, 'WebGLRenderingContext');
     const originalScroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');

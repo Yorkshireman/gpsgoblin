@@ -48,6 +48,37 @@ describe('GPX file viewer', () => {
     });
   });
 
+  describe('map availability', () => {
+    it('keeps distance and file details available when the browser cannot render maps', async () => {
+      const user = userEvent.setup();
+      const file = createTestFile('equatorTrack');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(await screen.findByText('Map unavailable')).toBeVisible();
+      expect(screen.getByText(/This browser cannot display the map/)).toBeVisible();
+      expect(screen.getByText('111.2 km')).toBeVisible();
+      expect(screen.getByRole('region', { name: 'File details' })).toBeVisible();
+      expect(screen.queryByText('Unable to open GPX file')).not.toBeInTheDocument();
+    });
+
+    it('explains a singleton segment and removes the notice when a drawable segment is selected', async () => {
+      const user = userEvent.setup();
+      const file = createTestFile('selectableSegments');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+      const selector = await screen.findByRole('combobox', { name: 'Track segment' });
+
+      await user.selectOptions(selector, within(selector).getByRole('option', { name: 'Segment 3' }));
+      expect(screen.getByText('No line to display')).toBeVisible();
+      expect(screen.getByText('0.0 km')).toBeVisible();
+
+      await user.selectOptions(selector, within(selector).getByRole('option', { name: 'Segment 2' }));
+      expect(screen.queryByText('No line to display')).not.toBeInTheDocument();
+      expect(screen.getByText('222.4 km')).toBeVisible();
+    });
+  });
+
   describe('source metadata', () => {
     it('shows file details as text and keeps them when the selection changes', async () => {
       const user = userEvent.setup();

@@ -9,6 +9,7 @@ const mockMap = {
   fitBounds: jest.fn(),
   jumpTo: jest.fn(),
   once: jest.fn<void, [string, () => void]>(),
+  on: jest.fn<void, [string, () => void]>(),
   remove: jest.fn()
 };
 
@@ -46,9 +47,114 @@ const emitMapLoad = () => {
 };
 
 describe('initialiseRouteMap', () => {
+  const originalWebGl = Object.getOwnPropertyDescriptor(globalThis, 'WebGLRenderingContext');
+  const originalScroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockBounds.isEmpty.mockReturnValue(false);
+    Object.defineProperty(globalThis, 'WebGLRenderingContext', {
+      configurable: true,
+      value: Object
+    });
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: jest.fn()
+    });
+  });
+
+  afterAll(() => {
+    if (originalWebGl) {
+      Object.defineProperty(globalThis, 'WebGLRenderingContext', originalWebGl);
+    } else {
+      Reflect.deleteProperty(globalThis, 'WebGLRenderingContext');
+    }
+    if (originalScroll) {
+      Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalScroll);
+    } else {
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+    }
+  });
+
+  describe('unavailable maps', () => {
+    it('reports an unsupported browser without loading the renderer', () => {
+      Object.defineProperty(globalThis, 'WebGLRenderingContext', {
+        configurable: true,
+        value: undefined
+      });
+      const onStatusChange = jest.fn();
+
+      const dispose = initialiseRouteMap({
+        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      });
+
+      expect(onStatusChange).toHaveBeenLastCalledWith('unsupported');
+      expect(MapLibreMap).not.toHaveBeenCalled();
+      dispose();
+    });
+
+    it('reports a construction failure instead of rejecting the loading promise', async () => {
+      jest.mocked(MapLibreMap).mockImplementationOnce(() => {
+        throw new Error('No graphics context');
+      });
+      const onStatusChange = jest.fn();
+
+      const dispose = initialiseRouteMap({
+        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      });
+
+      await waitFor(() => {
+        expect(onStatusChange).toHaveBeenLastCalledWith('failed');
+      });
+      dispose();
+    });
+
+    it('reports a drawing exception and removes the failed map', async () => {
+      mockMap.addSource.mockImplementationOnce(() => {
+        throw new Error('Drawing failed');
+      });
+      const onStatusChange = jest.fn();
+      const dispose = initialiseRouteMap({
+        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      });
+
+      await waitFor(() => {
+        expect(MapLibreMap).toHaveBeenCalledTimes(1);
+      });
+      emitMapLoad();
+
+      expect(onStatusChange).toHaveBeenLastCalledWith('failed');
+      expect(mockMap.remove).toHaveBeenCalledTimes(1);
+      dispose();
+      expect(mockMap.remove).toHaveBeenCalledTimes(1);
+    });
+
+    it('handles renderer error events and ignores events after disposal', async () => {
+      const onStatusChange = jest.fn();
+      const dispose = initialiseRouteMap({
+        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      });
+
+      await waitFor(() => {
+        expect(MapLibreMap).toHaveBeenCalledTimes(1);
+      });
+      const handleError = mockMap.on.mock.calls.find(([event]) => {
+        return event === 'error';
+      })?.[1];
+      if (!handleError) {
+        throw new Error('Missing map error handler');
+      }
+      handleError();
+      expect(onStatusChange).toHaveBeenLastCalledWith('failed');
+      expect(mockMap.remove).toHaveBeenCalledTimes(1);
+
+      dispose();
+      onStatusChange.mockClear();
+      handleError();
+      emitMapLoad();
+      expect(onStatusChange).not.toHaveBeenCalled();
+      expect(mockMap.addSource).not.toHaveBeenCalled();
+    });
   });
 
   it('draws separate paths without bridging gaps and fits all supplied points', async () => {

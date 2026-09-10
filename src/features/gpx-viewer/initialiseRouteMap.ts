@@ -1,26 +1,59 @@
 import type { Map as MapLibreMapInstance } from 'maplibre-gl';
 import type { GeographicSample } from '@/domain/activityDocument';
 
-type MapPath = Readonly<{
+export type MapPath = Readonly<{
   id: string;
   samples: readonly GeographicSample[];
 }>;
+
+export type MapStatus = 'loading' | 'ready' | 'unsupported' | 'failed';
 
 type InitialiseRouteMapOptions = Readonly<{
   container: HTMLDivElement;
   paths: readonly MapPath[];
   routeColor: string;
   point?: GeographicSample;
+  onStatusChange?: (status: MapStatus) => void;
 }>;
 
 export const initialiseRouteMap = ({
   container,
   paths,
   routeColor,
-  point
+  point,
+  onStatusChange
 }: InitialiseRouteMapOptions) => {
   let map: MapLibreMapInstance | undefined;
   let cancelled = false;
+  let failed = false;
+
+  const removeMap = () => {
+    const currentMap = map;
+    map = undefined;
+    currentMap?.remove();
+  };
+
+  const dispose = () => {
+    cancelled = true;
+    removeMap();
+  };
+
+  const reportFailure = () => {
+    if (cancelled || failed) {
+      return;
+    }
+    failed = true;
+    removeMap();
+    onStatusChange?.('failed');
+  };
+
+  onStatusChange?.('loading');
+  if (typeof WebGLRenderingContext === 'undefined') {
+    onStatusChange?.('unsupported');
+    return dispose;
+  }
+
+  container.scrollIntoView({ block: 'nearest' });
 
   const loadMap = async () => {
     const { LngLatBounds, Map: MapLibreMap, setWorkerUrl } = await import('maplibre-gl');
@@ -43,93 +76,105 @@ export const initialiseRouteMap = ({
     });
 
     map = loadedMap;
+    loadedMap.on('error', reportFailure);
 
     loadedMap.once('load', () => {
-      if (cancelled) {
+      if (cancelled || failed) {
         return;
       }
 
-      if (point) {
-        loadedMap.addSource('waypoint', {
+      try {
+        if (point) {
+          loadedMap.addSource('waypoint', {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: { waypointId: point.id },
+              geometry: {
+                type: 'Point',
+                coordinates: [point.longitudeDegrees, point.latitudeDegrees]
+              }
+            }
+          });
+
+          loadedMap.addLayer({
+            id: 'waypoint',
+            type: 'circle',
+            source: 'waypoint',
+            paint: {
+              'circle-color': routeColor,
+              'circle-radius': 7,
+              'circle-stroke-color': '#ffffff',
+              'circle-stroke-width': 2
+            }
+          });
+
+          loadedMap.jumpTo({
+            center: [point.longitudeDegrees, point.latitudeDegrees],
+            zoom: 14
+          });
+          if (!failed) {
+            onStatusChange?.('ready');
+          }
+          return;
+        }
+
+        loadedMap.addSource('route', {
           type: 'geojson',
           data: {
-            type: 'Feature',
-            properties: { waypointId: point.id },
-            geometry: {
-              type: 'Point',
-              coordinates: [point.longitudeDegrees, point.latitudeDegrees]
-            }
+            type: 'FeatureCollection',
+            features: paths
+              .filter(path => {
+                return path.samples.length > 1;
+              })
+              .map(path => {
+                return {
+                  type: 'Feature',
+                  properties: {
+                    pathId: path.id
+                  },
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: path.samples.map(sample => {
+                      return [sample.longitudeDegrees, sample.latitudeDegrees];
+                    })
+                  }
+                };
+              })
           }
         });
 
         loadedMap.addLayer({
-          id: 'waypoint',
-          type: 'circle',
-          source: 'waypoint',
+          id: 'route',
+          type: 'line',
+          source: 'route',
           paint: {
-            'circle-color': routeColor,
-            'circle-radius': 7,
-            'circle-stroke-color': '#ffffff',
-            'circle-stroke-width': 2
+            'line-color': routeColor,
+            'line-opacity': 0.9,
+            'line-width': 4
           }
         });
 
-        loadedMap.jumpTo({
-          center: [point.longitudeDegrees, point.latitudeDegrees],
-          zoom: 14
-        });
-        return;
-      }
+        const bounds = new LngLatBounds();
 
-      loadedMap.addSource('route', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: paths
-            .filter(path => {
-              return path.samples.length > 1;
-            })
-            .map(path => {
-              return {
-                type: 'Feature',
-                properties: {
-                  pathId: path.id
-                },
-                geometry: {
-                  type: 'LineString',
-                  coordinates: path.samples.map(sample => {
-                    return [sample.longitudeDegrees, sample.latitudeDegrees];
-                  })
-                }
-              };
-            })
+        for (const path of paths) {
+          for (const sample of path.samples) {
+            bounds.extend([sample.longitudeDegrees, sample.latitudeDegrees]);
+          }
         }
-      });
 
-      loadedMap.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        paint: {
-          'line-color': routeColor,
-          'line-opacity': 0.9,
-          'line-width': 4
+        if (!bounds.isEmpty()) {
+          loadedMap.fitBounds(bounds, {
+            duration: 0,
+            padding: 32
+          });
         }
-      });
 
-      const bounds = new LngLatBounds();
-
-      for (const path of paths) {
-        for (const sample of path.samples) {
-          bounds.extend([sample.longitudeDegrees, sample.latitudeDegrees]);
+        if (!failed) {
+          onStatusChange?.('ready');
         }
-      }
-
-      if (!bounds.isEmpty()) {
-        loadedMap.fitBounds(bounds, {
-          duration: 0,
-          padding: 32
-        });
+      } catch {
+        reportFailure();
       }
 
       return;
@@ -138,11 +183,7 @@ export const initialiseRouteMap = ({
     return;
   };
 
-  void loadMap();
+  void loadMap().catch(reportFailure);
 
-  return () => {
-    cancelled = true;
-    map?.remove();
-    map = undefined;
-  };
+  return dispose;
 };
