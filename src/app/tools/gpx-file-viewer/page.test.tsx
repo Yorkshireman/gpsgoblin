@@ -3,566 +3,160 @@ import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 import { render, screen, within } from '@testing-library/react';
 
 import GpxFileViewerPage from './page';
+import { createTestFile } from './pageTestFixtures';
 
 describe('GPX file viewer', () => {
-  it('"Choose GPX file" button is visible', () => {
+  beforeEach(() => {
     render(
       <ChakraProvider value={defaultSystem}>
         <GpxFileViewerPage />
       </ChakraProvider>
     );
-
-    expect(screen.getByRole('button', { name: 'Choose GPX file' })).toBeVisible();
   });
 
-  it('"Drag and drop a GPX file here" prompt is visible', () => {
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    expect(screen.getByText('Drag and drop a GPX file here')).toBeVisible();
-  });
-
-  it('"route.gpx" is visible after selecting it', async () => {
-    const user = userEvent.setup();
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(['<gpx version="1.1"></gpx>'], 'route.gpx', {
-      type: 'application/gpx+xml'
+  describe('file input', () => {
+    it('shows the file picker button', () => {
+      expect(screen.getByRole('button', { name: 'Choose GPX file' })).toBeVisible();
     });
 
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    expect(screen.getByText('route.gpx')).toBeVisible();
-  });
-
-  it('"Morning route" is visible after selecting a valid GPX file', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-        <gpx
-          version="1.1"
-          creator="GPSGoblin test"
-          xmlns="http://www.topografix.com/GPX/1/1"
-        >
-          <trk>
-            <name>Morning route</name>
-            <trkseg>
-              <trkpt lat="53.1000" lon="-1.2000" />
-            </trkseg>
-          </trk>
-        </gpx>
-      `
-      ],
-      'route.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    expect(await screen.findByText('Morning route')).toBeVisible();
-  });
-
-  it('shows an error after selecting a malformed GPX file', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(['<gpx version="1.1"><trk></gpx>'], 'broken.gpx', {
-      type: 'application/gpx+xml'
+    it('shows the drag-and-drop prompt', () => {
+      expect(screen.getByText('Drag and drop a GPX file here')).toBeVisible();
     });
 
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    expect(await screen.findByText('The file contains malformed XML.')).toBeVisible();
-  });
-
-  it('shows the calculated track distance and its basis', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-          <gpx
-            version="1.1"
-            creator="GPSGoblin test"
-            xmlns="http://www.topografix.com/GPX/1/1"
-          >
-            <trk>
-              <name>Equator route</name>
-              <trkseg>
-                <trkpt lat="0" lon="0" />
-                <trkpt lat="0" lon="1" />
-              </trkseg>
-            </trk>
-          </gpx>
-        `
-      ],
-      'equator-route.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    expect(await screen.findByText('Calculated distance')).toBeVisible();
-    expect(screen.getByText('111.2 km')).toBeVisible();
-    expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
-  });
-
-  it('keeps the previous route visible when another GPX file cannot be opened', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const fileInput = screen.getByLabelText('GPX file');
-    const validFile = new File(
-      [
-        `
-          <gpx
-            version="1.1"
-            creator="GPSGoblin test"
-            xmlns="http://www.topografix.com/GPX/1/1"
-          >
-            <trk>
-              <name>Morning route</name>
-              <trkseg>
-                <trkpt lat="53.1" lon="-1.2" />
-              </trkseg>
-            </trk>
-          </gpx>
-        `
-      ],
-      'route.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    const malformedFile = new File(['<gpx version="1.1"><trk></gpx>'], 'broken.gpx', {
-      type: 'application/gpx+xml'
-    });
-
-    await user.upload(fileInput, validFile);
-    expect(await screen.findByText('Morning route')).toBeVisible();
-
-    await user.upload(fileInput, malformedFile);
-
-    expect(await screen.findByText('The file contains malformed XML.')).toBeVisible();
-    expect(screen.getByText('Morning route')).toBeVisible();
-  });
-
-  it('clears the opened route when the user clears the file', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-          <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
-            <trk>
-              <name>Morning route</name>
-              <trkseg>
-                <trkpt lat="53.1" lon="-1.2" />
-              </trkseg>
-            </trk>
-          </gpx>
-        `
-      ],
-      'route.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-    expect(await screen.findByText('Morning route')).toBeVisible();
-
-    await user.click(screen.getByRole('button', { name: 'Clear file' }));
-
-    expect(screen.queryByText('Morning route')).not.toBeInTheDocument();
-    expect(screen.queryByText('route.gpx')).not.toBeInTheDocument();
-  });
-
-  it('explains when a GPX file contains no track to display', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-          <gpx
-            version="1.1"
-            creator="GPSGoblin test"
-            xmlns="http://www.topografix.com/GPX/1/1"
-          />
-        `
-      ],
-      'empty.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    expect(
-      await screen.findByText('This GPX file does not contain a track to display.')
-    ).toBeVisible();
-  });
-
-  it('explains when a GPX track contains no points to display', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-          <gpx
-            version="1.1"
-            creator="GPSGoblin test"
-            xmlns="http://www.topografix.com/GPX/1/1"
-          >
-            <trk>
-              <trkseg />
-            </trk>
-          </gpx>
-        `
-      ],
-      'empty-track.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    expect(
-      await screen.findByText('This GPX file does not contain any track points to display.')
-    ).toBeVisible();
-  });
-
-  it('explains when the selected file is not a GPX file', async () => {
-    const user = userEvent.setup({ applyAccept: false });
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(['Not a GPX document'], 'route.txt', {
-      type: 'text/plain'
-    });
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    expect(await screen.findByText('Choose a file with a .gpx filename.')).toBeVisible();
-  });
-
-  it('lets the user select which recorded track to inspect', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-          <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
-            <trk>
-              <name>Morning track</name>
-              <trkseg>
-                <trkpt lat="53.1" lon="-1.2" />
-              </trkseg>
-            </trk>
-            <trk>
-              <name>Evening track</name>
-              <trkseg>
-                <trkpt lat="53.2" lon="-1.3" />
-              </trkseg>
-            </trk>
-          </gpx>
-        `
-      ],
-      'tracks.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    const selector = await screen.findByRole('combobox', {
-      name: 'Item to inspect'
-    });
-
-    expect(selector).toHaveValue('track-0');
-
-    await user.selectOptions(selector, 'track-1');
-
-    const routeMap = screen.getByRole('region', { name: 'Route map' });
-    expect(within(routeMap).getByText('Evening track')).toBeVisible();
-  });
-
-  it('lets the user select a planned route to inspect', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
-          <rte>
-            <name>Hill route</name>
-            <rtept lat="0" lon="0" />
-            <rtept lat="0" lon="1" />
-          </rte>
-          <trk>
-            <name>Morning track</name>
-            <trkseg>
-              <trkpt lat="53.1" lon="-1.2" />
-            </trkseg>
-          </trk>
-        </gpx>
-      `
-      ],
-      'track-and-route.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    const selector = await screen.findByRole('combobox', {
-      name: 'Item to inspect'
-    });
-
-    expect(within(selector).getByRole('option', { name: /Morning track/ })).toBeInTheDocument();
-    const routeOption = within(selector).getByRole('option', {
-      name: /Hill route/
-    });
-
-    await user.selectOptions(selector, routeOption);
-
-    const routeDetails = screen.getByRole('region', {
-      name: 'Planned route'
-    });
-
-    expect(within(routeDetails).getByText('Hill route')).toBeVisible();
-    expect(within(routeDetails).getByText('2 route points')).toBeVisible();
-    expect(screen.getByText('111.2 km')).toBeVisible();
-    expect(
-      screen.getByText('Based on straight lines between route points')
-    ).toBeVisible();
-    expect(
-      screen.queryByText('Based on the recorded GPS points')
-    ).not.toBeInTheDocument();
-  });
-
-  it('automatically displays a file containing only a planned route', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `
-          <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
-            <rte>
-              <name>Equator route</name>
-              <rtept lat="0" lon="0" />
-              <rtept lat="0" lon="1" />
-            </rte>
-          </gpx>
-        `
-      ],
-      'route-only.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    const routeDetails = await screen.findByRole('region', {
-      name: 'Planned route'
-    });
-
-    expect(within(routeDetails).getByText('Equator route')).toBeVisible();
-    expect(within(routeDetails).getByText('2 route points')).toBeVisible();
-    expect(screen.getByText('111.2 km')).toBeVisible();
-    expect(
-      screen.getByText('Based on straight lines between route points')
-    ).toBeVisible();
-    expect(
-      screen.queryByRole('combobox', { name: 'Item to inspect' })
-    ).not.toBeInTheDocument();
-  });
-
-  it('selects waypoints independently and restores track and route results', async () => {
-    const user = userEvent.setup();
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
-        <wpt lat="53.1" lon="-1.2">
-          <ele>0</ele><name>Summit</name><desc>A place to rest</desc>
-        </wpt>
-        <wpt lat="54" lon="-2" />
-        <rte><name>Planned walk</name><rtept lat="0" lon="0" /><rtept lat="0" lon="1" /></rte>
-        <trk><name>Recorded walk</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk>
-        </gpx>`
-      ],
-      'mixed.gpx',
-      { type: 'application/gpx+xml' }
-    );
-
-    await user.upload(screen.getByLabelText('GPX file'), file);
-    const selector = await screen.findByRole('combobox', { name: 'Item to inspect' });
-    expect(selector).toHaveValue('track-0');
-    await user.selectOptions(
-      selector,
-      within(selector).getByRole('option', { name: 'Waypoint: Summit' })
-    );
-
-    const details = screen.getByRole('region', { name: 'Waypoint' });
-    expect(within(details).getByText('Summit')).toBeVisible();
-    expect(within(details).getByText('A place to rest')).toBeVisible();
-    expect(within(details).getByText('Latitude: 53.1°')).toBeVisible();
-    expect(within(details).getByText('Longitude: -1.2°')).toBeVisible();
-    expect(within(details).getByText('Elevation: 0 m')).toBeVisible();
-    expect(within(details).getByRole('region', { name: 'Waypoint map' })).toBeVisible();
-    expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
-
-    await user.selectOptions(
-      selector,
-      within(selector).getByRole('option', { name: 'Waypoint: Unnamed waypoint 2' })
-    );
-    expect(within(details).getByText('Unnamed waypoint')).toBeVisible();
-    expect(within(details).getByText('Latitude: 54°')).toBeVisible();
-    expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
-    expect(within(details).queryByText('A place to rest')).not.toBeInTheDocument();
-
-    await user.selectOptions(selector, 'route-0');
-    expect(screen.getByText('111.2 km')).toBeVisible();
-    expect(screen.getByText('Based on straight lines between route points')).toBeVisible();
-    expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
-
-    await user.selectOptions(selector, 'track-0');
-    expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
-
-    await user.selectOptions(selector, 'waypoint-0');
-    await user.click(screen.getByRole('button', { name: 'Clear file' }));
-    expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-  });
-
-  it('automatically displays a lone waypoint with no invented measurements', async () => {
-    const user = userEvent.setup();
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <GpxFileViewerPage />
-      </ChakraProvider>
-    );
-
-    const file = new File(
-      [
-        '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><wpt lat="0" lon="0" /></gpx>'
-      ],
-      'waypoint.gpx',
-      { type: 'application/gpx+xml' }
-    );
-    await user.upload(screen.getByLabelText('GPX file'), file);
-
-    const details = await screen.findByRole('region', { name: 'Waypoint' });
-    expect(within(details).getByText('Unnamed waypoint')).toBeVisible();
-    expect(within(details).getByText('Latitude: 0°')).toBeVisible();
-    expect(within(details).getByText('Longitude: 0°')).toBeVisible();
-    expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
-    expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-  });
-
-  describe('map region', () => {
-    it('shows a readable route map region after selecting a valid GPX file', async () => {
+    it('shows the selected filename', async () => {
       const user = userEvent.setup();
 
-      render(
-        <ChakraProvider value={defaultSystem}>
-          <GpxFileViewerPage />
-        </ChakraProvider>
-      );
+      const file = createTestFile('filenameOnly');
 
-      const file = new File(
-        [
-          `
-            <gpx
-              version="1.1"
-              creator="GPSGoblin test"
-              xmlns="http://www.topografix.com/GPX/1/1"
-            >
-              <trk>
-                <name>Morning route</name>
-                <trkseg>
-                  <trkpt lat="53.1" lon="-1.2" />
-                </trkseg>
-                <trkseg>
-                  <trkpt lat="53.2" lon="-1.3" />
-                </trkseg>
-              </trk>
-            </gpx>
-          `
-        ],
-        'route.gpx',
-        { type: 'application/gpx+xml' }
-      );
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(screen.getByText('route.gpx')).toBeVisible();
+    });
+
+    it('clears the opened track and filename', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('singleTrack');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+      expect(await screen.findByText('Morning route')).toBeVisible();
+
+      await user.click(screen.getByRole('button', { name: 'Clear file' }));
+
+      expect(screen.queryByText('Morning route')).not.toBeInTheDocument();
+      expect(screen.queryByText('route.gpx')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('invalid files', () => {
+    it('explains malformed XML', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('malformedXml');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(await screen.findByText('The file contains malformed XML.')).toBeVisible();
+    });
+
+    it('keeps the previous result when another file cannot be opened', async () => {
+      const user = userEvent.setup();
+
+      const fileInput = screen.getByLabelText('GPX file');
+      const validFile = createTestFile('singleTrack');
+
+      const malformedFile = createTestFile('malformedXml');
+
+      await user.upload(fileInput, validFile);
+      expect(await screen.findByText('Morning route')).toBeVisible();
+
+      await user.upload(fileInput, malformedFile);
+
+      expect(await screen.findByText('The file contains malformed XML.')).toBeVisible();
+      expect(screen.getByText('Morning route')).toBeVisible();
+    });
+
+    it('explains an empty GPX document', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('emptyDocument');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(
+        await screen.findByText('This GPX file does not contain a track to display.')
+      ).toBeVisible();
+    });
+
+    it('explains a track with no points', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('emptyTrack');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(
+        await screen.findByText('This GPX file does not contain any track points to display.')
+      ).toBeVisible();
+    });
+
+    it('explains an unsupported filename', async () => {
+      const user = userEvent.setup({ applyAccept: false });
+
+      const file = createTestFile('unsupportedFile');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(await screen.findByText('Choose a file with a .gpx filename.')).toBeVisible();
+    });
+  });
+
+  describe('recorded tracks', () => {
+    it('shows the imported track name', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('singleTrack');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(await screen.findByText('Morning route')).toBeVisible();
+    });
+
+    it('shows the calculated distance and its basis', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('equatorTrack');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      expect(await screen.findByText('Calculated distance')).toBeVisible();
+      expect(screen.getByText('111.2 km')).toBeVisible();
+      expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
+    });
+
+    it('lets the user choose which track to inspect', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('multipleTracks');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      const selector = await screen.findByRole('combobox', {
+        name: 'Item to inspect'
+      });
+
+      expect(selector).toHaveValue('track-0');
+
+      await user.selectOptions(selector, 'track-1');
+
+      const routeMap = screen.getByRole('region', { name: 'Route map' });
+      expect(within(routeMap).getByText('Evening track')).toBeVisible();
+    });
+
+    it('shows a readable map region with the track segment count', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('segmentedTrack');
 
       await user.upload(screen.getByLabelText('GPX file'), file);
 
@@ -573,6 +167,125 @@ describe('GPX file viewer', () => {
       expect(routeMap).toBeVisible();
       expect(within(routeMap).getByText('Morning route')).toBeVisible();
       expect(within(routeMap).getByText('2 track segments')).toBeVisible();
+    });
+  });
+
+  describe('planned routes', () => {
+    it('lets the user select a route from a mixed file', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('trackAndRoute');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      const selector = await screen.findByRole('combobox', {
+        name: 'Item to inspect'
+      });
+
+      expect(within(selector).getByRole('option', { name: /Morning track/ })).toBeInTheDocument();
+      const routeOption = within(selector).getByRole('option', {
+        name: /Hill route/
+      });
+
+      await user.selectOptions(selector, routeOption);
+
+      const routeDetails = screen.getByRole('region', {
+        name: 'Planned route'
+      });
+
+      expect(within(routeDetails).getByText('Hill route')).toBeVisible();
+      expect(within(routeDetails).getByText('2 route points')).toBeVisible();
+      expect(screen.getByText('111.2 km')).toBeVisible();
+      expect(
+        screen.getByText('Based on straight lines between route points')
+      ).toBeVisible();
+      expect(
+        screen.queryByText('Based on the recorded GPS points')
+      ).not.toBeInTheDocument();
+    });
+
+    it('automatically displays the only route without a selector', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('routeOnly');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      const routeDetails = await screen.findByRole('region', {
+        name: 'Planned route'
+      });
+
+      expect(within(routeDetails).getByText('Equator route')).toBeVisible();
+      expect(within(routeDetails).getByText('2 route points')).toBeVisible();
+      expect(screen.getByText('111.2 km')).toBeVisible();
+      expect(
+        screen.getByText('Based on straight lines between route points')
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('combobox', { name: 'Item to inspect' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('waypoints', () => {
+    it('selects waypoints independently and restores track and route results', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('trackRouteAndWaypoints');
+
+      await user.upload(screen.getByLabelText('GPX file'), file);
+      const selector = await screen.findByRole('combobox', { name: 'Item to inspect' });
+      expect(selector).toHaveValue('track-0');
+      await user.selectOptions(
+        selector,
+        within(selector).getByRole('option', { name: 'Waypoint: Summit' })
+      );
+
+      const details = screen.getByRole('region', { name: 'Waypoint' });
+      expect(within(details).getByText('Summit')).toBeVisible();
+      expect(within(details).getByText('A place to rest')).toBeVisible();
+      expect(within(details).getByText('Latitude: 53.1°')).toBeVisible();
+      expect(within(details).getByText('Longitude: -1.2°')).toBeVisible();
+      expect(within(details).getByText('Elevation: 0 m')).toBeVisible();
+      expect(within(details).getByRole('region', { name: 'Waypoint map' })).toBeVisible();
+      expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
+
+      await user.selectOptions(
+        selector,
+        within(selector).getByRole('option', { name: 'Waypoint: Unnamed waypoint 2' })
+      );
+      expect(within(details).getByText('Unnamed waypoint')).toBeVisible();
+      expect(within(details).getByText('Latitude: 54°')).toBeVisible();
+      expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
+      expect(within(details).queryByText('A place to rest')).not.toBeInTheDocument();
+
+      await user.selectOptions(selector, 'route-0');
+      expect(screen.getByText('111.2 km')).toBeVisible();
+      expect(screen.getByText('Based on straight lines between route points')).toBeVisible();
+      expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
+
+      await user.selectOptions(selector, 'track-0');
+      expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
+
+      await user.selectOptions(selector, 'waypoint-0');
+      await user.click(screen.getByRole('button', { name: 'Clear file' }));
+      expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    });
+
+    it('automatically displays a lone waypoint with no invented measurements', async () => {
+      const user = userEvent.setup();
+
+      const file = createTestFile('waypointOnly');
+      await user.upload(screen.getByLabelText('GPX file'), file);
+
+      const details = await screen.findByRole('region', { name: 'Waypoint' });
+      expect(within(details).getByText('Unnamed waypoint')).toBeVisible();
+      expect(within(details).getByText('Latitude: 0°')).toBeVisible();
+      expect(within(details).getByText('Longitude: 0°')).toBeVisible();
+      expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
+      expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
     });
   });
 });
