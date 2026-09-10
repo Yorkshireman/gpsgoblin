@@ -1,9 +1,10 @@
 'use client';
 
-import type { Map as MapLibreMapInstance } from 'maplibre-gl';
 import { Box, Heading, Stack, Text, useToken } from '@chakra-ui/react';
 import type { Route, Track } from '@/domain/activityDocument';
 import { useEffect, useRef } from 'react';
+
+import { initialiseRouteMap } from './initialiseRouteMap';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -26,9 +27,6 @@ export const RouteMap = ({ route, track }: RouteMapProps) => {
       block: 'nearest'
     });
 
-    let map: MapLibreMapInstance | undefined;
-    let cancelled = false;
-
     const paths = track
       ? track.segments.map(segment => {
           return {
@@ -43,86 +41,7 @@ export const RouteMap = ({ route, track }: RouteMapProps) => {
           }
         ];
 
-    const initialiseMap = async () => {
-      const { LngLatBounds, Map: MapLibreMap, setWorkerUrl } = await import('maplibre-gl');
-
-      setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
-
-      if (cancelled) return;
-
-      map = new MapLibreMap({
-        attributionControl: false,
-        container: mapContainer,
-        cooperativeGestures: true,
-        style: {
-          version: 8,
-          sources: {},
-          layers: []
-        }
-      });
-
-      map.once('load', () => {
-        map?.addSource('route', {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: paths
-              .filter(path => {
-                return path.samples.length > 1;
-              })
-              .map(path => {
-                return {
-                  type: 'Feature',
-                  properties: {
-                    pathId: path.id
-                  },
-                  geometry: {
-                    type: 'LineString',
-                    coordinates: path.samples.map(sample => {
-                      return [sample.longitudeDegrees, sample.latitudeDegrees];
-                    })
-                  }
-                };
-              })
-          }
-        });
-
-        map?.addLayer({
-          id: 'route',
-          type: 'line',
-          source: 'route',
-          paint: {
-            'line-color': routeColor,
-            'line-opacity': 0.9,
-            'line-width': 4
-          }
-        });
-
-        const bounds = new LngLatBounds();
-
-        for (const path of paths) {
-          for (const sample of path.samples) {
-            bounds.extend([sample.longitudeDegrees, sample.latitudeDegrees]);
-          }
-        }
-
-        if (!bounds.isEmpty()) {
-          map?.fitBounds(bounds, {
-            duration: 0,
-            padding: 32
-          });
-        }
-      });
-
-      return;
-    };
-
-    void initialiseMap();
-
-    return () => {
-      cancelled = true;
-      map?.remove();
-    };
+    return initialiseRouteMap({ container: mapContainer, paths, routeColor });
   }, [route, routeColor, track]);
 
   const itemName = track ? (track.name ?? 'Unnamed track') : (route.name ?? 'Unnamed route');
