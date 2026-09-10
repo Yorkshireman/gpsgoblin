@@ -153,6 +153,71 @@ describe('GPX file viewer', () => {
       expect(within(routeMap).getByText('Evening track')).toBeVisible();
     });
 
+    describe('track segments', () => {
+      it('selects a segment and restores the total without counting gaps', async () => {
+        const user = userEvent.setup();
+
+        await user.upload(screen.getByLabelText('GPX file'), createTestFile('selectableSegments'));
+
+        const selector = await screen.findByRole('combobox', { name: 'Track segment' });
+        expect(selector).toHaveValue('');
+        expect(within(selector).getByRole('option', { name: 'All segments' })).toBeInTheDocument();
+        expect(screen.getByText('333.6 km')).toBeVisible();
+
+        await user.selectOptions(
+          selector,
+          within(selector).getByRole('option', { name: 'Segment 2' })
+        );
+        expect(screen.getByText('222.4 km')).toBeVisible();
+        expect(screen.getByText('Track segment 2 of 3')).toBeVisible();
+
+        await user.selectOptions(
+          selector,
+          within(selector).getByRole('option', { name: 'Segment 3' })
+        );
+        expect(screen.getByText('0.0 km')).toBeVisible();
+        expect(screen.getByText('Track segment 3 of 3')).toBeVisible();
+
+        await user.selectOptions(
+          selector,
+          within(selector).getByRole('option', { name: 'All segments' })
+        );
+        expect(screen.getByText('333.6 km')).toBeVisible();
+        expect(screen.getByText('3 track segments')).toBeVisible();
+      });
+
+      it('resets segment selection when switching tracks or replacing the file', async () => {
+        const user = userEvent.setup();
+        const fileInput = screen.getByLabelText('GPX file');
+
+        await user.upload(fileInput, createTestFile('selectableSegments'));
+
+        const selector = await screen.findByRole('combobox', { name: 'Track segment' });
+        await user.selectOptions(
+          selector,
+          within(selector).getByRole('option', { name: 'Segment 2' })
+        );
+
+        const itemSelector = screen.getByRole('combobox', { name: 'Item to inspect' });
+        await user.selectOptions(itemSelector, 'track-1');
+        expect(screen.queryByRole('combobox', { name: 'Track segment' })).not.toBeInTheDocument();
+
+        await user.selectOptions(itemSelector, 'track-0');
+        expect(screen.getByRole('combobox', { name: 'Track segment' })).toHaveValue('');
+        expect(screen.getByText('333.6 km')).toBeVisible();
+
+        const restoredSelector = screen.getByRole('combobox', { name: 'Track segment' });
+        await user.selectOptions(
+          restoredSelector,
+          within(restoredSelector).getByRole('option', { name: 'Segment 2' })
+        );
+        await user.upload(fileInput, createTestFile('segmentedTrack'));
+        expect(await screen.findByText('Morning route')).toBeVisible();
+        expect(screen.getByRole('combobox', { name: 'Track segment' })).toHaveValue('');
+        expect(screen.getByText('2 track segments')).toBeVisible();
+      });
+    });
+
     it('shows a readable map region with the track segment count', async () => {
       const user = userEvent.setup();
 

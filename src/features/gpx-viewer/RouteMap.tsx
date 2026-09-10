@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Heading, Stack, Text, useToken } from '@chakra-ui/react';
-import type { Route, Track, Waypoint } from '@/domain/activityDocument';
+import type { Route, Track, TrackSegment, Waypoint } from '@/domain/activityDocument';
 import { useEffect, useRef } from 'react';
 
 import { initialiseRouteMap } from './initialiseRouteMap';
@@ -9,11 +9,11 @@ import { initialiseRouteMap } from './initialiseRouteMap';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 type RouteMapProps =
-  | Readonly<{ route?: never; track: Track; waypoint?: never }>
-  | Readonly<{ route: Route; track?: never; waypoint?: never }>
-  | Readonly<{ route?: never; track?: never; waypoint: Waypoint }>;
+  | Readonly<{ route?: never; track: Track; waypoint?: never; segment?: TrackSegment }>
+  | Readonly<{ route: Route; track?: never; waypoint?: never; segment?: never }>
+  | Readonly<{ route?: never; track?: never; waypoint: Waypoint; segment?: never }>;
 
-export const RouteMap = ({ route, track, waypoint }: RouteMapProps) => {
+export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [routeColor] = useToken('colors', 'green.500');
 
@@ -29,7 +29,7 @@ export const RouteMap = ({ route, track, waypoint }: RouteMapProps) => {
     });
 
     const paths = track
-      ? track.segments.map(segment => {
+      ? (segment ? [segment] : track.segments).map(segment => {
           return {
             id: segment.id,
             samples: segment.samples
@@ -45,7 +45,7 @@ export const RouteMap = ({ route, track, waypoint }: RouteMapProps) => {
         : [];
 
     return initialiseRouteMap({ container: mapContainer, paths, routeColor, point: waypoint });
-  }, [route, routeColor, track, waypoint]);
+  }, [route, routeColor, track, waypoint, segment]);
 
   const itemName = track
     ? track.name ?? 'Unnamed track'
@@ -55,15 +55,22 @@ export const RouteMap = ({ route, track, waypoint }: RouteMapProps) => {
 
   const pointOrSegmentCount = track ? track.segments.length : route ? route.points.length : 1;
 
-  const itemDescription = track
-    ? pointOrSegmentCount === 1
-      ? '1 track segment'
-      : `${pointOrSegmentCount} track segments`
-    : route
-      ? pointOrSegmentCount === 1
-        ? '1 route point'
-        : `${pointOrSegmentCount} route points`
-      : '1 waypoint';
+  const selectedSegmentIndex = track?.segments.findIndex(candidate => {
+    return candidate.id === segment?.id;
+  });
+
+  const itemDescription =
+    segment && selectedSegmentIndex !== undefined
+      ? `Track segment ${selectedSegmentIndex + 1} of ${pointOrSegmentCount}`
+      : track
+        ? pointOrSegmentCount === 1
+          ? '1 track segment'
+          : `${pointOrSegmentCount} track segments`
+        : route
+          ? pointOrSegmentCount === 1
+            ? '1 route point'
+            : `${pointOrSegmentCount} route points`
+          : '1 waypoint';
 
   const headingId = waypoint ? 'waypoint-map-heading' : 'route-map-heading';
 

@@ -143,6 +143,33 @@ const fixtures = {
       </gpx>
     `
   },
+  selectableSegments: {
+    name: 'segments.gpx',
+    contents: `
+      <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+        <trk>
+          <name>Segmented walk</name>
+          <trkseg>
+            <trkpt lat="0" lon="0" />
+            <trkpt lat="0" lon="1" />
+          </trkseg>
+          <trkseg>
+            <trkpt lat="0" lon="10" />
+            <trkpt lat="0" lon="12" />
+          </trkseg>
+          <trkseg>
+            <trkpt lat="0" lon="20" />
+          </trkseg>
+        </trk>
+        <trk>
+          <name>Another walk</name>
+          <trkseg>
+            <trkpt lat="0" lon="30" />
+          </trkseg>
+        </trk>
+      </gpx>
+    `
+  },
   segmentedTrack: {
     name: 'route.gpx',
     contents: `

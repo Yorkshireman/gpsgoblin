@@ -10,6 +10,7 @@ import { RouteMap } from '../RouteMap';
 import type { SelectedGpxItem } from '../selectedGpxItem';
 import { GpxItemSelector } from './GpxItemSelector';
 import { WaypointDetails } from './WaypointDetails';
+import { TrackSegmentSelector } from './TrackSegmentSelector';
 
 type GpxDocumentResultsProps = Readonly<{
   document: ImportedGpxDocument;
@@ -47,8 +48,17 @@ export const GpxDocumentResults = ({
         })
       : undefined;
 
+  const selectedSegment =
+    selectedItem?.kind === 'track'
+      ? track?.segments.find(segment => {
+          return segment.id === selectedItem.segmentId;
+        })
+      : undefined;
+
   const distanceMetres = track
-    ? calculateTrackDistanceMetres(track.segments)
+    ? selectedSegment
+      ? calculatePathDistanceMetres(selectedSegment.samples)
+      : calculateTrackDistanceMetres(track.segments)
     : route
       ? calculatePathDistanceMetres(route.points)
       : undefined;
@@ -68,6 +78,15 @@ export const GpxDocumentResults = ({
         selectedItem={selectedItem}
         onItemChange={onItemChange}
       />
+      {track ? (
+        <TrackSegmentSelector
+          track={track}
+          selectedSegmentId={selectedSegment?.id}
+          onSegmentChange={segmentId => {
+            onItemChange({ kind: 'track', id: track.id, segmentId });
+          }}
+        />
+      ) : null}
       {distanceMetres !== undefined ? (
         <Stat.Root>
           <Stat.Label>Calculated distance</Stat.Label>
@@ -79,7 +98,7 @@ export const GpxDocumentResults = ({
           </Stat.HelpText>
         </Stat.Root>
       ) : null}
-      {track ? <RouteMap track={track} /> : null}
+      {track ? <RouteMap track={track} segment={selectedSegment} /> : null}
       {route ? (
         <Stack as='section' aria-labelledby='planned-route-heading' gap={3}>
           <Heading as='h3' id='planned-route-heading' size='lg'>
