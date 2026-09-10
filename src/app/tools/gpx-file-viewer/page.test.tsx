@@ -340,6 +340,107 @@ describe('GPX file viewer', () => {
     expect(within(routeMap).getByText('Evening track')).toBeVisible();
   });
 
+  it('lets the user select a planned route to inspect', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+          <rte>
+            <name>Hill route</name>
+            <rtept lat="0" lon="0" />
+            <rtept lat="0" lon="1" />
+          </rte>
+          <trk>
+            <name>Morning track</name>
+            <trkseg>
+              <trkpt lat="53.1" lon="-1.2" />
+            </trkseg>
+          </trk>
+        </gpx>
+      `
+      ],
+      'track-and-route.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    const selector = await screen.findByRole('combobox', {
+      name: 'Item to inspect'
+    });
+
+    expect(within(selector).getByRole('option', { name: /Morning track/ })).toBeInTheDocument();
+    const routeOption = within(selector).getByRole('option', {
+      name: /Hill route/
+    });
+
+    await user.selectOptions(selector, routeOption);
+
+    const routeDetails = screen.getByRole('region', {
+      name: 'Planned route'
+    });
+
+    expect(within(routeDetails).getByText('Hill route')).toBeVisible();
+    expect(within(routeDetails).getByText('2 route points')).toBeVisible();
+    expect(screen.getByText('111.2 km')).toBeVisible();
+    expect(
+      screen.getByText('Based on straight lines between route points')
+    ).toBeVisible();
+    expect(
+      screen.queryByText('Based on the recorded GPS points')
+    ).not.toBeInTheDocument();
+  });
+
+  it('automatically displays a file containing only a planned route', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `
+          <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+            <rte>
+              <name>Equator route</name>
+              <rtept lat="0" lon="0" />
+              <rtept lat="0" lon="1" />
+            </rte>
+          </gpx>
+        `
+      ],
+      'route-only.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    const routeDetails = await screen.findByRole('region', {
+      name: 'Planned route'
+    });
+
+    expect(within(routeDetails).getByText('Equator route')).toBeVisible();
+    expect(within(routeDetails).getByText('2 route points')).toBeVisible();
+    expect(screen.getByText('111.2 km')).toBeVisible();
+    expect(
+      screen.getByText('Based on straight lines between route points')
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('combobox', { name: 'Item to inspect' })
+    ).not.toBeInTheDocument();
+  });
+
   describe('map region', () => {
     it('shows a readable route map region after selecting a valid GPX file', async () => {
       const user = userEvent.setup();

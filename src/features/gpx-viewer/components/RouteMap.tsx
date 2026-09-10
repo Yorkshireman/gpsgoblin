@@ -2,17 +2,16 @@
 
 import type { Map as MapLibreMapInstance } from 'maplibre-gl';
 import { Box, Heading, Stack, Text, useToken } from '@chakra-ui/react';
+import type { Route, Track } from '@/domain/activityDocument';
 import { useEffect, useRef } from 'react';
-
-import type { Track } from '@/domain/activityDocument';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-type RouteMapProps = Readonly<{
-  track: Track;
-}>;
+type RouteMapProps =
+  | Readonly<{ route?: never; track: Track }>
+  | Readonly<{ route: Route; track?: never }>;
 
-export const RouteMap = ({ track }: RouteMapProps) => {
+export const RouteMap = ({ route, track }: RouteMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [routeColor] = useToken('colors', 'green.500');
 
@@ -29,6 +28,20 @@ export const RouteMap = ({ track }: RouteMapProps) => {
 
     let map: MapLibreMapInstance | undefined;
     let cancelled = false;
+
+    const paths = track
+      ? track.segments.map(segment => {
+          return {
+            id: segment.id,
+            samples: segment.samples
+          };
+        })
+      : [
+          {
+            id: route.id,
+            samples: route.points
+          }
+        ];
 
     const initialiseMap = async () => {
       const { LngLatBounds, Map: MapLibreMap, setWorkerUrl } = await import('maplibre-gl');
@@ -53,19 +66,19 @@ export const RouteMap = ({ track }: RouteMapProps) => {
           type: 'geojson',
           data: {
             type: 'FeatureCollection',
-            features: track.segments
-              .filter(segment => {
-                return segment.samples.length > 1;
+            features: paths
+              .filter(path => {
+                return path.samples.length > 1;
               })
-              .map(segment => {
+              .map(path => {
                 return {
                   type: 'Feature',
                   properties: {
-                    segmentId: segment.id
+                    pathId: path.id
                   },
                   geometry: {
                     type: 'LineString',
-                    coordinates: segment.samples.map(sample => {
+                    coordinates: path.samples.map(sample => {
                       return [sample.longitudeDegrees, sample.latitudeDegrees];
                     })
                   }
@@ -87,8 +100,8 @@ export const RouteMap = ({ track }: RouteMapProps) => {
 
         const bounds = new LngLatBounds();
 
-        for (const segment of track.segments) {
-          for (const sample of segment.samples) {
+        for (const path of paths) {
+          for (const sample of path.samples) {
             bounds.extend([sample.longitudeDegrees, sample.latitudeDegrees]);
           }
         }
@@ -110,11 +123,19 @@ export const RouteMap = ({ track }: RouteMapProps) => {
       cancelled = true;
       map?.remove();
     };
-  }, [routeColor, track]);
+  }, [route, routeColor, track]);
 
-  const segmentCount = track.segments.length;
-  const segmentDescription =
-    segmentCount === 1 ? '1 track segment' : `${segmentCount} track segments`;
+  const itemName = track ? (track.name ?? 'Unnamed track') : (route.name ?? 'Unnamed route');
+
+  const pointOrSegmentCount = track ? track.segments.length : route.points.length;
+
+  const itemDescription = track
+    ? pointOrSegmentCount === 1
+      ? '1 track segment'
+      : `${pointOrSegmentCount} track segments`
+    : pointOrSegmentCount === 1
+      ? '1 route point'
+      : `${pointOrSegmentCount} route points`;
 
   return (
     <Box as='section' aria-labelledby='route-map-heading' width='full'>
@@ -123,9 +144,9 @@ export const RouteMap = ({ track }: RouteMapProps) => {
           <Heading as='h3' id='route-map-heading' size='lg'>
             Route map
           </Heading>
-          <Text fontWeight='medium'>{track.name ?? 'Unnamed track'}</Text>
+          <Text fontWeight='medium'>{itemName ?? 'Unnamed track'}</Text>
           <Text color='fg.muted' fontSize='sm'>
-            {segmentDescription}
+            {itemDescription}
           </Text>
         </Stack>
 

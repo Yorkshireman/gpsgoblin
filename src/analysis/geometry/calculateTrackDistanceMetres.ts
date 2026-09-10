@@ -27,21 +27,25 @@ const calculateSampleDistanceMetres = (
   return EARTH_MEAN_RADIUS_METRES * angularDistance;
 };
 
-export const calculateTrackDistanceMetres = (segments: readonly TrackSegment[]) => {
+export const calculatePathDistanceMetres = (samples: readonly GeographicSample[]) => {
   let distanceMetres = 0;
 
-  for (const segment of segments) {
-    for (let sampleIndex = 1; sampleIndex < segment.samples.length; sampleIndex += 1) {
-      const firstSample = segment.samples[sampleIndex - 1];
-      const secondSample = segment.samples[sampleIndex];
+  for (let index = 1; index < samples.length; index += 1) {
+    const firstSample = samples[index - 1];
+    const secondSample = samples[index];
 
-      if (!firstSample || !secondSample) {
-        continue;
-      }
-
-      distanceMetres += calculateSampleDistanceMetres(firstSample, secondSample);
+    if (!firstSample || !secondSample) {
+      continue;
     }
+
+    distanceMetres += calculateSampleDistanceMetres(firstSample, secondSample);
   }
 
   return distanceMetres;
+};
+
+export const calculateTrackDistanceMetres = (segments: readonly TrackSegment[]) => {
+  return segments.reduce((total, segment) => {
+    return total + calculatePathDistanceMetres(segment.samples);
+  }, 0);
 };

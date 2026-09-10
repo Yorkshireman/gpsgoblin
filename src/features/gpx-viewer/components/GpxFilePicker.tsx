@@ -1,6 +1,5 @@
 'use client';
 
-import { calculateTrackDistanceMetres } from '@/analysis/geometry/calculateTrackDistanceMetres';
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
 import { parseGpx } from '@/parsers/gpx';
 import { RouteMap } from './RouteMap';
@@ -10,12 +9,23 @@ import {
   Button,
   Field,
   FileUpload,
+  Heading,
   NativeSelect,
   Spinner,
   Stack,
   Stat,
   Text
 } from '@chakra-ui/react';
+
+import {
+  calculatePathDistanceMetres,
+  calculateTrackDistanceMetres
+} from '@/analysis/geometry/calculateTrackDistanceMetres';
+
+type SelectedItem = Readonly<{
+  kind: 'track' | 'route';
+  id: string;
+}>;
 
 const formatDistance = (distanceMetres: number) => {
   return `${(distanceMetres / 1000).toFixed(1)} km`;
@@ -41,7 +51,7 @@ export const GpxFilePicker = () => {
   const [error, setError] = useState<string>();
   const [document, setDocument] = useState<ImportedGpxDocument>();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedTrackId, setSelectedTrackId] = useState<string>();
+  const [selectedItem, setSelectedItem] = useState<SelectedItem>();
 
   const handleFileAccept = async (details: FileUpload.FileAcceptDetails) => {
     const file = details.files[0];
@@ -63,7 +73,17 @@ export const GpxFilePicker = () => {
       }
 
       setDocument(result.document);
-      setSelectedTrackId(result.document.tracks[0]?.id);
+
+      const firstTrack = result.document.tracks[0];
+      const firstRoute = result.document.routes[0];
+
+      if (firstTrack) {
+        setSelectedItem({ kind: 'track', id: firstTrack.id });
+      } else if (firstRoute) {
+        setSelectedItem({ kind: 'route', id: firstRoute.id });
+      } else {
+        setSelectedItem(undefined);
+      }
     } catch {
       setError('The file could not be read.');
     } finally {
@@ -77,7 +97,7 @@ export const GpxFilePicker = () => {
     }
 
     setDocument(undefined);
-    setSelectedTrackId(undefined);
+    setSelectedItem(undefined);
     setError(undefined);
   };
 
@@ -85,11 +105,25 @@ export const GpxFilePicker = () => {
     setError('Choose a file with a .gpx filename.');
   };
 
-  const track = document?.tracks.find(candidate => {
-    return candidate.id === selectedTrackId;
-  });
+  const track =
+    selectedItem?.kind === 'track'
+      ? document?.tracks.find(candidate => {
+          return candidate.id === selectedItem.id;
+        })
+      : undefined;
 
-  const distanceMetres = calculateTrackDistanceMetres(track?.segments ?? []);
+  const route =
+    selectedItem?.kind === 'route'
+      ? document?.routes.find(candidate => {
+          return candidate.id === selectedItem.id;
+        })
+      : undefined;
+
+  const distanceMetres = track
+    ? calculateTrackDistanceMetres(track.segments)
+    : route
+      ? calculatePathDistanceMetres(route.points)
+      : undefined;
 
   return (
     <FileUpload.Root
@@ -148,35 +182,64 @@ export const GpxFilePicker = () => {
               <Alert.Title>Your GPX file is ready</Alert.Title>
             </Alert.Content>
           </Alert.Root>
-          {document.tracks.length > 1 ? (
+          {document.tracks.length + document.routes.length > 1 ? (
             <Field.Root>
               <Field.Label>Item to inspect</Field.Label>
               <NativeSelect.Root>
                 <NativeSelect.Field
+                  value={selectedItem?.id ?? ''}
                   onChange={event => {
-                    setSelectedTrackId(event.currentTarget.value);
+                    const id = event.currentTarget.value;
+                    const isTrack = document.tracks.some(candidate => {
+                      return candidate.id === id;
+                    });
+
+                    setSelectedItem({
+                      kind: isTrack ? 'track' : 'route',
+                      id
+                    });
                   }}
-                  value={selectedTrackId}
                 >
                   {document.tracks.map((candidate, index) => {
                     return (
                       <option key={candidate.id} value={candidate.id}>
-                        {candidate.name ?? `Unnamed track ${index + 1}`}
+                        Track: {candidate.name ?? `Unnamed track ${index + 1}`}
+                      </option>
+                    );
+                  })}
+                  {document.routes.map((candidate, index) => {
+                    return (
+                      <option key={candidate.id} value={candidate.id}>
+                        Route: {candidate.name ?? `Unnamed route ${index + 1}`}
                       </option>
                     );
                   })}
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
               </NativeSelect.Root>
-              <Field.HelperText>Choose which recorded track to display.</Field.HelperText>
+              <Field.HelperText>Choose which track or route to display.</Field.HelperText>
             </Field.Root>
           ) : null}
-          <Stat.Root>
-            <Stat.Label>Calculated distance</Stat.Label>
-            <Stat.ValueText>{formatDistance(distanceMetres)}</Stat.ValueText>
-            <Stat.HelpText>Based on the recorded GPS points</Stat.HelpText>
-          </Stat.Root>
+          {distanceMetres !== undefined ? (
+            <Stat.Root>
+              <Stat.Label>Calculated distance</Stat.Label>
+              <Stat.ValueText>{formatDistance(distanceMetres)}</Stat.ValueText>
+              <Stat.HelpText>
+                {track
+                  ? 'Based on the recorded GPS points'
+                  : 'Based on straight lines between route points'}
+              </Stat.HelpText>
+            </Stat.Root>
+          ) : null}
           {track ? <RouteMap track={track} /> : null}
+          {route ? (
+            <Stack as='section' aria-labelledby='planned-route-heading' gap={3}>
+              <Heading as='h3' id='planned-route-heading' size='lg'>
+                Planned route
+              </Heading>
+              <RouteMap route={route} />
+            </Stack>
+          ) : null}
         </Stack>
       ) : null}
       {error ? (
