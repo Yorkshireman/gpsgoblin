@@ -441,6 +441,95 @@ describe('GPX file viewer', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('selects waypoints independently and restores track and route results', async () => {
+    const user = userEvent.setup();
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+        <wpt lat="53.1" lon="-1.2">
+          <ele>0</ele><name>Summit</name><desc>A place to rest</desc>
+        </wpt>
+        <wpt lat="54" lon="-2" />
+        <rte><name>Planned walk</name><rtept lat="0" lon="0" /><rtept lat="0" lon="1" /></rte>
+        <trk><name>Recorded walk</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk>
+        </gpx>`
+      ],
+      'mixed.gpx',
+      { type: 'application/gpx+xml' }
+    );
+
+    await user.upload(screen.getByLabelText('GPX file'), file);
+    const selector = await screen.findByRole('combobox', { name: 'Item to inspect' });
+    expect(selector).toHaveValue('track-0');
+    await user.selectOptions(
+      selector,
+      within(selector).getByRole('option', { name: 'Waypoint: Summit' })
+    );
+
+    const details = screen.getByRole('region', { name: 'Waypoint' });
+    expect(within(details).getByText('Summit')).toBeVisible();
+    expect(within(details).getByText('A place to rest')).toBeVisible();
+    expect(within(details).getByText('Latitude: 53.1°')).toBeVisible();
+    expect(within(details).getByText('Longitude: -1.2°')).toBeVisible();
+    expect(within(details).getByText('Elevation: 0 m')).toBeVisible();
+    expect(within(details).getByRole('region', { name: 'Waypoint map' })).toBeVisible();
+    expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
+
+    await user.selectOptions(
+      selector,
+      within(selector).getByRole('option', { name: 'Waypoint: Unnamed waypoint 2' })
+    );
+    expect(within(details).getByText('Unnamed waypoint')).toBeVisible();
+    expect(within(details).getByText('Latitude: 54°')).toBeVisible();
+    expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
+    expect(within(details).queryByText('A place to rest')).not.toBeInTheDocument();
+
+    await user.selectOptions(selector, 'route-0');
+    expect(screen.getByText('111.2 km')).toBeVisible();
+    expect(screen.getByText('Based on straight lines between route points')).toBeVisible();
+    expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
+
+    await user.selectOptions(selector, 'track-0');
+    expect(screen.getByText('Based on the recorded GPS points')).toBeVisible();
+
+    await user.selectOptions(selector, 'waypoint-0');
+    await user.click(screen.getByRole('button', { name: 'Clear file' }));
+    expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
+
+  it('automatically displays a lone waypoint with no invented measurements', async () => {
+    const user = userEvent.setup();
+    render(
+      <ChakraProvider value={defaultSystem}>
+        <GpxFileViewerPage />
+      </ChakraProvider>
+    );
+
+    const file = new File(
+      [
+        '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><wpt lat="0" lon="0" /></gpx>'
+      ],
+      'waypoint.gpx',
+      { type: 'application/gpx+xml' }
+    );
+    await user.upload(screen.getByLabelText('GPX file'), file);
+
+    const details = await screen.findByRole('region', { name: 'Waypoint' });
+    expect(within(details).getByText('Unnamed waypoint')).toBeVisible();
+    expect(within(details).getByText('Latitude: 0°')).toBeVisible();
+    expect(within(details).getByText('Longitude: 0°')).toBeVisible();
+    expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
+
   describe('map region', () => {
     it('shows a readable route map region after selecting a valid GPX file', async () => {
       const user = userEvent.setup();

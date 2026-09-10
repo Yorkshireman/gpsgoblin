@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Heading, Stack, Text, useToken } from '@chakra-ui/react';
-import type { Route, Track } from '@/domain/activityDocument';
+import type { Route, Track, Waypoint } from '@/domain/activityDocument';
 import { useEffect, useRef } from 'react';
 
 import { initialiseRouteMap } from './initialiseRouteMap';
@@ -9,10 +9,11 @@ import { initialiseRouteMap } from './initialiseRouteMap';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 type RouteMapProps =
-  | Readonly<{ route?: never; track: Track }>
-  | Readonly<{ route: Route; track?: never }>;
+  | Readonly<{ route?: never; track: Track; waypoint?: never }>
+  | Readonly<{ route: Route; track?: never; waypoint?: never }>
+  | Readonly<{ route?: never; track?: never; waypoint: Waypoint }>;
 
-export const RouteMap = ({ route, track }: RouteMapProps) => {
+export const RouteMap = ({ route, track, waypoint }: RouteMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [routeColor] = useToken('colors', 'green.500');
 
@@ -34,36 +35,46 @@ export const RouteMap = ({ route, track }: RouteMapProps) => {
             samples: segment.samples
           };
         })
-      : [
-          {
-            id: route.id,
-            samples: route.points
-          }
-        ];
+      : route
+        ? [
+            {
+              id: route.id,
+              samples: route.points
+            }
+          ]
+        : [];
 
-    return initialiseRouteMap({ container: mapContainer, paths, routeColor });
-  }, [route, routeColor, track]);
+    return initialiseRouteMap({ container: mapContainer, paths, routeColor, point: waypoint });
+  }, [route, routeColor, track, waypoint]);
 
-  const itemName = track ? (track.name ?? 'Unnamed track') : (route.name ?? 'Unnamed route');
+  const itemName = track
+    ? track.name ?? 'Unnamed track'
+    : route
+      ? route.name ?? 'Unnamed route'
+      : waypoint.name ?? 'Unnamed waypoint';
 
-  const pointOrSegmentCount = track ? track.segments.length : route.points.length;
+  const pointOrSegmentCount = track ? track.segments.length : route ? route.points.length : 1;
 
   const itemDescription = track
     ? pointOrSegmentCount === 1
       ? '1 track segment'
       : `${pointOrSegmentCount} track segments`
-    : pointOrSegmentCount === 1
-      ? '1 route point'
-      : `${pointOrSegmentCount} route points`;
+    : route
+      ? pointOrSegmentCount === 1
+        ? '1 route point'
+        : `${pointOrSegmentCount} route points`
+      : '1 waypoint';
+
+  const headingId = waypoint ? 'waypoint-map-heading' : 'route-map-heading';
 
   return (
-    <Box as='section' aria-labelledby='route-map-heading' width='full'>
+    <Box as='section' aria-labelledby={headingId} width='full'>
       <Stack gap={3}>
         <Stack gap={1}>
-          <Heading as='h3' id='route-map-heading' size='lg'>
-            Route map
+          <Heading as={track ? 'h3' : 'h4'} id={headingId} size='lg'>
+            {waypoint ? 'Waypoint map' : 'Route map'}
           </Heading>
-          <Text fontWeight='medium'>{itemName ?? 'Unnamed track'}</Text>
+          <Text fontWeight='medium'>{itemName}</Text>
           <Text color='fg.muted' fontSize='sm'>
             {itemDescription}
           </Text>

@@ -7,6 +7,7 @@ const mockMap = {
   addLayer: jest.fn(),
   addSource: jest.fn(),
   fitBounds: jest.fn(),
+  jumpTo: jest.fn(),
   once: jest.fn<void, [string, () => void]>(),
   remove: jest.fn()
 };
@@ -135,6 +136,42 @@ describe('initialiseRouteMap', () => {
       [[-5, 57]]
     ]);
     expect(mockMap.fitBounds).toHaveBeenCalledWith(mockBounds, { duration: 0, padding: 32 });
+
+    dispose();
+    expect(mockMap.remove).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders a waypoint as a centred point without drawing a line', async () => {
+    const dispose = initialiseRouteMap({
+      container: document.createElement('div'),
+      routeColor: '#22c55e',
+      paths: [],
+      point: { id: 'waypoint-0', longitudeDegrees: -1.2, latitudeDegrees: 53.1 }
+    });
+
+    await waitFor(() => {
+      expect(MapLibreMap).toHaveBeenCalledTimes(1);
+    });
+    emitMapLoad();
+
+    expect(mockMap.addSource).toHaveBeenCalledTimes(1);
+    expect(mockMap.addSource).toHaveBeenCalledWith('waypoint', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: { waypointId: 'waypoint-0' },
+        geometry: { type: 'Point', coordinates: [-1.2, 53.1] }
+      }
+    });
+    expect(mockMap.addLayer).toHaveBeenCalledTimes(1);
+    expect(mockMap.addLayer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: 'waypoint',
+        type: 'circle'
+      })
+    );
+    expect(mockMap.jumpTo).toHaveBeenCalledWith({ center: [-1.2, 53.1], zoom: 14 });
+    expect(mockMap.fitBounds).not.toHaveBeenCalled();
 
     dispose();
     expect(mockMap.remove).toHaveBeenCalledTimes(1);

@@ -55,11 +55,14 @@ export const GpxFilePicker = () => {
 
       const firstTrack = result.document.tracks[0];
       const firstRoute = result.document.routes[0];
+      const firstWaypoint = result.document.waypoints[0];
 
       if (firstTrack) {
         setSelectedItem({ kind: 'track', id: firstTrack.id });
       } else if (firstRoute) {
         setSelectedItem({ kind: 'route', id: firstRoute.id });
+      } else if (firstWaypoint) {
+        setSelectedItem({ kind: 'waypoint', id: firstWaypoint.id });
       } else {
         setSelectedItem(undefined);
       }

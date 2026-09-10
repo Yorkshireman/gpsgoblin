@@ -10,12 +10,14 @@ type InitialiseRouteMapOptions = Readonly<{
   container: HTMLDivElement;
   paths: readonly MapPath[];
   routeColor: string;
+  point?: GeographicSample;
 }>;
 
 export const initialiseRouteMap = ({
   container,
   paths,
-  routeColor
+  routeColor,
+  point
 }: InitialiseRouteMapOptions) => {
   let map: MapLibreMapInstance | undefined;
   let cancelled = false;
@@ -44,6 +46,38 @@ export const initialiseRouteMap = ({
 
     loadedMap.once('load', () => {
       if (cancelled) {
+        return;
+      }
+
+      if (point) {
+        loadedMap.addSource('waypoint', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: { waypointId: point.id },
+            geometry: {
+              type: 'Point',
+              coordinates: [point.longitudeDegrees, point.latitudeDegrees]
+            }
+          }
+        });
+
+        loadedMap.addLayer({
+          id: 'waypoint',
+          type: 'circle',
+          source: 'waypoint',
+          paint: {
+            'circle-color': routeColor,
+            'circle-radius': 7,
+            'circle-stroke-color': '#ffffff',
+            'circle-stroke-width': 2
+          }
+        });
+
+        loadedMap.jumpTo({
+          center: [point.longitudeDegrees, point.latitudeDegrees],
+          zoom: 14
+        });
         return;
       }
 

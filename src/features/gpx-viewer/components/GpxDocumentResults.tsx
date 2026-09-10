@@ -9,6 +9,7 @@ import type { ImportedGpxDocument } from '@/domain/activityDocument';
 import { RouteMap } from '../RouteMap';
 import type { SelectedGpxItem } from '../selectedGpxItem';
 import { GpxItemSelector } from './GpxItemSelector';
+import { WaypointDetails } from './WaypointDetails';
 
 type GpxDocumentResultsProps = Readonly<{
   document: ImportedGpxDocument;
@@ -39,6 +40,13 @@ export const GpxDocumentResults = ({
         })
       : undefined;
 
+  const waypoint =
+    selectedItem?.kind === 'waypoint'
+      ? document.waypoints.find(candidate => {
+          return candidate.id === selectedItem.id;
+        })
+      : undefined;
+
   const distanceMetres = track
     ? calculateTrackDistanceMetres(track.segments)
     : route
@@ -56,6 +64,7 @@ export const GpxDocumentResults = ({
       <GpxItemSelector
         tracks={document.tracks}
         routes={document.routes}
+        waypoints={document.waypoints}
         selectedItem={selectedItem}
         onItemChange={onItemChange}
       />
@@ -79,6 +88,7 @@ export const GpxDocumentResults = ({
           <RouteMap route={route} />
         </Stack>
       ) : null}
+      {waypoint ? <WaypointDetails waypoint={waypoint} /> : null}
     </Stack>
   );
 };
