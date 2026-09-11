@@ -67,7 +67,7 @@ describe('RouteMap segment selection', () => {
   });
 
   it('warns about short segments while retaining drawable segments', () => {
-    jest.mocked(initialiseRouteMap).mockReturnValue(jest.fn());
+    jest.mocked(initialiseRouteMap).mockReturnValue({ dispose: jest.fn(), selectPoint: jest.fn() });
     render(
       <ChakraProvider value={defaultSystem}>
         <RouteMap track={{ ...track, segments: [firstSegment, { id: 'empty', samples: [] }] }} />
@@ -80,7 +80,7 @@ describe('RouteMap segment selection', () => {
   it('keeps the item summary visible on failure and clears the warning for a new selection', () => {
     jest.mocked(initialiseRouteMap).mockImplementationOnce(({ onStatusChange }) => {
       onStatusChange?.('failed');
-      return jest.fn();
+      return { dispose: jest.fn(), selectPoint: jest.fn() };
     });
     const { rerender } = render(
       <ChakraProvider value={defaultSystem}>
@@ -94,7 +94,7 @@ describe('RouteMap segment selection', () => {
     jest.mocked(initialiseRouteMap).mockImplementationOnce(({ onStatusChange }) => {
       onStatusChange?.('loading');
       onStatusChange?.('ready');
-      return jest.fn();
+      return { dispose: jest.fn(), selectPoint: jest.fn() };
     });
     rerender(
       <ChakraProvider value={defaultSystem}>
@@ -109,7 +109,8 @@ describe('RouteMap segment selection', () => {
     const originalWebGl = Object.getOwnPropertyDescriptor(globalThis, 'WebGLRenderingContext');
     const originalScroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
     const dispose = jest.fn();
-    jest.mocked(initialiseRouteMap).mockReturnValue(dispose);
+    const controller = { dispose, selectPoint: jest.fn() };
+    jest.mocked(initialiseRouteMap).mockReturnValue(controller);
 
     // Exercise the effect without a real canvas; rendering is delegated to the mocked initializer.
     Object.defineProperty(globalThis, 'WebGLRenderingContext', {

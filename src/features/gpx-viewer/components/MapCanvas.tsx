@@ -9,11 +9,13 @@ import type { MapPath, MapStatus } from '../initialiseRouteMap';
 type MapCanvasProps = Readonly<{
   paths: readonly MapPath[];
   point?: GeographicSample;
+  selectedPoint?: GeographicSample;
   routeColor: string;
 }>;
 
-export const MapCanvas = ({ paths, point, routeColor }: MapCanvasProps) => {
+export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<ReturnType<typeof initialiseRouteMap> | null>(null);
   const [status, setStatus] = useState<MapStatus>('loading');
 
   useEffect(() => {
@@ -22,14 +24,23 @@ export const MapCanvas = ({ paths, point, routeColor }: MapCanvasProps) => {
       return;
     }
 
-    return initialiseRouteMap({
+    const controller = initialiseRouteMap({
       container,
       paths,
       point,
       routeColor,
       onStatusChange: setStatus
     });
+    mapRef.current = controller;
+    return () => {
+      mapRef.current = null;
+      controller.dispose();
+    };
   }, [paths, point, routeColor]);
+
+  useEffect(() => {
+    mapRef.current?.selectPoint(selectedPoint);
+  }, [paths, point, routeColor, selectedPoint]);
 
   const failure =
     status === 'unsupported'

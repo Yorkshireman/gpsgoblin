@@ -4,10 +4,10 @@ import { Provider } from '@/components/ui/provider';
 export const metadata: Metadata = {
   title: 'GPSGoblin',
   description:
-    'Open GPX files locally to inspect routes, track segments and calculated distance—free and entirely in your browser.'
+    'Open GPX files locally to inspect routes, elevation and available timing with metric or imperial units.'
 };
 
-export default function RootLayout({ children }: LayoutProps<'/'>) {
+const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
     <html lang='en' suppressHydrationWarning>
       <body>
@@ -15,4 +15,6 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

@@ -1,11 +1,61 @@
 import userEvent from '@testing-library/user-event';
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import GpxFileViewerPage from './page';
 import { createTestFile } from './pageTestFixtures';
 
 describe('GPX file viewer', () => {
+  it('offers imperial elevation for a waypoint-only file', async () => {
+    const user = userEvent.setup();
+    await user.upload(
+      screen.getByLabelText('GPX file'),
+      new File(
+        [
+          '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><wpt lat="0" lon="0"><ele>100</ele></wpt></gpx>'
+        ],
+        'waypoint.gpx',
+        { type: 'application/gpx+xml' }
+      )
+    );
+    await user.selectOptions(
+      await screen.findByRole('combobox', { name: 'Display units' }),
+      'imperial'
+    );
+    expect(screen.getByText('Elevation: 328.1 ft')).toBeVisible();
+  });
+
+  it('shows measurements, changes units and lets a keyboard-accessible point selector inspect source values', async () => {
+    const user = userEvent.setup();
+    await user.upload(
+      screen.getByLabelText('GPX file'),
+      new File(
+        [
+          `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>
+      <trkpt lat="0" lon="0"><ele>0</ele><time>2026-09-11T12:00:00Z</time></trkpt>
+      <trkpt lat="0" lon="0.01"><ele>100</ele><time>2026-09-11T12:01:00Z</time></trkpt>
+      </trkseg></trk></gpx>`
+        ],
+        'measurements.gpx',
+        { type: 'application/gpx+xml' }
+      )
+    );
+    expect(await screen.findByRole('heading', { name: 'Elevation profile' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Interval speed' })).toBeVisible();
+    expect(screen.getByText('60.0 s')).toBeVisible();
+    fireEvent.change(screen.getByRole('slider', { name: 'Inspect point' }), {
+      target: { value: '1' }
+    });
+    const selection = screen.getByRole('region', { name: 'Selected measurement' });
+    expect(within(selection).getByText('100.0 m')).toBeVisible();
+    expect(within(selection).getByText('2026-09-11T12:01:00Z')).toBeVisible();
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Display units' }), 'imperial');
+    expect(within(selection).getByText('328.1 ft')).toBeVisible();
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Speed or pace' }), 'pace');
+    expect(screen.getByRole('heading', { name: 'Interval pace' })).toBeVisible();
+    expect(within(selection).getByText(/min\/mi/)).toBeVisible();
+  });
+
   beforeEach(() => {
     render(
       <ChakraProvider value={defaultSystem}>
@@ -69,11 +119,17 @@ describe('GPX file viewer', () => {
       await user.upload(screen.getByLabelText('GPX file'), file);
       const selector = await screen.findByRole('combobox', { name: 'Track segment' });
 
-      await user.selectOptions(selector, within(selector).getByRole('option', { name: 'Segment 3' }));
+      await user.selectOptions(
+        selector,
+        within(selector).getByRole('option', { name: 'Segment 3' })
+      );
       expect(screen.getByText('No line to display')).toBeVisible();
       expect(screen.getByText('0.0 km')).toBeVisible();
 
-      await user.selectOptions(selector, within(selector).getByRole('option', { name: 'Segment 2' }));
+      await user.selectOptions(
+        selector,
+        within(selector).getByRole('option', { name: 'Segment 2' })
+      );
       expect(screen.queryByText('No line to display')).not.toBeInTheDocument();
       expect(screen.getByText('222.4 km')).toBeVisible();
     });
@@ -92,7 +148,10 @@ describe('GPX file viewer', () => {
       expect(within(details).getByText('<strong>Original file notes</strong>')).toBeVisible();
       expect(details.querySelector('strong')).toBeNull();
 
-      await user.selectOptions(screen.getByRole('combobox', { name: 'Item to inspect' }), 'route-0');
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: 'Item to inspect' }),
+        'route-0'
+      );
 
       expect(within(details).getByText('Weekend walk')).toBeVisible();
       expect(within(details).getByText('GPSGoblin test exporter')).toBeVisible();
@@ -351,12 +410,8 @@ describe('GPX file viewer', () => {
       expect(within(routeDetails).getByText('Hill route')).toBeVisible();
       expect(within(routeDetails).getByText('2 route points')).toBeVisible();
       expect(screen.getByText('111.2 km')).toBeVisible();
-      expect(
-        screen.getByText('Based on straight lines between route points')
-      ).toBeVisible();
-      expect(
-        screen.queryByText('Based on the recorded GPS points')
-      ).not.toBeInTheDocument();
+      expect(screen.getByText('Based on straight lines between route points')).toBeVisible();
+      expect(screen.queryByText('Based on the recorded GPS points')).not.toBeInTheDocument();
     });
 
     it('automatically displays the only route without a selector', async () => {
@@ -373,12 +428,8 @@ describe('GPX file viewer', () => {
       expect(within(routeDetails).getByText('Equator route')).toBeVisible();
       expect(within(routeDetails).getByText('2 route points')).toBeVisible();
       expect(screen.getByText('111.2 km')).toBeVisible();
-      expect(
-        screen.getByText('Based on straight lines between route points')
-      ).toBeVisible();
-      expect(
-        screen.queryByRole('combobox', { name: 'Item to inspect' })
-      ).not.toBeInTheDocument();
+      expect(screen.getByText('Based on straight lines between route points')).toBeVisible();
+      expect(screen.queryByRole('combobox', { name: 'Item to inspect' })).not.toBeInTheDocument();
     });
   });
 

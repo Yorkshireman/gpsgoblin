@@ -1,4 +1,4 @@
-import type { Map as MapLibreMapInstance } from 'maplibre-gl';
+import type { Map as MapLibreMapInstance, Marker as MapLibreMarker } from 'maplibre-gl';
 import type { GeographicSample } from '@/domain/activityDocument';
 
 export type MapPath = Readonly<{
@@ -26,17 +26,49 @@ export const initialiseRouteMap = ({
   let map: MapLibreMapInstance | undefined;
   let cancelled = false;
   let failed = false;
+  let selectedPoint: GeographicSample | undefined;
+  let marker: MapLibreMarker | undefined;
+  let mapModule: typeof import('maplibre-gl') | undefined;
+  let ready = false;
 
   const removeMap = () => {
     const currentMap = map;
     map = undefined;
+    marker?.remove();
+    marker = undefined;
     currentMap?.remove();
+  };
+
+  const renderSelection = () => {
+    marker?.remove();
+    marker = undefined;
+    if (cancelled || failed || !ready || !map || !mapModule || !selectedPoint) {
+      return;
+    }
+    const element = document.createElement('div');
+    element.setAttribute('role', 'img');
+    element.setAttribute(
+      'aria-label',
+      `Selected map position: ${selectedPoint.latitudeDegrees}, ${selectedPoint.longitudeDegrees}`
+    );
+    element.style.cssText = `width:18px;height:18px;border-radius:50%;background:${routeColor};border:3px solid white;box-shadow:0 0 0 2px black;`;
+    marker = new mapModule.Marker({ element })
+      .setLngLat([selectedPoint.longitudeDegrees, selectedPoint.latitudeDegrees])
+      .addTo(map);
+    return;
   };
 
   const dispose = () => {
     cancelled = true;
     removeMap();
+    return;
   };
+  const selectPoint = (point: GeographicSample | undefined) => {
+    selectedPoint = point;
+    renderSelection();
+    return;
+  };
+  const controller = { dispose, selectPoint };
 
   const reportFailure = () => {
     if (cancelled || failed) {
@@ -50,13 +82,12 @@ export const initialiseRouteMap = ({
   onStatusChange?.('loading');
   if (typeof WebGLRenderingContext === 'undefined') {
     onStatusChange?.('unsupported');
-    return dispose;
+    return controller;
   }
 
-  container.scrollIntoView({ block: 'nearest' });
-
   const loadMap = async () => {
-    const { LngLatBounds, Map: MapLibreMap, setWorkerUrl } = await import('maplibre-gl');
+    mapModule = await import('maplibre-gl');
+    const { LngLatBounds, Map: MapLibreMap, setWorkerUrl } = mapModule;
 
     if (cancelled) {
       return;
@@ -84,6 +115,8 @@ export const initialiseRouteMap = ({
       }
 
       try {
+        ready = true;
+        renderSelection();
         if (point) {
           loadedMap.addSource('waypoint', {
             type: 'geojson',
@@ -185,5 +218,5 @@ export const initialiseRouteMap = ({
 
   void loadMap().catch(reportFailure);
 
-  return dispose;
+  return controller;
 };

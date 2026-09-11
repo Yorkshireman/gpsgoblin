@@ -84,8 +84,11 @@ describe('initialiseRouteMap', () => {
       });
       const onStatusChange = jest.fn();
 
-      const dispose = initialiseRouteMap({
-        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      const { dispose } = initialiseRouteMap({
+        container: document.createElement('div'),
+        paths: [],
+        routeColor: 'green',
+        onStatusChange
       });
 
       expect(onStatusChange).toHaveBeenLastCalledWith('unsupported');
@@ -99,8 +102,11 @@ describe('initialiseRouteMap', () => {
       });
       const onStatusChange = jest.fn();
 
-      const dispose = initialiseRouteMap({
-        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      const { dispose } = initialiseRouteMap({
+        container: document.createElement('div'),
+        paths: [],
+        routeColor: 'green',
+        onStatusChange
       });
 
       await waitFor(() => {
@@ -114,8 +120,11 @@ describe('initialiseRouteMap', () => {
         throw new Error('Drawing failed');
       });
       const onStatusChange = jest.fn();
-      const dispose = initialiseRouteMap({
-        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      const { dispose } = initialiseRouteMap({
+        container: document.createElement('div'),
+        paths: [],
+        routeColor: 'green',
+        onStatusChange
       });
 
       await waitFor(() => {
@@ -131,8 +140,11 @@ describe('initialiseRouteMap', () => {
 
     it('handles renderer error events and ignores events after disposal', async () => {
       const onStatusChange = jest.fn();
-      const dispose = initialiseRouteMap({
-        container: document.createElement('div'), paths: [], routeColor: 'green', onStatusChange
+      const { dispose } = initialiseRouteMap({
+        container: document.createElement('div'),
+        paths: [],
+        routeColor: 'green',
+        onStatusChange
       });
 
       await waitFor(() => {
@@ -159,7 +171,7 @@ describe('initialiseRouteMap', () => {
 
   it('draws separate paths without bridging gaps and fits all supplied points', async () => {
     const container = document.createElement('div');
-    const dispose = initialiseRouteMap({
+    const { dispose } = initialiseRouteMap({
       container,
       routeColor: '#22c55e',
       paths: [
@@ -248,7 +260,7 @@ describe('initialiseRouteMap', () => {
   });
 
   it('renders a waypoint as a centred point without drawing a line', async () => {
-    const dispose = initialiseRouteMap({
+    const { dispose } = initialiseRouteMap({
       container: document.createElement('div'),
       routeColor: '#22c55e',
       paths: [],
@@ -284,7 +296,7 @@ describe('initialiseRouteMap', () => {
   });
 
   it('does not create a map when disposed before the library finishes loading', async () => {
-    const dispose = initialiseRouteMap({
+    const { dispose } = initialiseRouteMap({
       container: document.createElement('div'),
       paths: [],
       routeColor: '#22c55e'
@@ -298,7 +310,7 @@ describe('initialiseRouteMap', () => {
   });
 
   it('removes the map and ignores a late load event after disposal', async () => {
-    const dispose = initialiseRouteMap({
+    const { dispose } = initialiseRouteMap({
       container: document.createElement('div'),
       paths: [],
       routeColor: '#22c55e'
@@ -320,7 +332,7 @@ describe('initialiseRouteMap', () => {
   it('does not fit empty bounds when no points were supplied', async () => {
     mockBounds.isEmpty.mockReturnValue(true);
 
-    const dispose = initialiseRouteMap({
+    const { dispose } = initialiseRouteMap({
       container: document.createElement('div'),
       paths: [],
       routeColor: '#22c55e'

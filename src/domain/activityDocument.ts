@@ -3,6 +3,7 @@ export type GeographicSample = Readonly<{
   id: string;
   latitudeDegrees: number;
   longitudeDegrees: number;
+  sourceTime?: string;
 }>;
 
 type GpxMetadata = Readonly<{

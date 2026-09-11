@@ -1,12 +1,10 @@
-import { Alert, Heading, Stack, Stat } from '@chakra-ui/react';
+import { useState } from 'react';
+import type { DisplayUnits } from '../measurementDisplay';
+import { Alert, Field, NativeSelect, Stack } from '@chakra-ui/react';
 
-import {
-  calculatePathDistanceMetres,
-  calculateTrackDistanceMetres
-} from '@/analysis/geometry/calculateTrackDistanceMetres';
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
 
-import { RouteMap } from '../RouteMap';
+import { MeasurementExplorer } from './MeasurementExplorer';
 import type { SelectedGpxItem } from '../selectedGpxItem';
 import { GpxItemSelector } from './GpxItemSelector';
 import { WaypointDetails } from './WaypointDetails';
@@ -19,15 +17,12 @@ type GpxDocumentResultsProps = Readonly<{
   onItemChange: (item: SelectedGpxItem) => void;
 }>;
 
-const formatDistance = (distanceMetres: number) => {
-  return `${(distanceMetres / 1000).toFixed(1)} km`;
-};
-
 export const GpxDocumentResults = ({
   document,
   selectedItem,
   onItemChange
 }: GpxDocumentResultsProps) => {
+  const [units, setUnits] = useState<DisplayUnits>('metric');
   const track =
     selectedItem?.kind === 'track'
       ? document.tracks.find(candidate => {
@@ -56,14 +51,6 @@ export const GpxDocumentResults = ({
         })
       : undefined;
 
-  const distanceMetres = track
-    ? selectedSegment
-      ? calculatePathDistanceMetres(selectedSegment.samples)
-      : calculateTrackDistanceMetres(track.segments)
-    : route
-      ? calculatePathDistanceMetres(route.points)
-      : undefined;
-
   return (
     <Stack gap={4} width='full'>
       <Alert.Root status='success'>
@@ -88,27 +75,33 @@ export const GpxDocumentResults = ({
           }}
         />
       ) : null}
-      {distanceMetres !== undefined ? (
-        <Stat.Root>
-          <Stat.Label>Calculated distance</Stat.Label>
-          <Stat.ValueText>{formatDistance(distanceMetres)}</Stat.ValueText>
-          <Stat.HelpText>
-            {track
-              ? 'Based on the recorded GPS points'
-              : 'Based on straight lines between route points'}
-          </Stat.HelpText>
-        </Stat.Root>
+      {track || route || waypoint?.elevationMetres !== undefined ? (
+        <Field.Root>
+          <Field.Label>Display units</Field.Label>
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              value={units}
+              onChange={event => {
+                setUnits(event.currentTarget.value === 'imperial' ? 'imperial' : 'metric');
+              }}
+            >
+              <option value='metric'>Metric</option>
+              <option value='imperial'>Imperial</option>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+        </Field.Root>
       ) : null}
-      {track ? <RouteMap track={track} segment={selectedSegment} /> : null}
-      {route ? (
-        <Stack as='section' aria-labelledby='planned-route-heading' gap={3}>
-          <Heading as='h3' id='planned-route-heading' size='lg'>
-            Planned route
-          </Heading>
-          <RouteMap route={route} />
-        </Stack>
+      {track ? (
+        <MeasurementExplorer
+          units={units}
+          key={`${track.id}-${selectedSegment?.id ?? 'all'}`}
+          track={track}
+          segment={selectedSegment}
+        />
       ) : null}
-      {waypoint ? <WaypointDetails waypoint={waypoint} /> : null}
+      {route ? <MeasurementExplorer units={units} key={route.id} route={route} /> : null}
+      {waypoint ? <WaypointDetails units={units} waypoint={waypoint} /> : null}
       <GpxFileDetails document={document} />
     </Stack>
   );

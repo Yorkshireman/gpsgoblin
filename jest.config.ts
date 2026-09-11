@@ -11,7 +11,8 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testEnvironment: 'jsdom'
+  testEnvironment: 'jsdom',
+  testPathIgnorePatterns: ['/node_modules/', '/tests/browser/']
 };
 
 export default createJestConfig(config);

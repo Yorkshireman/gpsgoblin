@@ -1,6 +1,34 @@
 import { parseGpx } from '.';
 
 describe('parseGpx', () => {
+  it('preserves raw timestamps, missing values and source order without repairing time', () => {
+    const times = [
+      '2026-09-11T12:00:00Z',
+      '2026-09-11T12:00:00Z',
+      '2026-09-11T11:59:00Z',
+      '2026-09-11T12:00:00',
+      'not a time',
+      ''
+    ];
+    const contents = `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>
+      ${times
+        .map(time => {
+          return `<trkpt lat="0" lon="0"><time>${time}</time></trkpt>`;
+        })
+        .join('')}<trkpt lat="0" lon="0" />
+      </trkseg></trk></gpx>`;
+    const result = parseGpx(contents);
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
+    expect(result.document.originalContents).toBe(contents);
+    expect(
+      result.document.tracks[0].segments[0].samples.map(sample => {
+        return sample.sourceTime;
+      })
+    ).toEqual([...times, undefined]);
+  });
+
   describe.each([
     { kind: 'track point', before: '<trk><trkseg>', point: 'trkpt', after: '</trkseg></trk>' },
     { kind: 'route point', before: '<rte>', point: 'rtept', after: '</rte>' },

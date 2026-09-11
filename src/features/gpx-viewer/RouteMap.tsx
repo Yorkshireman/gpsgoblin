@@ -1,19 +1,27 @@
 'use client';
 
 import { Alert, Box, Heading, Stack, Text, useToken } from '@chakra-ui/react';
-import type { Route, Track, TrackSegment, Waypoint } from '@/domain/activityDocument';
+import type {
+  GeographicSample,
+  Route,
+  Track,
+  TrackSegment,
+  Waypoint
+} from '@/domain/activityDocument';
 import { useMemo } from 'react';
 
 import { MapCanvas } from './components/MapCanvas';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-type RouteMapProps =
+type RouteMapProps = (
   | Readonly<{ route?: never; track: Track; waypoint?: never; segment?: TrackSegment }>
   | Readonly<{ route: Route; track?: never; waypoint?: never; segment?: never }>
-  | Readonly<{ route?: never; track?: never; waypoint: Waypoint; segment?: never }>;
+  | Readonly<{ route?: never; track?: never; waypoint: Waypoint; segment?: never }>
+) &
+  Readonly<{ selectedPoint?: GeographicSample }>;
 
-export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => {
+export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: RouteMapProps) => {
   const [routeColor] = useToken('colors', 'green.500');
 
   const paths = useMemo(() => {
@@ -32,15 +40,16 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
             }
           ]
         : [];
-
   }, [route, track, segment]);
 
   const hasLine = paths.some(path => {
     return path.samples.length > 1;
   });
-  const hasShortSegments = Boolean(track) && paths.some(path => {
-    return path.samples.length < 2;
-  });
+  const hasShortSegments =
+    Boolean(track) &&
+    paths.some(path => {
+      return path.samples.length < 2;
+    });
   const geometryMessage = waypoint
     ? undefined
     : !hasLine
@@ -50,10 +59,10 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
         : undefined;
 
   const itemName = track
-    ? track.name ?? 'Unnamed track'
+    ? (track.name ?? 'Unnamed track')
     : route
-      ? route.name ?? 'Unnamed route'
-      : waypoint.name ?? 'Unnamed waypoint';
+      ? (route.name ?? 'Unnamed route')
+      : (waypoint.name ?? 'Unnamed waypoint');
 
   const pointOrSegmentCount = track ? track.segments.length : route ? route.points.length : 1;
 
@@ -86,7 +95,9 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
           </Heading>
           <Text fontWeight='medium'>{itemName}</Text>
           {description ? (
-            <Text overflowWrap='anywhere' whiteSpace='pre-wrap'>{description}</Text>
+            <Text overflowWrap='anywhere' whiteSpace='pre-wrap'>
+              {description}
+            </Text>
           ) : null}
           <Text color='fg.muted' fontSize='sm'>
             {itemDescription}
@@ -97,13 +108,20 @@ export const RouteMap = ({ route, track, waypoint, segment }: RouteMapProps) => 
           <Alert.Root status='info'>
             <Alert.Indicator />
             <Alert.Content>
-              <Alert.Title>{hasLine ? 'Some segments have no line' : 'No line to display'}</Alert.Title>
+              <Alert.Title>
+                {hasLine ? 'Some segments have no line' : 'No line to display'}
+              </Alert.Title>
               <Alert.Description>{geometryMessage}</Alert.Description>
             </Alert.Content>
           </Alert.Root>
         ) : null}
-        {waypoint || hasLine ? (
-          <MapCanvas paths={paths} point={waypoint} routeColor={routeColor} />
+        {waypoint || hasLine || selectedPoint ? (
+          <MapCanvas
+            paths={paths}
+            point={waypoint}
+            selectedPoint={selectedPoint}
+            routeColor={routeColor}
+          />
         ) : null}
       </Stack>
     </Box>
