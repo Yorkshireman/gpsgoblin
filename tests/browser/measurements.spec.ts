@@ -102,6 +102,20 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     await page.getByRole('button', { name: 'Back to chart' }).click();
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
   await expect(page.getByRole('heading', { name: 'Pace', exact: true })).toBeVisible();
+  const paceElevationToggle = page.getByRole('checkbox', { name: 'Show elevation' });
+  await page.getByText('Show elevation', { exact: true }).click();
+  await expect(paceElevationToggle).toBeChecked();
+  await expect(page.locator('.elevation-background')).toBeVisible();
+  await expect(page.getByText('Elevation (ft)', { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('pace-elevation.png') });
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('speed');
+  await expect(page.getByRole('checkbox', { name: 'Show elevation' })).toBeChecked();
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
+  await expect(paceElevationToggle).toBeChecked();
+  await paceElevationToggle.focus();
+  await paceElevationToggle.press('Space');
+  await expect(paceElevationToggle).not.toBeChecked();
+  await expect(page.locator('.elevation-background')).toHaveCount(0);
   const paceTicks = await page
     .locator('.recharts-yAxis-tick-labels')
     .first()

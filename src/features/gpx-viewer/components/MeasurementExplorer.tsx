@@ -286,7 +286,7 @@ export const MeasurementExplorer = ({
                     data={data}
                     metric='motion'
                     elevationOverlay={
-                      motion === 'speed' && hasElevation
+                      hasElevation
                         ? {
                             enabled: showElevation,
                             unit: labels.elevation,
