@@ -57,7 +57,7 @@ for (const viewport of [
     });
     if (viewport.width < 600) await page.touchscreen.tap(coordinate.x, coordinate.y);
     else await page.mouse.click(coordinate.x, coordinate.y);
-    const selection = page.getByRole('region', { name: 'Selected measurement' });
+    const selection = page.getByLabel('Selected measurement', { exact: true });
     await expect(selection).toBeInViewport({ ratio: 1 });
     await expect(smoothing).toBeInViewport({ ratio: 1 });
     await expect(selection).toContainText('ft');

@@ -48,7 +48,7 @@ export const MeasurementChart = ({
   onSelect
 }: MeasurementChartProps) => {
   const plottedData = useMemo(() => {
-    return data.map((point) => {
+    return data.map(point => {
       return {
         ...point,
         originalValue: point[metric],
@@ -60,7 +60,7 @@ export const MeasurementChart = ({
     data: plottedData,
     series: [{ name: metric, color: 'green.solid', label: `${title} (${unit})` }]
   });
-  const selected = plottedData.find((point) => {
+  const selected = plottedData.find(point => {
     return point.sampleId === selectedId;
   });
   const isolated = plottedData.filter((point, index) => {
@@ -81,7 +81,7 @@ export const MeasurementChart = ({
         {elevationOverlay ? (
           <Switch.Root
             checked={elevationOverlay.enabled}
-            onCheckedChange={(details) => {
+            onCheckedChange={details => {
               elevationOverlay.onToggle(details.checked);
             }}
             colorPalette='green'
@@ -130,7 +130,7 @@ export const MeasurementChart = ({
             type='number'
             dataKey='distance'
             domain={['dataMin', 'dataMax']}
-            tickFormatter={(value) => {
+            tickFormatter={value => {
               return Number(Number(value).toFixed(1)).toString();
             }}
             label={{
@@ -150,7 +150,7 @@ export const MeasurementChart = ({
             }
             allowDataOverflow={maximum !== undefined}
             width='auto'
-            tickFormatter={(value) => {
+            tickFormatter={value => {
               return formatChartValue(Number(value), unit);
             }}
           />
@@ -161,7 +161,7 @@ export const MeasurementChart = ({
               width='auto'
               tickCount={4}
               domain={['auto', 'auto']}
-              tickFormatter={(value) => {
+              tickFormatter={value => {
                 return formatChartValue(Number(value), elevationOverlay.unit);
               }}
             />
@@ -173,9 +173,9 @@ export const MeasurementChart = ({
               type='linear'
               dataKey='elevation'
               baseValue='dataMin'
-              stroke={chart.color('blue.solid')}
+              stroke={chart.color('bg.inverted')}
               strokeOpacity={0.25}
-              fill={chart.color('blue.solid')}
+              fill={chart.color('bg.inverted')}
               fillOpacity={0.12}
               connectNulls={false}
               activeDot={false}
@@ -225,7 +225,7 @@ export const MeasurementChart = ({
               ifOverflow='extendDomain'
             />
           ) : null}
-          {isolated.map((point) => {
+          {isolated.map(point => {
             return (
               <ReferenceDot
                 key={point.sampleId}

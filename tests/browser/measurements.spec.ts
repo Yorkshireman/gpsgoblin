@@ -57,7 +57,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     throw new Error('Chart selection area missing');
   }
   await selectionArea.click({ position: { x: bounds.width / 5, y: bounds.height / 2 } });
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText('100.0 m');
+  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('100.0 m');
   if ((page.viewportSize()?.width ?? 1280) < 1024)
     await page.getByRole('button', { name: 'View on map' }).click();
   await expect(
@@ -79,15 +79,15 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     return { x: position.x, y: position.y };
   });
   await page.mouse.click(pointOnLine.x, pointOnLine.y);
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText('0.0 m');
+  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('0.0 m');
   await selectionArea.click({ position: { x: bounds.width / 5, y: bounds.height / 2 } });
   await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
+  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText(
     '328.1 ft'
   );
   await page.getByRole('slider', { name: 'Position on route' }).focus();
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
+  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText(
     'Unavailable'
   );
   if ((page.viewportSize()?.width ?? 1280) < 1024)
@@ -112,11 +112,15 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     })
   ).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('measurements.png'), fullPage: true });
+  await page.getByText('Selected point details', { exact: true }).click();
+  await expect(page.getByText('11 September 2026 at 12:02:00 UTC')).toBeVisible();
+  await page.getByText('11 September 2026 at 12:02:00 UTC').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('recorded-time.png') });
   await page.getByRole('combobox', { name: 'Item to inspect' }).selectOption('route-0');
   await expect(page.getByRole('heading', { name: 'Elevation profile' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Pace', exact: true })).toHaveCount(0);
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
-    'Select a chart point'
+  await expect(page.getByLabel('Chart selection tip', { exact: true })).toContainText(
+    'Select a point on the chart to see its details.'
   );
   await expect(page.getByText('No elevation measurements available.')).toBeVisible();
   expect(errors).toEqual([]);

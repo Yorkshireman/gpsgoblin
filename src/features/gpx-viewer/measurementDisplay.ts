@@ -1,5 +1,25 @@
 import type { MeasurementPoint } from '@/analysis/measurements';
-import { averageSpeeds, SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
+import { averageSpeeds, readTimestamp, SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
+
+const recordedTimeFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+  timeZone: 'UTC',
+  timeZoneName: 'short'
+});
+
+export const formatRecordedTime = (source: string | undefined) => {
+  const { milliseconds } = readTimestamp(source);
+  if (milliseconds === null) {
+    return source === '' ? '(empty)' : (source ?? 'Missing');
+  }
+  return recordedTimeFormatter.format(milliseconds);
+};
 
 // Five-second steps up to two minutes, then thirty-second steps up to ten minutes.
 export const smoothingDurations = Array.from({ length: 41 }, (_, index) => {

@@ -126,7 +126,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
     throw new Error('Chart selection area missing');
   }
   await area.click({ position: { x: bounds.width / 2, y: bounds.height / 2 } });
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toBeVisible();
+  await expect(page.getByLabel('Selected measurement', { exact: true })).toBeVisible();
   if ((page.viewportSize()?.width ?? 1280) < 1024)
     await page.getByRole('button', { name: 'View on map' }).click();
   await expect(page.getByRole('img', { name: /Selected map position/ })).toBeVisible();
@@ -161,7 +161,7 @@ test('pace keeps near-stop outliers inspectable without flattening the default s
   const position = page.getByRole('slider', { name: 'Position on route' });
   await position.focus();
   await position.press('ArrowRight');
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
+  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText(
     /\d+h \d+m \/km/
   );
   await page.getByRole('button', { name: 'Show full pace range' }).click();

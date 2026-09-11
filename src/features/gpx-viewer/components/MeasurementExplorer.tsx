@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Field,
@@ -23,6 +24,7 @@ import {
   displayUnits,
   formatMeasurement,
   formatDuration,
+  formatRecordedTime,
   formatChartValue,
   formatChartMeasurement
 } from '../measurementDisplay';
@@ -65,18 +67,18 @@ export const MeasurementExplorer = ({
     return chartMeasurements(analysis.points, units, motion, smoothingSeconds);
   }, [analysis, units, motion, smoothingSeconds]);
   const labels = displayUnits(units);
-  const selectedIndex = analysis.points.findIndex((point) => {
+  const selectedIndex = analysis.points.findIndex(point => {
     return point.sample.id === selectedId;
   });
   const selected = analysis.points[selectedIndex];
-  const selectedChartPoint = data.find((point) => {
+  const selectedChartPoint = data.find(point => {
     return point.sampleId === selectedId;
   });
   const selectedMotion = selectedChartPoint?.motion ?? null;
-  const hasElevation = data.some((point) => {
+  const hasElevation = data.some(point => {
     return point.elevation !== null;
   });
-  const hasMotion = data.some((point) => {
+  const hasMotion = data.some(point => {
     return point.motion !== null;
   });
   const motionUnit = motion === 'speed' ? labels.speed : labels.pace;
@@ -84,7 +86,7 @@ export const MeasurementExplorer = ({
   const paceLimit = (30 * labels.metresPerDistance) / 1000;
   const hasSlowPace =
     motion === 'pace' &&
-    data.some((point) => {
+    data.some(point => {
       return point.motion !== null && point.motion > paceLimit;
     });
 
@@ -142,7 +144,7 @@ export const MeasurementExplorer = ({
             Measurement warnings ({analysis.warnings.length})
           </Box>
           <Stack as='section' aria-label='Measurement warnings' gap={1} pt={2}>
-            {analysis.warnings.map((warning) => {
+            {analysis.warnings.map(warning => {
               return (
                 <Text key={warning} fontSize='sm'>
                   {warning}
@@ -164,7 +166,7 @@ export const MeasurementExplorer = ({
               <NativeSelect.Root>
                 <NativeSelect.Field
                   value={chart}
-                  onChange={(event) => {
+                  onChange={event => {
                     const value = event.currentTarget.value;
                     setActiveChart(
                       value === 'elevation' ? 'elevation' : value === 'pace' ? 'pace' : 'speed'
@@ -190,7 +192,7 @@ export const MeasurementExplorer = ({
               <NativeSelect.Root>
                 <NativeSelect.Field
                   value={units}
-                  onChange={(event) => {
+                  onChange={event => {
                     onUnitsChange(event.currentTarget.value === 'imperial' ? 'imperial' : 'metric');
                   }}
                 >
@@ -201,48 +203,50 @@ export const MeasurementExplorer = ({
               </NativeSelect.Root>
             </Field.Root>
           </Grid>
-          <Box
-            as='section'
-            aria-label='Selected measurement'
-            aria-live='polite'
-            minH='12'
+          <Alert.Root
+            aria-label={selected ? 'Selected measurement' : 'Chart selection tip'}
             fontSize='sm'
-            bg='bg.subtle'
-            rounded='md'
-            px={2}
-            py={1}
+            status='info'
+            variant='subtle'
           >
-            {selected ? (
-              <>
-                <Text>
-                  Point {selectedIndex + 1} of {analysis.points.length} ·{' '}
-                  {formatMeasurement(
-                    selected.distanceMetres / labels.metresPerDistance,
-                    labels.distance
-                  )}
-                </Text>
-                <Text>
-                  Elevation:{' '}
-                  <span>
-                    {formatMeasurement(
-                      selected.elevationMetres === null
-                        ? null
-                        : selected.elevationMetres / labels.metresPerElevation,
-                      labels.elevation
-                    )}
-                  </span>{' '}
-                  · {motion === 'speed' ? 'Speed' : 'Pace'}:{' '}
-                  <span>
-                    {selectedMotion === null
-                      ? 'Unavailable'
-                      : formatChartMeasurement(selectedMotion, motionUnit)}
-                  </span>
-                </Text>
-              </>
-            ) : (
-              <Text>Select a chart point or use Position on route to inspect it.</Text>
-            )}
-          </Box>
+            {selected ? null : <Alert.Indicator />}
+            <Alert.Content>
+              {selected ? (
+                <Alert.Description>
+                  <>
+                    <Text color='fg.info'>
+                      Point {selectedIndex + 1} of {analysis.points.length} ·{' '}
+                      {formatMeasurement(
+                        selected.distanceMetres / labels.metresPerDistance,
+                        labels.distance
+                      )}
+                    </Text>
+                    <Text color='fg.info'>
+                      Elevation:{' '}
+                      <span>
+                        {formatMeasurement(
+                          selected.elevationMetres === null
+                            ? null
+                            : selected.elevationMetres / labels.metresPerElevation,
+                          labels.elevation
+                        )}
+                      </span>{' '}
+                      · {motion === 'speed' ? 'Speed' : 'Pace'}:{' '}
+                      <span>
+                        {selectedMotion === null
+                          ? 'Unavailable'
+                          : formatChartMeasurement(selectedMotion, motionUnit)}
+                      </span>
+                    </Text>
+                  </>
+                </Alert.Description>
+              ) : (
+                <Alert.Description>
+                  Select a point on the chart to see its details.
+                </Alert.Description>
+              )}
+            </Alert.Content>
+          </Alert.Root>
           {chart === 'elevation' ? (
             <>
               {' '}
@@ -278,7 +282,6 @@ export const MeasurementExplorer = ({
                         : undefined
                     }
                     title={motion === 'speed' ? 'Speed' : 'Pace'}
-
                     reference={
                       motion === 'speed' && analysis.averageSpeedMetresPerSecond !== null
                         ? {
@@ -316,7 +319,7 @@ export const MeasurementExplorer = ({
                           ? formatSmoothingDuration(smoothingSeconds)
                           : '0 seconds (unsmoothed)'
                       }
-                      onChange={(event) => {
+                      onChange={event => {
                         setSmoothingSeconds(smoothingDurations[Number(event.currentTarget.value)]);
                       }}
                     />
@@ -395,7 +398,7 @@ export const MeasurementExplorer = ({
                 step={1}
                 value={selectedIndex < 0 ? 0 : selectedIndex}
                 aria-valuetext={selected ? `Point ${selectedIndex + 1}` : 'No point selected'}
-                onChange={(event) => {
+                onChange={event => {
                   const point = analysis.points[Number(event.currentTarget.value)];
                   if (point) {
                     setSelectedId(point.sample.id);
@@ -443,9 +446,7 @@ export const MeasurementExplorer = ({
             <Text>
               Recorded time:{' '}
               <span>
-                {selected.sample.sourceTime === ''
-                  ? '(empty)'
-                  : (selected.sample.sourceTime ?? 'Missing')}
+                {formatRecordedTime(selected.sample.sourceTime)}
               </span>
             </Text>
             {selected.timeIssue ? <Text>{selected.timeIssue}</Text> : null}

@@ -77,16 +77,17 @@ describe('GPX file viewer', () => {
     ).toBeVisible();
     expect(screen.getByText(/We calculate speed from the distance/)).not.toBeVisible();
     expect(screen.getByText('1 min')).toBeVisible();
+    expect(screen.getByLabelText('Chart selection tip')).toBeVisible();
+    expect(screen.queryByLabelText('Selected measurement')).not.toBeInTheDocument();
     fireEvent.change(screen.getByRole('slider', { name: 'Position on route' }), {
       target: { value: '1' }
     });
     expect(screen.getByText('10 minutes', { exact: true })).toBeVisible();
-    const selection = screen.getByRole('region', {
-      name: 'Selected measurement'
-    });
+    const selection = screen.getByLabelText('Selected measurement');
+    expect(screen.queryByLabelText('Chart selection tip')).not.toBeInTheDocument();
     expect(within(selection).getByText('100.0 m')).toBeVisible();
     await user.click(screen.getByText('Selected point details', { exact: true }));
-    expect(screen.getByText('2026-09-11T12:01:00Z')).toBeVisible();
+    expect(screen.getByText('11 September 2026 at 12:01:00 UTC')).toBeVisible();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Display units' }), 'imperial');
     expect(within(selection).getByText('328.1 ft')).toBeVisible();
     expect(screen.getByText('Average speed: 41.5 mph')).toBeVisible();
@@ -94,6 +95,22 @@ describe('GPX file viewer', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Chart' }), 'pace');
     expect(screen.getByRole('heading', { name: 'Pace' })).toBeVisible();
     expect(within(selection).getByText(/\/mi/)).toBeVisible();
+  });
+
+  it.each([
+    ['2026-09-11T13:01:00+01:00', '11 September 2026 at 12:01:00 UTC'],
+    ['2026-09-11T12:01:00', '2026-09-11T12:01:00'],
+    ['2026-02-30T12:01:00Z', '2026-02-30T12:01:00Z'],
+    ['', '(empty)'],
+    [undefined, 'Missing']
+  ])('displays recorded time without inventing a date or timezone for %s', async (source, expected) => {
+    const user = userEvent.setup();
+    await user.upload(screen.getByLabelText('GPX file'), new File([
+      `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg><trkpt lat="0" lon="0">${source === undefined ? '' : `<time>${source}</time>`}</trkpt></trkseg></trk></gpx>`
+    ], 'time.gpx', { type: 'application/gpx+xml' }));
+    await user.click(await screen.findByRole('button', { name: 'Start of route' }));
+    await user.click(screen.getByText('Selected point details', { exact: true }));
+    expect(screen.getByText(expected)).toBeVisible();
   });
 
   beforeEach(() => {
