@@ -8,7 +8,7 @@ import type {
   TrackSegment,
   Waypoint
 } from '@/domain/activityDocument';
-import { useMemo } from 'react';
+import { useId, useMemo } from 'react';
 
 import { MapCanvas } from './components/MapCanvas';
 
@@ -26,7 +26,7 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
 
   const paths = useMemo(() => {
     return track
-      ? (segment ? [segment] : track.segments).map(segment => {
+      ? (segment ? [segment] : track.segments).map((segment) => {
           return {
             id: segment.id,
             samples: segment.samples
@@ -42,12 +42,12 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
         : [];
   }, [route, track, segment]);
 
-  const hasLine = paths.some(path => {
+  const hasLine = paths.some((path) => {
     return path.samples.length > 1;
   });
   const hasShortSegments =
     Boolean(track) &&
-    paths.some(path => {
+    paths.some((path) => {
       return path.samples.length < 2;
     });
   const geometryMessage = waypoint
@@ -66,7 +66,7 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
 
   const pointOrSegmentCount = track ? track.segments.length : route ? route.points.length : 1;
 
-  const selectedSegmentIndex = track?.segments.findIndex(candidate => {
+  const selectedSegmentIndex = track?.segments.findIndex((candidate) => {
     return candidate.id === segment?.id;
   });
 
@@ -83,7 +83,7 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
             : `${pointOrSegmentCount} route points`
           : '1 waypoint';
 
-  const headingId = waypoint ? 'waypoint-map-heading' : 'route-map-heading';
+  const headingId = useId();
   const description = track?.description ?? route?.description;
 
   return (
@@ -93,12 +93,20 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
           <Heading as={track ? 'h3' : 'h4'} id={headingId} size='lg'>
             {waypoint ? 'Waypoint map' : 'Route map'}
           </Heading>
-          <Text fontWeight='medium'>{itemName}</Text>
-          {description ? (
-            <Text overflowWrap='anywhere' whiteSpace='pre-wrap'>
-              {description}
-            </Text>
-          ) : null}
+          <Text fontWeight='medium' overflowWrap='anywhere' lineClamp={2} title={itemName}>
+            {itemName}
+          </Text>
+          <Box as='details' fontSize='sm'>
+            <Box as='summary' cursor='pointer'>
+              {description ? 'Route description' : 'Route details'}
+            </Box>
+            <Text overflowWrap='anywhere'>Name: {itemName}</Text>
+            {description ? (
+              <Text overflowWrap='anywhere' whiteSpace='pre-wrap'>
+                {description}
+              </Text>
+            ) : null}
+          </Box>
           <Text color='fg.muted' fontSize='sm'>
             {itemDescription}
           </Text>

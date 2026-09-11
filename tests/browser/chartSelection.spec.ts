@@ -17,10 +17,10 @@ test('clicking the drawn speed line selects its source point and map location', 
     mimeType: 'application/gpx+xml',
     buffer: Buffer.from(recording)
   });
-  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('..');
+  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('../..');
   const trace = speed.locator('.recharts-line-curve');
   await trace.scrollIntoViewIfNeeded();
-  const coordinate = await trace.evaluate(element => {
+  const coordinate = await trace.evaluate((element) => {
     if (!(element instanceof SVGPathElement)) {
       throw new Error('Expected a plotted line');
     }
@@ -38,7 +38,11 @@ test('clicking the drawn speed line selects its source point and map location', 
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
     'Point 2 of 4'
   );
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'View on map' }).click();
   await expect(
     page.getByRole('img', { name: 'Selected map position: 0, 0.001', exact: true })
   ).toBeVisible();
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'Back to chart' }).click();
 });

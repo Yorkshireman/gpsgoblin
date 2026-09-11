@@ -19,7 +19,8 @@ test('dense recordings keep elevation visible without a dot on every measurement
       `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>${recording}</trkseg></trk></gpx>`
     )
   });
-  const elevation = page.getByRole('heading', { name: 'Elevation profile' }).locator('..');
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
+  const elevation = page.getByRole('heading', { name: 'Elevation profile' }).locator('../..');
   await expect(elevation.locator('.recharts-line-curve')).toBeVisible();
   await elevation.scrollIntoViewIfNeeded();
   await elevation.screenshot({
@@ -45,20 +46,22 @@ test('optional local recording verification', async ({ page }, testInfo) => {
     return;
   }
   const errors: string[] = [];
-  page.on('pageerror', error => {
+  page.on('pageerror', (error) => {
     errors.push(error.message);
   });
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles(filename);
-  const elevation = page.getByRole('heading', { name: 'Elevation profile' }).locator('..');
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
+  const elevation = page.getByRole('heading', { name: 'Elevation profile' }).locator('../..');
   await expect(elevation.locator('.recharts-line-curve')).toBeVisible();
   expect(await elevation.locator('circle').count()).toBeLessThanOrEqual(1);
-  await expect(page.getByRole('heading', { name: 'Speed', exact: true })).toBeVisible();
+
   await elevation.scrollIntoViewIfNeeded();
   await elevation.screenshot({
     path: testInfo.outputPath('local-elevation.png')
   });
-  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('..');
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('speed');
+  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('../..');
   const elevationToggle = speed.getByRole('checkbox', { name: 'Show elevation' });
   await expect(elevationToggle).not.toBeChecked();
   await expect(speed.locator('.elevation-background')).toHaveCount(0);
@@ -86,7 +89,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   await expect(smoothing).toHaveAttribute('aria-valuetext', '1 minute 5 seconds');
   await smoothing.focus();
   await smoothing.press('Home');
-  await expect(speed.getByText('Unsmoothed', { exact: true })).toBeVisible();
+  await expect(smoothing).toHaveAttribute('aria-valuetext', '0 seconds (unsmoothed)');
   await expect(speed.locator('.recharts-line-curve')).not.toHaveAttribute('d', smoothedPath ?? '');
   await smoothing.press('End');
   await expect(smoothing).toHaveAttribute('aria-valuetext', '10 minutes');
@@ -98,8 +101,8 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   await smoothing.press('ArrowLeft');
   await expect(smoothing).toHaveAttribute('aria-valuetext', '9 minutes 30 seconds');
   await smoothing.press('End');
-  await page.getByRole('combobox', { name: 'Speed or pace' }).selectOption('pace');
-  const pace = page.getByRole('heading', { name: 'Pace', exact: true }).locator('..');
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
+  const pace = page.getByRole('heading', { name: 'Pace', exact: true }).locator('../..');
   await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('0:00');
   await pace.screenshot({ path: testInfo.outputPath('local-pace.png') });
   const unitBounds = await pace.getByText('min/km', { exact: true }).boundingBox();
@@ -116,6 +119,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Show full pace range' }).click();
   await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('h');
   await page.getByRole('button', { name: 'Show normal pace range' }).click();
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
   const area = elevation.locator('.measurement-selection-area');
   const bounds = await area.boundingBox();
   if (!bounds) {
@@ -123,7 +127,11 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   }
   await area.click({ position: { x: bounds.width / 2, y: bounds.height / 2 } });
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toBeVisible();
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'View on map' }).click();
   await expect(page.getByRole('img', { name: /Selected map position/ })).toBeVisible();
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'Back to chart' }).click();
   await expect(page.getByText(/We calculate speed from the distance/)).not.toBeVisible();
   await page.getByText('How speed is calculated', { exact: true }).click();
   await expect(page.getByText(/We calculate speed from the distance/)).toBeVisible();
@@ -146,8 +154,8 @@ test('pace keeps near-stop outliers inspectable without flattening the default s
       `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>${points}</trkseg></trk></gpx>`
     )
   });
-  await page.getByRole('combobox', { name: 'Speed or pace' }).selectOption('pace');
-  const pace = page.getByRole('heading', { name: 'Pace', exact: true }).locator('..');
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
+  const pace = page.getByRole('heading', { name: 'Pace', exact: true }).locator('../..');
   await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('30:00');
   await expect(page.getByText(/Paces slower than 30:00/)).toBeVisible();
   const position = page.getByRole('slider', { name: 'Position on route' });

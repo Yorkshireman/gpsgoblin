@@ -57,7 +57,7 @@ results remain available when WebGL fails.
 
 Speed and pace default to a labelled 1-minute trailing average. A smoothing slider
 directly below the chart offers 0–10 minutes, with five-second steps up to two
-minutes and thirty-second steps thereafter. The selected duration appears below it
+minutes and thirty-second steps thereafter. The selected duration appears in its label
 in minutes and seconds. Zero shows the original calculated interval speeds. Averaging is time-weighted
 (distance divided by time), including zero speed, and restarts after unusable time
 or a segment boundary. The start of a section uses the time available. A window
@@ -101,6 +101,35 @@ Display conversion is separate from full-resolution analysis. There is currently
 no downsampling or arbitrary point limit. Large-file performance and any future
 downsampling threshold still require browser benchmarks. Unsupported empty charts
 are hidden, with an explanation of unavailable measurements.
+
+## Viewer workspace
+
+After a successful import, a compact filename/Change/Clear row replaces onboarding
+and the dropzone. A failed replacement keeps the previous successful file identity
+and results. Distance and readable timed duration appear before the active chart.
+The chart selector offers supported Speed, Pace and Elevation views; units are next
+to it. Only one chart is active. Measurement warnings, complete file/entity names,
+source metadata and calculation details remain available through disclosure controls.
+
+Desktop shows the chart and local route map side by side. The selected point's
+values sit immediately above the plot; smoothing remains directly below it. Phones
+use a “View on map” dialog, with “Back to chart” restoring focus to its trigger and
+preserving selection. The route-position slider remains a keyboard alternative to
+clicking or tapping plotted measurements. Opening the map is explicit; selecting a
+point never scrolls the page automatically.
+
+Issue #10 verification used synthetic recordings in installed Google Chrome at
+1440 × 900, 1280 × 720, 390 × 844 and 375 × 667 CSS pixels. Initial, loaded,
+selected and mobile map viewport screenshots were inspected. Summary results appear
+in the initial loaded viewport. After scrolling the chart controls to the top once,
+the chart, selected values, smoothing and position controls fit together at the
+normal text size, including the short phone. Desktop selection visibly updates the
+adjacent map. Mobile touch selection and map return retain the selected point;
+keyboard unit/metric changes, smoothing, overlay switching and position movement
+remain usable. Long names, extensive metadata, missing data/warnings and 150% root
+text size were checked for disclosure access and horizontal overflow. Enlarged text
+requires more vertical scrolling. These are Chrome viewport/touch emulation checks,
+not evidence from physical phones or other browser engines.
 
 ## Verification
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Chart, useChart } from '@chakra-ui/charts';
-import { Box, Heading, Stack, Switch, Text } from '@chakra-ui/react';
+import { Box, Flex, Heading, Stack, Switch, Text } from '@chakra-ui/react';
 import {
   Area,
   CartesianGrid,
@@ -48,7 +48,7 @@ export const MeasurementChart = ({
   onSelect
 }: MeasurementChartProps) => {
   const plottedData = useMemo(() => {
-    return data.map(point => {
+    return data.map((point) => {
       return {
         ...point,
         originalValue: point[metric],
@@ -60,7 +60,7 @@ export const MeasurementChart = ({
     data: plottedData,
     series: [{ name: metric, color: 'green.solid', label: `${title} (${unit})` }]
   });
-  const selected = plottedData.find(point => {
+  const selected = plottedData.find((point) => {
     return point.sampleId === selectedId;
   });
   const isolated = plottedData.filter((point, index) => {
@@ -74,24 +74,26 @@ export const MeasurementChart = ({
   });
   return (
     <Stack gap={2} minW={0}>
-      <Heading as='h3' size='lg'>
-        {title}
-      </Heading>
-      {elevationOverlay ? (
-        <Switch.Root
-          checked={elevationOverlay.enabled}
-          onCheckedChange={details => {
-            elevationOverlay.onToggle(details.checked);
-          }}
-          colorPalette='green'
-        >
-          <Switch.HiddenInput />
-          <Switch.Control>
-            <Switch.Thumb />
-          </Switch.Control>
-          <Switch.Label>Show elevation</Switch.Label>
-        </Switch.Root>
-      ) : null}
+      <Flex align='center' justify='space-between' gap={2} wrap='wrap'>
+        <Heading as='h3' size='lg'>
+          {title}
+        </Heading>
+        {elevationOverlay ? (
+          <Switch.Root
+            checked={elevationOverlay.enabled}
+            onCheckedChange={(details) => {
+              elevationOverlay.onToggle(details.checked);
+            }}
+            colorPalette='green'
+          >
+            <Switch.HiddenInput />
+            <Switch.Control>
+              <Switch.Thumb />
+            </Switch.Control>
+            <Switch.Label>Show elevation</Switch.Label>
+          </Switch.Root>
+        ) : null}
+      </Flex>
       {description ? (
         <Text fontSize='sm' color='fg.muted'>
           {description}
@@ -115,7 +117,7 @@ export const MeasurementChart = ({
         <Text>{unit}</Text>
         {elevationOverlay?.enabled ? <Text>Elevation ({elevationOverlay.unit})</Text> : null}
       </Stack>
-      <Chart.Root chart={chart} h={{ base: '64', md: '72' }} maxH='sm' minW={0}>
+      <Chart.Root chart={chart} h={{ base: '48', md: '56' }} maxH='sm' minW={0}>
         <ComposedChart
           responsive
           style={{ width: '100%', height: '100%' }}
@@ -128,7 +130,7 @@ export const MeasurementChart = ({
             type='number'
             dataKey='distance'
             domain={['dataMin', 'dataMax']}
-            tickFormatter={value => {
+            tickFormatter={(value) => {
               return Number(Number(value).toFixed(1)).toString();
             }}
             label={{
@@ -148,7 +150,7 @@ export const MeasurementChart = ({
             }
             allowDataOverflow={maximum !== undefined}
             width={72}
-            tickFormatter={value => {
+            tickFormatter={(value) => {
               return formatChartValue(Number(value), unit);
             }}
           />
@@ -159,7 +161,7 @@ export const MeasurementChart = ({
               width={44}
               tickCount={4}
               domain={['auto', 'auto']}
-              tickFormatter={value => {
+              tickFormatter={(value) => {
                 return formatChartValue(Number(value), elevationOverlay.unit);
               }}
             />
@@ -223,7 +225,7 @@ export const MeasurementChart = ({
               ifOverflow='extendDomain'
             />
           ) : null}
-          {isolated.map(point => {
+          {isolated.map((point) => {
             return (
               <ReferenceDot
                 key={point.sampleId}

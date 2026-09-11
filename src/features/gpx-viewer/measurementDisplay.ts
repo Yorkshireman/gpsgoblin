@@ -107,3 +107,18 @@ export const chartMeasurements = (
   }
   return data;
 };
+
+export const formatDuration = (seconds: number | null) => {
+  if (seconds === null) return 'Unavailable';
+  const rounded = Math.round(seconds);
+  const hours = Math.floor(rounded / 3600);
+  const minutes = Math.floor((rounded % 3600) / 60);
+  const remainder = rounded % 60;
+  return [
+    hours ? `${hours} h` : '',
+    minutes ? `${minutes} min` : '',
+    remainder || !rounded ? `${remainder} s` : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
+};

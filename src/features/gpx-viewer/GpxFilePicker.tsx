@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, FileUpload } from '@chakra-ui/react';
+import { Alert, FileUpload, Heading, Stack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
@@ -27,6 +27,7 @@ const readFileAsText = (file: File) => {
 };
 
 export const GpxFilePicker = () => {
+  const [filename, setFilename] = useState<string>();
   const [error, setError] = useState<string>();
   const [document, setDocument] = useState<ImportedGpxDocument>();
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +53,7 @@ export const GpxFilePicker = () => {
       }
 
       setDocument(result.document);
+      setFilename(file.name);
 
       const firstTrack = result.document.tracks[0];
       const firstRoute = result.document.routes[0];
@@ -79,6 +81,7 @@ export const GpxFilePicker = () => {
     }
 
     setDocument(undefined);
+    setFilename(undefined);
     setSelectedItem(undefined);
     setError(undefined);
   };
@@ -99,15 +102,28 @@ export const GpxFilePicker = () => {
       onFileChange={handleFileChange}
       onFileReject={handleFileReject}
       maxFiles={1}
+      width='full'
+      gap={3}
     >
-      <GpxFileControls canClear={Boolean(document || error)} isLoading={isLoading} />
-      {document ? (
-        <GpxDocumentResults
-          document={document}
-          onItemChange={setSelectedItem}
-          selectedItem={selectedItem}
-        />
+      {!document ? (
+        <Stack gap={3} maxW='prose'>
+          <Heading as='h2' size='xl'>
+            Open a GPX file
+          </Heading>
+          <Text>
+            Inspect routes, elevation and available timing. Your file stays on your device; this
+            tool does not upload it.
+          </Text>
+          <Text color='fg.muted' fontSize='sm'>
+            Choose or drop a file. Refreshing or clearing the workspace loses your work.
+          </Text>
+        </Stack>
       ) : null}
+      <GpxFileControls
+        filename={filename}
+        canClear={Boolean(document || error)}
+        isLoading={isLoading}
+      />
       {error ? (
         <Alert.Root status='error'>
           <Alert.Indicator />
@@ -116,6 +132,14 @@ export const GpxFilePicker = () => {
             <Alert.Description>{error}</Alert.Description>
           </Alert.Content>
         </Alert.Root>
+      ) : null}
+      {document ? (
+        <GpxDocumentResults
+          document={document}
+          filename={filename}
+          onItemChange={setSelectedItem}
+          selectedItem={selectedItem}
+        />
       ) : null}
     </FileUpload.Root>
   );

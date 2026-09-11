@@ -1,6 +1,6 @@
 import { GpxFilePicker } from '@/features/gpx-viewer';
 import type { Metadata } from 'next';
-import { Badge, Box, Card, Container, Heading, Stack, Text } from '@chakra-ui/react';
+import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
 
 export const metadata: Metadata = {
   title: 'GPX File Viewer — GPSGoblin',
@@ -21,39 +21,15 @@ export const metadata: Metadata = {
 
 const GpxFileViewerPage = () => {
   return (
-    <Container as='main' maxW='4xl' px={{ base: 4, md: 8 }} py={{ base: 10, md: 16 }}>
-      <Stack gap={{ base: 8, md: 10 }}>
-        <Stack as='header' gap={4} align='flex-start'>
-          <Badge colorPalette='green' variant='subtle'>
-            Your file stays on your device
-          </Badge>
-          <Heading as='h1' size={{ base: '4xl', md: '5xl' }}>
-            GPX File Viewer
-          </Heading>
-          <Text maxW='2xl' fontSize={{ base: 'lg', md: 'xl' }} color='fg.muted'>
-            Open a GPX file to inspect its routes, elevation and available timing measurements. Your
-            activity file stays on your device and this tool does not upload it.
-          </Text>
-        </Stack>
-
-        <Card.Root as='section' aria-labelledby='file-import-heading'>
-          <Card.Header>
-            <Card.Title as='h2' id='file-import-heading'>
-              Open a GPX file
-            </Card.Title>
-            <Card.Description>
-              Choose or drop a file from your device. This tool forgets it when you close or refresh
-              the page.
-            </Card.Description>
-          </Card.Header>
-
-          <Card.Body>
-            <GpxFilePicker />
-          </Card.Body>
-        </Card.Root>
+    <Container as='main' maxW='1600px' px={{ base: 3, md: 6 }} py={{ base: 4, md: 6 }}>
+      <Stack gap={5}>
+        <Heading as='h1' size={{ base: 'xl', md: '2xl' }}>
+          GPX File Viewer
+        </Heading>
+        <GpxFilePicker />
 
         <Box as='section' aria-labelledby='viewer-details-heading'>
-          <Stack gap={3}>
+          <Stack gap={3} maxW='prose'>
             <Heading as='h2' id='viewer-details-heading' size='2xl'>
               What the viewer will show
             </Heading>

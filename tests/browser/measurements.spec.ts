@@ -19,7 +19,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   page
 }, testInfo) => {
   const errors: string[] = [];
-  page.on('pageerror', error => {
+  page.on('pageerror', (error) => {
     errors.push(error.message);
   });
   await page.goto('/tools/gpx-file-viewer.html');
@@ -28,7 +28,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     mimeType: 'application/gpx+xml',
     buffer: Buffer.from(contents)
   });
-  await expect(page.getByRole('heading', { name: 'Elevation profile' })).toBeVisible();
+
   await expect(page.getByText('Average speed: 66.7 km/h')).toBeVisible();
   const averageLine = page.locator('.recharts-reference-line-line');
   await expect(averageLine).toBeAttached();
@@ -36,7 +36,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     Number(await averageLine.getAttribute('x1'))
   );
   expect(await averageLine.getAttribute('y1')).toBe(await averageLine.getAttribute('y2'));
-  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('..');
+  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('../..');
   const elevationToggle = speed.getByRole('checkbox', { name: 'Show elevation' });
   await speed.getByText('Show elevation', { exact: true }).click();
   await expect(elevationToggle).toBeChecked();
@@ -46,6 +46,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   await elevationToggle.focus();
   await elevationToggle.press('Space');
   await expect(elevationToggle).not.toBeChecked();
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
   const elevationLine = page.locator('.recharts-line-curve').first();
   await expect(elevationLine).toBeVisible();
   // Two measurement runs in the first segment plus the separate second segment.
@@ -57,10 +58,15 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   }
   await selectionArea.click({ position: { x: bounds.width / 5, y: bounds.height / 2 } });
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText('100.0 m');
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'View on map' }).click();
   await expect(
     page.getByRole('img', { name: 'Selected map position: 0, 0.01', exact: true })
   ).toBeVisible();
-  const pointOnLine = await elevationLine.evaluate(element => {
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'Back to chart' }).click();
+  await elevationLine.scrollIntoViewIfNeeded();
+  const pointOnLine = await elevationLine.evaluate((element) => {
     if (!(element instanceof SVGPathElement)) {
       throw new Error('Expected elevation line');
     }
@@ -84,14 +90,18 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
     'Unavailable'
   );
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'View on map' }).click();
   await expect(
     page.getByRole('img', { name: 'Selected map position: 0, 0.02', exact: true })
   ).toBeVisible();
-  await page.getByRole('combobox', { name: 'Speed or pace' }).selectOption('pace');
-  await expect(page.getByRole('heading', { name: 'Pace' })).toBeVisible();
+  if ((page.viewportSize()?.width ?? 1280) < 1024)
+    await page.getByRole('button', { name: 'Back to chart' }).click();
+  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
+  await expect(page.getByRole('heading', { name: 'Pace', exact: true })).toBeVisible();
   const paceTicks = await page
     .locator('.recharts-yAxis-tick-labels')
-    .nth(1)
+    .first()
     .locator('.recharts-cartesian-axis-tick-value')
     .allTextContents();
   expect(paceTicks.length).toBeGreaterThan(1);
@@ -104,8 +114,10 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   await page.screenshot({ path: testInfo.outputPath('measurements.png'), fullPage: true });
   await page.getByRole('combobox', { name: 'Item to inspect' }).selectOption('route-0');
   await expect(page.getByRole('heading', { name: 'Elevation profile' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'Pace' })).toHaveCount(0);
-  await expect(page.getByRole('region', { name: 'Selected measurement' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Pace', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
+    'Select a chart point'
+  );
   await expect(page.getByText('No elevation measurements available.')).toBeVisible();
   expect(errors).toEqual([]);
 });
