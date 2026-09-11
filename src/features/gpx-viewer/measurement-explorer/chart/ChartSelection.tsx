@@ -1,5 +1,5 @@
 import { DefaultZIndexes, ZIndexLayer, usePlotArea, useXAxisScale, useYAxisScale } from 'recharts';
-import type { ChartMeasurement } from '../measurementDisplay';
+import type { ChartMeasurement } from '../../measurementDisplay';
 
 type ChartSelectionProps = Readonly<{
   data: readonly ChartMeasurement[];

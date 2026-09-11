@@ -108,6 +108,14 @@ are hidden, with an explanation of unavailable measurements.
 
 ## Viewer workspace
 
+The workspace implementation lives in `src/features/gpx-viewer/measurement-explorer/`,
+with `index.ts` exposing only `MeasurementExplorer`. The explorer owns selection and
+display settings; its local components render the summary, chart controls, selected
+measurement, motion controls, route-position control and mobile map dialog. The
+nested `chart/` module exposes `MeasurementChart` and keeps Recharts plotting and
+point hit-testing private. Smaller document/file components remain in `components/`;
+shared unit formatting and display conversion remain in `measurementDisplay.ts`.
+
 After a successful import, a compact filename/Change/Clear row replaces onboarding
 and the dropzone. A failed replacement keeps the previous successful file identity
 and results. Distance and readable Duration appear before the active chart.

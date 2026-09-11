@@ -4,7 +4,7 @@ import { Box, Field, Heading, NativeSelect, Stack, Text } from '@chakra-ui/react
 
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
 
-import { MeasurementExplorer } from './MeasurementExplorer';
+import { MeasurementExplorer } from '../measurement-explorer';
 import type { SelectedGpxItem } from '../selectedGpxItem';
 import { GpxItemSelector } from './GpxItemSelector';
 import { WaypointDetails } from './WaypointDetails';
