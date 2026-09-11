@@ -68,6 +68,10 @@ Before product planning, implementation or review, read `docs/product-spec.md` a
 
 Preserve the distinction between agreed requirements, recommended defaults and unresolved release gates. Follow the incremental release sequence; implement only the requested stage or scope. Surface conflicts with the specification before changing product direction, and keep unresolved decisions explicit.
 
+## UX requirements
+
+Before planning, implementing or reviewing user-facing behaviour—including displayed data, copy, controls and layout—read [the UX workflow](docs/agents/ux.md). Apply it to the affected flow and report the viewport and interaction evidence before calling UI work complete. A passing build or screenshot of an isolated component does not establish usable desktop/mobile behaviour.
+
 ## Agent skills
 
 ### Issue tracker

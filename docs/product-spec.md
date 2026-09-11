@@ -1,8 +1,8 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.3
-**Date:** 7 September 2026
+**Version:** 0.4
+**Date:** 11 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
 **Owned production domain:** `https://gpsgoblin.com` — purchased; a placeholder site is live. This is the canonical production origin.
@@ -133,6 +133,18 @@ Require semantic controls, keyboard access, meaningful labels, visible focus, ad
 Maps and charts enhance the result; they are not the sole representation of important information. Include readable summaries and section results. Do not autoplay replay. Do not trap scrolling inside a map on mobile.
 
 Light/dark mode is desirable if inexpensive, but is not a release blocker. Avoid turning cosmetic preferences into delays to useful releases.
+
+### 4.4 Viewport fit and interaction feedback — agreed
+
+Design each flow around what the user can see and do together in a browser viewport. Assess the initial screen, the state after processing/import and the state after an interaction. Surface the primary action before processing and useful results afterwards; completed upload/onboarding controls should give way to a compact way to identify, replace or clear the input. Use progressive disclosure for secondary explanations and metadata while keeping errors and consequential warnings discoverable.
+
+Keep controls near the results they change. Changing a metric, units, smoothing, filters or selection must provide understandable feedback without requiring the user to hunt elsewhere on the page. Put key selected-item values near the interaction. For linked views such as a chart and map, use available desktop space to show the relationship simultaneously. Where a phone cannot show both usefully, provide an obvious action to reveal the linked result and preserve selection and context on return. Automatic scrolling on every adjustment is not a substitute for this relationship.
+
+Use desktop width deliberately and prioritise the active task on mobile. Fit the active visualisation, its relevant controls and immediate feedback together where practical; disclose secondary views instead of shrinking all content into illegibility. View organisation in section 4.2 expresses information priority, not a requirement to stack every section vertically. Preserve touch targets, readable axes, keyboard access and useful chart/map size as layouts adapt.
+
+Treat the fold as the current visible viewport boundary, not a fixed device property. Check shorter windows as well as wide ones, and allow for text wrapping, zoom, browser chrome and variable content. Scrolling to secondary content is expected; repeated travel between a control and its result is a UX defect. Test actual clicks/taps on visible lines, fills, markers and labels, along with keyboard alternatives, so decorative layers do not intercept the intended action.
+
+These requirements apply across tools and release stages. Exact layouts, breakpoints and view-switching arrangements remain task-specific design choices; these principles do not approve a deferred redesign. Follow the [agent UX workflow](agents/ux.md) for planning and verification evidence.
 
 ## 5. Canonical data model
 
@@ -618,6 +630,8 @@ Do not fabricate claims that real files were tested. Record fixture provenance a
 ### 19.4 Common definition of done
 
 A publicly released tool must have a useful complete workflow, documented compatibility/limitations, relevant automated tests, readable errors, mobile/accessibility checks and a verified static production build.
+
+For user-facing changes, include viewport and control/result checks from section 4.4 in completion evidence. Record what was exercised, where feedback appeared and any remaining usability gaps; a responsive width or a passing browser assertion alone is insufficient.
 
 Check that useful content exists in returned HTML, public links work on direct load, third-party failures degrade safely and activity content is absent from outbound telemetry.
 
