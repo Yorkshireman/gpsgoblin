@@ -1,4 +1,4 @@
-import { Heading, Stack, Text } from '@chakra-ui/react';
+import { Stack, Text } from '@chakra-ui/react';
 
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
 
@@ -20,10 +20,7 @@ export const GpxFileDetails = ({ document }: GpxFileDetailsProps) => {
   }
 
   return (
-    <Stack as='section' aria-labelledby='file-details-heading' gap={3}>
-      <Heading as='h3' id='file-details-heading' size='lg'>
-        File details
-      </Heading>
+    <Stack as='section' aria-label='File details' gap={3}>
       <Stack as='dl' gap={3}>
         {fields.map(field => {
           return (

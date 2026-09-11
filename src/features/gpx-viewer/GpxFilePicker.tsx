@@ -103,6 +103,7 @@ export const GpxFilePicker = () => {
       onFileReject={handleFileReject}
       maxFiles={1}
       width='full'
+      maxW={document ? 'full' : '2xl'}
       gap={3}
     >
       {!document ? (
