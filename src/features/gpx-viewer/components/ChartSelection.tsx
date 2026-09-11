@@ -1,4 +1,4 @@
-import { usePlotArea, useXAxisScale, useYAxisScale } from 'recharts';
+import { DefaultZIndexes, ZIndexLayer, usePlotArea, useXAxisScale, useYAxisScale } from 'recharts';
 import type { ChartMeasurement } from '../measurementDisplay';
 
 type ChartSelectionProps = Readonly<{
@@ -14,41 +14,44 @@ export const ChartSelection = ({ data, metric, onSelect }: ChartSelectionProps) 
   if (!area || !xScale || !yScale) {
     return null;
   }
+  // SVG paint order must put the hit area above lines, fills, markers and the hover cursor.
   return (
-    <rect
-      x={area.x}
-      y={area.y}
-      width={area.width}
-      height={area.height}
-      fill='transparent'
-      className='measurement-selection-area'
-      aria-hidden='true'
-      style={{ cursor: 'crosshair' }}
-      onClick={event => {
-        const bounds = event.currentTarget.getBoundingClientRect();
-        const x = area.x + ((event.clientX - bounds.left) * area.width) / bounds.width;
-        const y = area.y + ((event.clientY - bounds.top) * area.height) / bounds.height;
-        let nearest: ChartMeasurement | undefined;
-        let nearestX = Infinity;
-        let nearestY = Infinity;
-        for (const point of data) {
-          const pointX = xScale(point.distance);
-          if (pointX === undefined) {
-            continue;
+    <ZIndexLayer zIndex={DefaultZIndexes.label + 1}>
+      <rect
+        x={area.x}
+        y={area.y}
+        width={area.width}
+        height={area.height}
+        fill='transparent'
+        className='measurement-selection-area'
+        aria-hidden='true'
+        style={{ cursor: 'crosshair' }}
+        onClick={event => {
+          const bounds = event.currentTarget.getBoundingClientRect();
+          const x = area.x + ((event.clientX - bounds.left) * area.width) / bounds.width;
+          const y = area.y + ((event.clientY - bounds.top) * area.height) / bounds.height;
+          let nearest: ChartMeasurement | undefined;
+          let nearestX = Infinity;
+          let nearestY = Infinity;
+          for (const point of data) {
+            const pointX = xScale(point.distance);
+            if (pointX === undefined) {
+              continue;
+            }
+            const dx = Math.abs(pointX - x);
+            const pointY = point[metric] === null ? undefined : yScale(point[metric]);
+            const dy = pointY === undefined ? Infinity : Math.abs(pointY - y);
+            if (dx < nearestX || (dx === nearestX && dy < nearestY)) {
+              nearest = point;
+              nearestX = dx;
+              nearestY = dy;
+            }
           }
-          const dx = Math.abs(pointX - x);
-          const pointY = point[metric] === null ? undefined : yScale(point[metric]);
-          const dy = pointY === undefined ? Infinity : Math.abs(pointY - y);
-          if (dx < nearestX || (dx === nearestX && dy < nearestY)) {
-            nearest = point;
-            nearestX = dx;
-            nearestY = dy;
+          if (nearest?.sampleId && nearest[metric] !== null) {
+            onSelect(nearest.sampleId);
           }
-        }
-        if (nearest?.sampleId && nearest[metric] !== null) {
-          onSelect(nearest.sampleId);
-        }
-      }}
-    />
+        }}
+      />
+    </ZIndexLayer>
   );
 };

@@ -50,7 +50,8 @@ boundaries break lines. Dense recordings use lines instead of a marker at every
 point: overlapping white marker outlines previously obscured the elevation line.
 Clicking a chart position or using the keyboard-accessible position slider selects
 the nearest source point and highlights it on the map. Selection never fabricates
-a location in a missing-measurement gap. Isolated measurements may use a small dot.
+a location in a missing-measurement gap. The selection layer sits above rendered
+lines, fills and markers, so clicking directly on the trace selects a point too. Isolated measurements may use a small dot.
 Changing the entity, segment or imported data clears the old selection. Textual
 results remain available when WebGL fails.
 
