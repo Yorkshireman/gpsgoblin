@@ -86,7 +86,10 @@ describe('GPX file viewer', () => {
     const selection = screen.getByLabelText('Selected measurement');
     expect(screen.queryByLabelText('Chart selection tip')).not.toBeInTheDocument();
     expect(within(selection).getByText('100.0 m')).toBeVisible();
-    await user.click(screen.getByText('Selected point details', { exact: true }));
+    expect(within(selection).getByText('At 1.1 km')).toBeVisible();
+    expect(screen.queryByText('Selected point details')).not.toBeInTheDocument();
+    await user.click(within(selection).getByText('Source details'));
+    expect(within(selection).getByText(/Latitude:/)).toBeVisible();
     expect(screen.getByText('11 September 2026 at 12:01:00 UTC')).toBeVisible();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Display units' }), 'imperial');
     expect(within(selection).getByText('328.1 ft')).toBeVisible();
@@ -109,7 +112,6 @@ describe('GPX file viewer', () => {
       `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg><trkpt lat="0" lon="0">${source === undefined ? '' : `<time>${source}</time>`}</trkpt></trkseg></trk></gpx>`
     ], 'time.gpx', { type: 'application/gpx+xml' }));
     await user.click(await screen.findByRole('button', { name: 'Start of route' }));
-    await user.click(screen.getByText('Selected point details', { exact: true }));
     expect(screen.getByText(expected)).toBeVisible();
   });
 

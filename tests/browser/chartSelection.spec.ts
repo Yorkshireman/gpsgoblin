@@ -36,7 +36,7 @@ test('clicking the drawn speed line selects its source point and map location', 
   await expect(speed.locator('.recharts-tooltip-wrapper')).toContainText('Speed:');
   await page.mouse.click(coordinate.x, coordinate.y);
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText(
-    'Point 2 of 4'
+    'At 0.1 km'
   );
   if ((page.viewportSize()?.width ?? 1280) < 1024)
     await page.getByRole('button', { name: 'View on map' }).click();

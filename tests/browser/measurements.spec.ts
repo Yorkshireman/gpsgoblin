@@ -129,7 +129,6 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     })
   ).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('measurements.png'), fullPage: true });
-  await page.getByText('Selected point details', { exact: true }).click();
   await expect(page.getByText('11 September 2026 at 12:02:00 UTC')).toBeVisible();
   await page.getByText('11 September 2026 at 12:02:00 UTC').scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('recorded-time.png') });

@@ -229,32 +229,57 @@ export const MeasurementExplorer = ({
             )}
             <Box flex='1' minW={0}>
               {selected ? (
-                <>
-                  <Text color='fg.info'>
-                    Point {selectedIndex + 1} of {analysis.points.length} ·{' '}
-                    {formatMeasurement(
+                <Stack gap={3}>
+                  <Text fontWeight='semibold'>
+                    At {formatMeasurement(
                       selected.distanceMetres / labels.metresPerDistance,
                       labels.distance
                     )}
                   </Text>
-                  <Text color='fg.info'>
-                    Elevation:{' '}
-                    <span>
-                      {formatMeasurement(
-                        selected.elevationMetres === null
-                          ? null
-                          : selected.elevationMetres / labels.metresPerElevation,
-                        labels.elevation
-                      )}
-                    </span>{' '}
-                    · {motion === 'speed' ? 'Speed' : 'Pace'}:{' '}
-                    <span>
-                      {selectedMotion === null
-                        ? 'Unavailable'
-                        : formatChartMeasurement(selectedMotion, motionUnit)}
-                    </span>
+                  <Grid as='dl' templateColumns='repeat(2, minmax(0, 1fr))' gap={3}>
+                    <Box>
+                      <Text as='dt'>{motion === 'speed' ? 'Speed' : 'Pace'}</Text>
+                      <Text as='dd' fontSize='lg' fontWeight='semibold'>
+                        {selectedMotion === null
+                          ? 'Unavailable'
+                          : formatChartMeasurement(selectedMotion, motionUnit)}
+                      </Text>
+                    </Box>
+                    <Box>
+                      <Text as='dt'>Elevation</Text>
+                      <Text as='dd' fontSize='lg' fontWeight='semibold'>
+                        {formatMeasurement(
+                          selected.elevationMetres === null
+                            ? null
+                            : selected.elevationMetres / labels.metresPerElevation,
+                          labels.elevation
+                        )}
+                      </Text>
+                    </Box>
+                  </Grid>
+                  <Text fontSize='xs'>
+                    Recorded time: <span>{formatRecordedTime(selected.sample.sourceTime)}</span>
                   </Text>
-                </>
+                  {selected.timeIssue ? <Text fontSize='xs'>{selected.timeIssue}</Text> : null}
+                  <Box as='details' fontSize='xs'>
+                    <Box as='summary' cursor='pointer' fontWeight='medium'>
+                      Source details
+                    </Box>
+                    <Stack gap={1} pt={2}>
+                      <Text>
+                        Latitude: {selected.sample.latitudeDegrees}°; Longitude:{' '}
+                        {selected.sample.longitudeDegrees}°
+                      </Text>
+                      <Text>
+                        Elevation and time come from the file. Speed and pace are calculated
+                        {smoothingSeconds
+                          ? ` and averaged over ${formatSmoothingDuration(smoothingSeconds)}`
+                          : ''}
+                        .
+                      </Text>
+                    </Stack>
+                  </Box>
+                </Stack>
               ) : (
                 <Text>Select a point on the chart to see its details.</Text>
               )}
@@ -383,7 +408,7 @@ export const MeasurementExplorer = ({
                     {mapView}
                     {selected ? (
                       <Text fontSize='sm'>
-                        Point {selectedIndex + 1} · {selected.sample.latitudeDegrees}°,{' '}
+                        {selected.sample.latitudeDegrees}°,{' '}
                         {selected.sample.longitudeDegrees}°
                       </Text>
                     ) : null}
@@ -410,7 +435,9 @@ export const MeasurementExplorer = ({
                 max={analysis.points.length - 1}
                 step={1}
                 value={selectedIndex < 0 ? 0 : selectedIndex}
-                aria-valuetext={selected ? `Point ${selectedIndex + 1}` : 'No point selected'}
+                aria-valuetext={selected
+                  ? formatMeasurement(selected.distanceMetres / labels.metresPerDistance, labels.distance)
+                  : 'No point selected'}
                 onChange={event => {
                   const point = analysis.points[Number(event.currentTarget.value)];
                   if (point) {
@@ -445,30 +472,6 @@ export const MeasurementExplorer = ({
           Select a point on the chart to see its location on the map. Gaps show where measurements
           are missing.
         </Text>
-      ) : null}
-      {selected ? (
-        <Box as='details' fontSize='sm'>
-          <Box as='summary' cursor='pointer' fontWeight='medium'>
-            Selected point details
-          </Box>
-          <Stack gap={1} pt={2}>
-            <Text>
-              Latitude: {selected.sample.latitudeDegrees}°; Longitude:{' '}
-              {selected.sample.longitudeDegrees}°
-            </Text>
-            <Text>
-              Recorded time: <span>{formatRecordedTime(selected.sample.sourceTime)}</span>
-            </Text>
-            {selected.timeIssue ? <Text>{selected.timeIssue}</Text> : null}
-            <Text>
-              Elevation and time come from the file. Speed and pace are calculated
-              {smoothingSeconds
-                ? ` and averaged over ${formatSmoothingDuration(smoothingSeconds)}`
-                : ''}
-              .
-            </Text>
-          </Stack>
-        </Box>
       ) : null}
       <Box as='details' fontSize='sm' color='fg.muted'>
         <Box as='summary' cursor='pointer' fontWeight='medium' color='fg'>

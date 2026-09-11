@@ -116,7 +116,11 @@ to it. Only one chart is active. Measurement warnings, complete file/entity name
 source metadata and calculation details remain available through disclosure controls.
 
 Desktop shows the chart and local route map side by side. The selected point's
-values sit immediately above the plot; smoothing remains directly below it. Phones
+values sit immediately above the plot: distance, paired speed/pace and elevation,
+and recorded time. Coordinates and calculation notes are in a Source details
+disclosure within that box; there is no separate selected-point details section.
+The position slider describes the selected distance rather than a source point number.
+Smoothing remains directly below the plot. Phones
 use a “View on map” dialog, with “Back to chart” restoring focus to its trigger and
 preserving selection. The route-position slider remains a keyboard alternative to
 clicking or tapping plotted measurements. Opening the map is explicit; selecting a
