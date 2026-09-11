@@ -25,9 +25,12 @@ offset is an unknown timezone; the browser's local timezone is never substituted
 Invalid, empty and missing timestamps remain distinct from valid values.
 
 Interval speed is horizontal great-circle distance between adjacent points divided
-by their positive timestamp difference. Calculated timed duration sums those valid
-intervals within each selected segment. It excludes segment gaps and unusable
-intervals: it is neither moving time nor total elapsed time. No sport is inferred
+by their positive timestamp difference. Average speed uses the sum of those valid
+intervals within each selected segment, excluding segment gaps and unusable intervals.
+The displayed Duration is the last point's time minus the first point's time in the
+selected track, segment or route, including pauses and gaps. It requires at least
+two points with valid, timezone-qualified endpoint timestamps and a finish no earlier
+than the start; otherwise it is unavailable. Neither duration is moving time. No sport is inferred
 from the filename or extensions. A timed planned route is not evidence of a
 completed activity.
 
@@ -106,7 +109,7 @@ are hidden, with an explanation of unavailable measurements.
 
 After a successful import, a compact filename/Change/Clear row replaces onboarding
 and the dropzone. A failed replacement keeps the previous successful file identity
-and results. Distance and readable timed duration appear before the active chart.
+and results. Distance and readable Duration appear before the active chart.
 The chart selector offers supported Speed, Pace and Elevation views; units are next
 to it. Only one chart is active. Measurement warnings, complete file/entity names,
 source metadata and calculation details remain available through disclosure controls.

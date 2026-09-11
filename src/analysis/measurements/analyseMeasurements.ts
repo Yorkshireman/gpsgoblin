@@ -15,6 +15,7 @@ export type MeasurementPoint = Readonly<{
 export type MeasurementAnalysis = Readonly<{
   points: readonly MeasurementPoint[];
   distanceMetres: number;
+  elapsedDurationSeconds: number | null;
   timedDurationSeconds: number | null;
   averageSpeedMetresPerSecond: number | null;
   timedIntervalCount: number;
@@ -88,9 +89,16 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
       });
     }
   }
+  const start = readTimestamp(points[0]?.sample.sourceTime).milliseconds;
+  const finish = readTimestamp(points.at(-1)?.sample.sourceTime).milliseconds;
+  const elapsedDurationSeconds =
+    points.length > 1 && start !== null && finish !== null && finish >= start
+      ? (finish - start) / 1000
+      : null;
   return {
     points,
     distanceMetres,
+    elapsedDurationSeconds,
     timedDurationSeconds: timedIntervalCount ? durationSeconds : null,
     averageSpeedMetresPerSecond: timedIntervalCount ? timedDistanceMetres / durationSeconds : null,
     timedIntervalCount,
@@ -99,7 +107,7 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
       if (issue === 'invalid elevation') {
         return `${count} point(s): invalid elevation. These values are unavailable in elevation results.`;
       }
-      return `${count} point(s): ${issue}. Affected intervals are excluded from timing and speed.`;
+      return `${count} point(s): ${issue}. Affected intervals are excluded from speed calculations.`;
     })
   };
 };

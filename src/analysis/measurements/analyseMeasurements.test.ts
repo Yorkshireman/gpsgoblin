@@ -37,6 +37,8 @@ describe('analyseMeasurements', () => {
     ]);
     // Two 111.195 m movements and a 30-second stop: 222.39 metres / 50 seconds.
     expect(result.averageSpeedMetresPerSecond).toBeCloseTo(4.4478032, 6);
+    expect(result.elapsedDurationSeconds).toBe(86410);
+    expect(result.timedDurationSeconds).toBe(50);
   });
   it('does not double-count overlapping time after the clock moves backwards', () => {
     const times = ['00', '10', '05', '08', '15', '20'];
@@ -97,6 +99,7 @@ describe('analyseMeasurements', () => {
       }
     ]);
     expect(result.timedDurationSeconds).toBe(60);
+    expect(result.elapsedDurationSeconds).toBe(86400);
     expect(result.distanceMetres).toBe(0);
     expect(
       result.points.map(point => {
@@ -158,6 +161,7 @@ describe('analyseMeasurements', () => {
       }
     ]);
     expect(result.timedDurationSeconds).toBe(3600);
+    expect(result.elapsedDurationSeconds).toBe(3600);
     expect(result.timedIntervalCount).toBe(1);
     expect(result.distanceMetres).toBeCloseTo(111195.08, 2);
     expect(result.points[1].speedMetresPerSecond).toBeCloseTo(30.88752, 5);
@@ -167,5 +171,38 @@ describe('analyseMeasurements', () => {
       })
     ).toEqual([0, 100]);
     expect(result.warnings).toEqual([]);
+  });
+
+  it.each([
+    [undefined, '2026-09-11T12:01:00Z', null],
+    ['2026-09-11T12:00:00Z', undefined, null],
+    ['invalid', '2026-09-11T12:01:00Z', null],
+    ['2026-09-11T12:00:00Z', '2026-09-11T12:01:00', null],
+    ['2026-09-11T12:00:00Z', '2026-09-11T11:59:00Z', null],
+    ['2026-09-11T12:00:00Z', '2026-09-11T12:00:00Z', 0]
+  ])('uses the actual endpoints for Duration: %s to %s', (start, finish, expected) => {
+    const samples = [start, '2026-09-11T12:00:30Z', finish].map((sourceTime, index) => {
+      return { id: String(index), latitudeDegrees: 0, longitudeDegrees: 0, sourceTime };
+    });
+    expect(analyseMeasurements([{ id: 'segment', samples }]).elapsedDurationSeconds).toBe(expected);
+  });
+
+  it('leaves Duration unavailable with fewer than two points', () => {
+    expect(analyseMeasurements([]).elapsedDurationSeconds).toBeNull();
+    expect(
+      analyseMeasurements([
+        {
+          id: 'segment',
+          samples: [
+            {
+              id: 'point',
+              latitudeDegrees: 0,
+              longitudeDegrees: 0,
+              sourceTime: '2026-09-11T12:00:00Z'
+            }
+          ]
+        }
+      ]).elapsedDurationSeconds
+    ).toBeNull();
   });
 });

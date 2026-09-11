@@ -129,12 +129,14 @@ export const MeasurementExplorer = ({
           </Stat.HelpText>
         </Stat.Root>
         <Stat.Root>
-          <Stat.Label>Calculated duration</Stat.Label>
+          <Stat.Label>Duration</Stat.Label>
           <Stat.ValueText fontSize={{ base: 'xl', md: '2xl' }}>
-            {formatDuration(analysis.timedDurationSeconds)}
+            {formatDuration(analysis.elapsedDurationSeconds)}
           </Stat.ValueText>
           <Stat.HelpText fontSize='xs'>
-            Calculated from the recorded times. Gaps and unusable times aren’t counted.
+            {analysis.elapsedDurationSeconds === null
+              ? 'Needs valid start and finish times'
+              : 'From start to finish, including pauses and gaps'}
           </Stat.HelpText>
         </Stat.Root>
       </Grid>

@@ -30,6 +30,9 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   });
 
   await expect(page.getByText('Average speed: 66.7 km/h')).toBeVisible();
+  await expect(page.getByText('Duration', { exact: true })).toBeInViewport();
+  await expect(page.getByText('24 h 1 min')).toBeInViewport();
+  await page.screenshot({ path: testInfo.outputPath('duration.png') });
   const averageLine = page.locator('.recharts-reference-line-line');
   await expect(averageLine).toBeAttached();
   expect(Number(await averageLine.getAttribute('x2'))).toBeGreaterThan(
