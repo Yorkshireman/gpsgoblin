@@ -49,11 +49,6 @@ export const MeasurementChart = ({
       };
     });
   }, [data, metric, maximum]);
-  const showTrend =
-    metric === 'motion' &&
-    data.some(point => {
-      return point.trendSpeed !== null;
-    });
   const chart = useChart({
     data: plottedData,
     series: [{ name: metric, color: 'green.solid', label: `${title} (${unit})` }]
@@ -79,12 +74,6 @@ export const MeasurementChart = ({
         <Text fontSize='sm' color='fg.muted'>
           {description}
         </Text>
-      ) : null}
-      {showTrend ? (
-        <Stack direction='row' align='center' gap={2}>
-          <Box aria-hidden='true' width='6' borderTopWidth='3px' borderColor='blue.solid' />
-          <Text fontSize='sm'>Speed trend · 5-minute average</Text>
-        </Stack>
       ) : null}
       {reference ? (
         <Stack direction='row' align='center' gap={2}>
@@ -154,9 +143,6 @@ export const MeasurementChart = ({
                   <Text>
                     {title}: {formatChartMeasurement(point.originalValue, unit)}
                   </Text>
-                  {showTrend && typeof point.trendSpeed === 'number' ? (
-                    <Text>5-minute average: {formatChartMeasurement(point.trendSpeed, unit)}</Text>
-                  ) : null}
                 </Stack>
               );
             }}
@@ -169,22 +155,8 @@ export const MeasurementChart = ({
             activeDot={false}
             isAnimationActive={false}
             dot={false}
-            strokeWidth={showTrend ? 1 : 2}
-            strokeOpacity={showTrend ? 0.5 : 1}
+            strokeWidth={2}
           />
-          {showTrend ? (
-            <Line
-              className='speed-trend'
-              type='linear'
-              dataKey='trendSpeed'
-              stroke={chart.color('blue.solid')}
-              strokeWidth={3}
-              connectNulls={false}
-              activeDot={false}
-              isAnimationActive={false}
-              dot={false}
-            />
-          ) : null}
           {reference ? (
             <ReferenceLine
               y={reference.value}

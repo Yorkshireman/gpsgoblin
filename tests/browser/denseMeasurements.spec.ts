@@ -67,23 +67,24 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   expect(await averageLine.getAttribute('y1')).toBe(await averageLine.getAttribute('y2'));
   const averageLabel = await speed.getByText(/Average speed:/).textContent();
   await speed.screenshot({ path: testInfo.outputPath('local-speed.png') });
-  await expect(speed.locator('.speed-trend .recharts-line-curve')).toBeVisible();
-  await expect(speed.getByText('Speed trend · 5-minute average')).toBeVisible();
-  const smoothedPath = await speed
-    .locator('.recharts-line:not(.speed-trend) .recharts-line-curve')
-    .getAttribute('d');
+  await expect(speed.locator('.recharts-line-curve')).toHaveCount(1);
+  const smoothedPath = await speed.locator('.recharts-line-curve').getAttribute('d');
   const smoothing = page.getByRole('slider', { name: 'Smoothing' });
-  await expect(smoothing).toHaveValue('30');
+  await expect(smoothing).toHaveAttribute('aria-valuetext', '1 minute');
+  await smoothing.press('ArrowRight');
+  await expect(smoothing).toHaveAttribute('aria-valuetext', '1 minute 5 seconds');
   await smoothing.focus();
   await smoothing.press('Home');
   await expect(speed.getByText('Unsmoothed', { exact: true })).toBeVisible();
-  await expect(
-    speed.locator('.recharts-line:not(.speed-trend) .recharts-line-curve')
-  ).not.toHaveAttribute('d', smoothedPath ?? '');
+  await expect(speed.locator('.recharts-line-curve')).not.toHaveAttribute('d', smoothedPath ?? '');
   await smoothing.press('End');
-  await expect(smoothing).toHaveValue('120');
+  await expect(smoothing).toHaveAttribute('aria-valuetext', '10 minutes');
   await expect(speed.getByText(/Average speed:/)).toHaveText(averageLabel ?? '');
-  await expect(page.getByText('120 seconds', { exact: true })).toBeVisible();
+  await expect(page.getByText('10 minutes', { exact: true })).toBeVisible();
+  await speed.locator('..').screenshot({ path: testInfo.outputPath('local-speed-ten-minutes.png') });
+  await smoothing.press('ArrowLeft');
+  await expect(smoothing).toHaveAttribute('aria-valuetext', '9 minutes 30 seconds');
+  await smoothing.press('End');
   await page.getByRole('combobox', { name: 'Speed or pace' }).selectOption('pace');
   const pace = page.getByRole('heading', { name: 'Pace', exact: true }).locator('..');
   await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('0:00');

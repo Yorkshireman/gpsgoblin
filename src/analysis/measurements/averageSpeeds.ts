@@ -1,6 +1,6 @@
 import type { MeasurementPoint } from './analyseMeasurements';
 
-export const SPEED_AVERAGE_SECONDS = 30;
+export const SPEED_AVERAGE_SECONDS = 60;
 
 // A trailing, time-weighted view. Source measurements and totals remain untouched.
 export const averageSpeeds = (points: readonly MeasurementPoint[], windowSeconds: number) => {

@@ -54,9 +54,10 @@ a location in a missing-measurement gap. Isolated measurements may use a small d
 Changing the entity, segment or imported data clears the old selection. Textual
 results remain available when WebGL fails.
 
-Speed and pace default to a labelled 30-second trailing average. A smoothing slider
-directly below the chart offers 0–120 seconds in five-second steps, with the selected
-seconds below it. Zero shows the original calculated interval speeds. Averaging is time-weighted
+Speed and pace default to a labelled 1-minute trailing average. A smoothing slider
+directly below the chart offers 0–10 minutes, with five-second steps up to two
+minutes and thirty-second steps thereafter. The selected duration appears below it
+in minutes and seconds. Zero shows the original calculated interval speeds. Averaging is time-weighted
 (distance divided by time), including zero speed, and restarts after unusable time
 or a segment boundary. The start of a section uses the time available. A window
 boundary inside an interval uses a proportional share of that interval, assuming
@@ -81,10 +82,8 @@ intervals, including recorded stops, for the selected track or segment. Untimed
 distance and gaps between segments are excluded. This reference does not change
 with smoothing and converts with the selected display units.
 
-A thicker blue speed-trend line uses a 5-minute trailing time-weighted average,
-independent of the detail slider. It shares the same gap, stop and partial-window
-rules as smoothing. The detailed trace is thinner and lighter so the trend remains
-readable. Tooltips show both values at the source point. The tooltip renders one
+There is one adjustable speed trace plus the fixed overall average. Longer
+smoothing windows show sustained speed changes. The tooltip renders one
 content block instead of unkeyed children through Chakra's tooltip list renderer.
 
 The primary helper copy explains chart/map selection and missing measurements.

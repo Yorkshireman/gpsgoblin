@@ -15,6 +15,8 @@ import type { Route, Track, TrackSegment } from '@/domain/activityDocument';
 import { RouteMap } from '../RouteMap';
 import {
   chartMeasurements,
+  smoothingDurations,
+  formatSmoothingDuration,
   displayUnits,
   formatMeasurement,
   formatChartValue,
@@ -154,7 +156,11 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
             data={data}
             metric='motion'
             title={motion === 'speed' ? 'Speed' : 'Pace'}
-            description={smoothingSeconds ? `${smoothingSeconds}-second average` : 'Unsmoothed'}
+            description={
+              smoothingSeconds
+                ? `Average over ${formatSmoothingDuration(smoothingSeconds)}`
+                : 'Unsmoothed'
+            }
             reference={
               motion === 'speed' && analysis.averageSpeedMetresPerSecond !== null
                 ? {
@@ -178,18 +184,20 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
               borderWidth={0}
               p={0}
               min={0}
-              max={120}
-              step={5}
-              value={smoothingSeconds}
+              max={smoothingDurations.length - 1}
+              step={1}
+              value={smoothingDurations.indexOf(smoothingSeconds)}
               aria-valuetext={
-                smoothingSeconds ? `${smoothingSeconds} seconds` : '0 seconds (unsmoothed)'
+                smoothingSeconds
+                  ? formatSmoothingDuration(smoothingSeconds)
+                  : '0 seconds (unsmoothed)'
               }
               onChange={event => {
-                setSmoothingSeconds(Number(event.currentTarget.value));
+                setSmoothingSeconds(smoothingDurations[Number(event.currentTarget.value)]);
               }}
             />
             <Field.HelperText alignSelf='center'>
-              {smoothingSeconds} seconds
+              {formatSmoothingDuration(smoothingSeconds)}
               {smoothingSeconds === 0 ? ' (unsmoothed)' : ''}
             </Field.HelperText>
             <Text fontSize='sm' color='fg.muted'>
@@ -285,18 +293,15 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
           </Text>
           <Text>
             {motion === 'speed' ? 'Speed:' : 'Pace:'}
-            {smoothingSeconds ? ` (${smoothingSeconds}-second average)` : ''}
+            {smoothingSeconds
+              ? ` (averaged over ${formatSmoothingDuration(smoothingSeconds)})`
+              : ''}
           </Text>
           <Text>
             {selectedMotion === null
               ? 'Unavailable'
               : formatChartMeasurement(selectedMotion, motionUnit)}
           </Text>
-          {motion === 'speed' && selectedChartPoint?.trendSpeed != null ? (
-            <Text>
-              5-minute average: {formatChartMeasurement(selectedChartPoint.trendSpeed, motionUnit)}
-            </Text>
-          ) : null}
           <Text>Recorded time:</Text>
           <Text overflowWrap='anywhere'>
             {selected.sample.sourceTime === ''
@@ -314,10 +319,6 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
           <Text>
             We calculate speed from the distance and time between recorded locations. Small GPS
             errors can make this jump around, even when you move steadily.
-          </Text>
-          <Text>
-            The blue trend line averages speed over the previous 5 minutes to show sustained
-            changes. It restarts after gaps and uses the available time at the start of a section.
           </Text>
           <Text>
             The dashed line shows the average speed for the selected track or section, including

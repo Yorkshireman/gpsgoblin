@@ -1,6 +1,21 @@
 import type { MeasurementPoint } from '@/analysis/measurements';
 import { averageSpeeds, SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
 
+// Five-second steps up to two minutes, then thirty-second steps up to ten minutes.
+export const smoothingDurations = Array.from({ length: 41 }, (_, index) => {
+  return index <= 24 ? index * 5 : 120 + (index - 24) * 30;
+});
+
+export const formatSmoothingDuration = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  if (!minutes) {
+    return `${seconds} seconds`;
+  }
+  const minuteLabel = `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+  return remainder ? `${minuteLabel} ${remainder} seconds` : minuteLabel;
+};
+
 export type DisplayUnits = 'metric' | 'imperial';
 export type MotionDisplay = 'speed' | 'pace';
 
@@ -60,7 +75,6 @@ export type ChartMeasurement = Readonly<{
   distance: number;
   elevation: number | null;
   motion: number | null;
-  trendSpeed: number | null;
 }>;
 
 // Display conversion stays separate from full-resolution calculations. No downsampling yet.
@@ -73,7 +87,6 @@ export const chartMeasurements = (
   const labels = displayUnits(units);
   const data: ChartMeasurement[] = [];
   const speeds = averageSpeeds(points, smoothingSeconds);
-  const trendSpeeds = motion === 'speed' ? averageSpeeds(points, 300) : [];
   for (let index = 0; index < points.length; index += 1) {
     const point = points[index];
     if (index > 0 && point.segmentId !== points[index - 1].segmentId) {
@@ -81,8 +94,7 @@ export const chartMeasurements = (
         sampleId: null,
         distance: point.distanceMetres / labels.metresPerDistance,
         elevation: null,
-        motion: null,
-        trendSpeed: null
+        motion: null
       });
     }
     data.push({
@@ -90,8 +102,7 @@ export const chartMeasurements = (
       distance: point.distanceMetres / labels.metresPerDistance,
       elevation:
         point.elevationMetres === null ? null : point.elevationMetres / labels.metresPerElevation,
-      motion: motionValue(speeds[index], units, motion),
-      trendSpeed: motionValue(trendSpeeds[index] ?? null, units, 'speed')
+      motion: motionValue(speeds[index], units, motion)
     });
   }
   return data;
