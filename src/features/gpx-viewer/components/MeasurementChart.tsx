@@ -122,7 +122,7 @@ export const MeasurementChart = ({
           responsive
           style={{ width: '100%', height: '100%' }}
           data={chart.data}
-          margin={{ top: 12, right: 20, bottom: 28, left: 0 }}
+          margin={{ top: 12, right: 8, bottom: 28, left: 0 }}
           accessibilityLayer
         >
           <CartesianGrid stroke={chart.color('border.muted')} vertical={false} />
@@ -149,7 +149,7 @@ export const MeasurementChart = ({
                   : ['auto', 'auto']
             }
             allowDataOverflow={maximum !== undefined}
-            width={72}
+            width='auto'
             tickFormatter={(value) => {
               return formatChartValue(Number(value), unit);
             }}
@@ -158,7 +158,7 @@ export const MeasurementChart = ({
             <YAxis
               yAxisId='backgroundElevation'
               orientation='right'
-              width={44}
+              width='auto'
               tickCount={4}
               domain={['auto', 'auto']}
               tickFormatter={(value) => {
