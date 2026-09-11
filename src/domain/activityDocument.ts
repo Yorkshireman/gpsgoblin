@@ -5,7 +5,7 @@ export type GeographicSample = Readonly<{
   longitudeDegrees: number;
 }>;
 
-export type GpxMetadata = Readonly<{
+type GpxMetadata = Readonly<{
   description?: string;
   name?: string;
 }>;
