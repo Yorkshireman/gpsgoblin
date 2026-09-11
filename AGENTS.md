@@ -44,6 +44,8 @@ This pacing applies to the user's actions. During an authorised `/agent` request
 
 Run non-mutating static checks such as typechecking and linting yourself when they help answer the current request. Do not ask the user to run a check that the agent can run in the workspace. These checks are permitted during read-only investigation as long as they do not use fix, write or update modes. Report the exact commands run and their results.
 
+Before completing an implementation request, run `pnpm knip` and require it to exit successfully with no findings. Resolve findings within the authorised scope; report any out-of-scope findings or execution blockers as outstanding verification failures.
+
 ## TypeScript conventions
 
 Use PascalCase for React component filenames. Use camelCase for other TypeScript and TSX filenames, except framework-mandated filenames such as `page.tsx` and `layout.tsx`.

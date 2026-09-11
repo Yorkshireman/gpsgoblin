@@ -1,0 +1,8 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  // Vendor assets copied by scripts/copyMapLibreWorker.mjs and loaded by URL.
+  "ignoreFiles": [
+    "public/maplibre/maplibre-gl-worker.mjs",
+    "public/maplibre/maplibre-gl-shared.mjs"
+  ]
+}
