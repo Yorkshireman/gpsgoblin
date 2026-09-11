@@ -8,6 +8,7 @@ export type MeasurementPoint = Readonly<{
   distanceMetres: number;
   elevationMetres: number | null;
   speedMetresPerSecond: number | null;
+  intervalSeconds: number | null;
   timeIssue?: string;
 }>;
 
@@ -15,6 +16,7 @@ export type MeasurementAnalysis = Readonly<{
   points: readonly MeasurementPoint[];
   distanceMetres: number;
   timedDurationSeconds: number | null;
+  averageSpeedMetresPerSecond: number | null;
   timedIntervalCount: number;
   intervalCount: number;
   warnings: readonly string[];
@@ -24,6 +26,7 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
   const points: MeasurementPoint[] = [];
   let distanceMetres = 0;
   let durationSeconds = 0;
+  let timedDistanceMetres = 0;
   let timedIntervalCount = 0;
   let intervalCount = 0;
   const issueCounts = new Map<string, number>();
@@ -35,6 +38,7 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
       const sample = segment.samples[index];
       const previous = segment.samples[index - 1];
       let speedMetresPerSecond: number | null = null;
+      let intervalSeconds: number | null = null;
       const timestamp = readTimestamp(sample.sourceTime);
       let timeIssue = timestamp.issue;
       if (
@@ -53,8 +57,10 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
           const seconds = (timestamp.milliseconds - previousTime) / 1000;
           if (seconds > 0) {
             durationSeconds += seconds;
+            timedDistanceMetres += distance;
             timedIntervalCount += 1;
             speedMetresPerSecond = distance / seconds;
+            intervalSeconds = seconds;
           }
         }
       }
@@ -77,6 +83,7 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
         distanceMetres,
         elevationMetres,
         speedMetresPerSecond,
+        intervalSeconds,
         timeIssue
       });
     }
@@ -85,6 +92,7 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
     points,
     distanceMetres,
     timedDurationSeconds: timedIntervalCount ? durationSeconds : null,
+    averageSpeedMetresPerSecond: timedIntervalCount ? timedDistanceMetres / durationSeconds : null,
     timedIntervalCount,
     intervalCount,
     warnings: Array.from(issueCounts, ([issue, count]) => {

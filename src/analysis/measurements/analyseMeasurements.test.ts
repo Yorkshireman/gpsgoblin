@@ -1,6 +1,43 @@
 import { analyseMeasurements } from '.';
 
 describe('analyseMeasurements', () => {
+  it('time-weights overall speed, includes stops and excludes untimed distance and segment gaps', () => {
+    const result = analyseMeasurements([
+      {
+        id: 'a',
+        samples: [
+          { id: 'a0', latitudeDegrees: 0, longitudeDegrees: 0, sourceTime: '2026-09-11T12:00:00Z' },
+          {
+            id: 'a1',
+            latitudeDegrees: 0,
+            longitudeDegrees: 0.001,
+            sourceTime: '2026-09-11T12:00:10Z'
+          },
+          {
+            id: 'a2',
+            latitudeDegrees: 0,
+            longitudeDegrees: 0.001,
+            sourceTime: '2026-09-11T12:00:40Z'
+          },
+          { id: 'a3', latitudeDegrees: 0, longitudeDegrees: 1 }
+        ]
+      },
+      {
+        id: 'b',
+        samples: [
+          { id: 'b0', latitudeDegrees: 0, longitudeDegrees: 2, sourceTime: '2026-09-12T12:00:00Z' },
+          {
+            id: 'b1',
+            latitudeDegrees: 0,
+            longitudeDegrees: 2.001,
+            sourceTime: '2026-09-12T12:00:10Z'
+          }
+        ]
+      }
+    ]);
+    // Two 111.195 m movements and a 30-second stop: 222.39 metres / 50 seconds.
+    expect(result.averageSpeedMetresPerSecond).toBeCloseTo(4.4478032, 6);
+  });
   it('does not double-count overlapping time after the clock moves backwards', () => {
     const times = ['00', '10', '05', '08', '15', '20'];
     const samples = times.map((seconds, index) => {
@@ -13,6 +50,7 @@ describe('analyseMeasurements', () => {
     });
     const result = analyseMeasurements([{ id: 'segment', samples }]);
     expect(result.timedDurationSeconds).toBe(15);
+    expect(result.averageSpeedMetresPerSecond).toBe(0);
     expect(
       result.points.map(point => {
         return point.speedMetresPerSecond;
@@ -92,6 +130,7 @@ describe('analyseMeasurements', () => {
       }
     ]);
     expect(result.timedDurationSeconds).toBeNull();
+    expect(result.averageSpeedMetresPerSecond).toBeNull();
     expect(result.points[1].speedMetresPerSecond).toBeNull();
     expect(result.warnings.join(' ')).toContain(warning);
   });

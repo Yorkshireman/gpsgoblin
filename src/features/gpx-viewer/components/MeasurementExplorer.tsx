@@ -1,13 +1,24 @@
-import { Button, Field, Heading, Input, NativeSelect, Stack, Stat, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Field,
+  Heading,
+  Input,
+  NativeSelect,
+  Stack,
+  Stat,
+  Text
+} from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
-import { analyseMeasurements } from '@/analysis/measurements';
+import { analyseMeasurements, SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
 import type { Route, Track, TrackSegment } from '@/domain/activityDocument';
 import { RouteMap } from '../RouteMap';
 import {
   chartMeasurements,
   displayUnits,
   formatMeasurement,
-  motionValue
+  formatChartValue,
+  formatChartMeasurement
 } from '../measurementDisplay';
 import type { DisplayUnits, MotionDisplay } from '../measurementDisplay';
 import { MeasurementChart } from './MeasurementChart';
@@ -20,25 +31,34 @@ type MeasurementExplorerProps = (
 
 export const MeasurementExplorer = ({ track, segment, route, units }: MeasurementExplorerProps) => {
   const [motion, setMotion] = useState<MotionDisplay>('speed');
+  const [smoothingSeconds, setSmoothingSeconds] = useState(SPEED_AVERAGE_SECONDS);
+  const [fullPaceRange, setFullPaceRange] = useState(false);
   const analysis = useMemo(() => {
     return analyseMeasurements(
       track ? (segment ? [segment] : track.segments) : [{ id: route.id, samples: route.points }]
     );
   }, [track, segment, route]);
-  const [selection, setSelection] = useState<{ analysis: typeof analysis; id: string }>();
+  const [selection, setSelection] = useState<{
+    analysis: typeof analysis;
+    id: string;
+  }>();
   const selectedId = selection?.analysis === analysis ? selection.id : undefined;
   const setSelectedId = (id: string) => {
     setSelection({ analysis, id });
     return;
   };
   const data = useMemo(() => {
-    return chartMeasurements(analysis.points, units, motion);
-  }, [analysis, units, motion]);
+    return chartMeasurements(analysis.points, units, motion, smoothingSeconds);
+  }, [analysis, units, motion, smoothingSeconds]);
   const labels = displayUnits(units);
   const selectedIndex = analysis.points.findIndex(point => {
     return point.sample.id === selectedId;
   });
   const selected = analysis.points[selectedIndex];
+  const selectedChartPoint = data.find(point => {
+    return point.sampleId === selectedId;
+  });
+  const selectedMotion = selectedChartPoint?.motion ?? null;
   const hasElevation = data.some(point => {
     return point.elevation !== null;
   });
@@ -46,6 +66,13 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
     return point.motion !== null;
   });
   const motionUnit = motion === 'speed' ? labels.speed : labels.pace;
+
+  const paceLimit = (30 * labels.metresPerDistance) / 1000;
+  const hasSlowPace =
+    motion === 'pace' &&
+    data.some(point => {
+      return point.motion !== null && point.motion > paceLimit;
+    });
 
   return (
     <Stack gap={5} width='full' minW={0}>
@@ -79,25 +106,14 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
           </Stat.HelpText>
         </Stat.Root>
         <Stat.Root>
-          <Stat.Label>Calculated timed duration</Stat.Label>
+          <Stat.Label>Calculated duration</Stat.Label>
           <Stat.ValueText>{formatMeasurement(analysis.timedDurationSeconds, 's')}</Stat.ValueText>
           <Stat.HelpText>
-            {analysis.timedIntervalCount} of {analysis.intervalCount} adjacent intervals timed. Sum
-            of valid intervals; excludes segment gaps and unusable time. This is not moving time or
-            total elapsed time.
+            Calculated from the recorded times. Gaps and unusable times aren’t counted.
           </Stat.HelpText>
         </Stat.Root>
       </Stack>
-      <Text fontSize='sm' color='fg.muted'>
-        GPX source totals are not interpreted. Distance, duration and interval speed/pace are
-        calculated; elevations and timestamps come from source points. Original values are retained.
-      </Text>
-      {route ? (
-        <Text>
-          Planned route: timing between route points does not establish that this journey was
-          completed.
-        </Text>
-      ) : null}
+      {route ? <Text>This is a planned route. Its times may be estimates.</Text> : null}
       {analysis.warnings.length ? (
         <Stack as='section' aria-label='Measurement warnings' gap={1}>
           {analysis.warnings.map(warning => {
@@ -133,38 +149,95 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
         <Text>No elevation measurements available.</Text>
       )}
       {hasMotion ? (
-        <MeasurementChart
-          data={data}
-          metric='motion'
-          title={motion === 'speed' ? 'Interval speed' : 'Interval pace'}
-          unit={motionUnit}
-          distanceUnit={labels.distance}
-          selectedId={selected?.sample.id}
-          onSelect={setSelectedId}
-        />
+        <Stack gap={3}>
+          <MeasurementChart
+            data={data}
+            metric='motion'
+            title={motion === 'speed' ? 'Speed' : 'Pace'}
+            description={smoothingSeconds ? `${smoothingSeconds}-second average` : 'Unsmoothed'}
+            reference={
+              motion === 'speed' && analysis.averageSpeedMetresPerSecond !== null
+                ? {
+                    value: (analysis.averageSpeedMetresPerSecond * 3600) / labels.metresPerDistance,
+                    label: 'Average speed'
+                  }
+                : undefined
+            }
+            maximum={hasSlowPace && !fullPaceRange ? paceLimit : undefined}
+            unit={motionUnit}
+            distanceUnit={labels.distance}
+            selectedId={selected?.sample.id}
+            onSelect={setSelectedId}
+          />
+          <Field.Root>
+            <Field.Label>Smoothing</Field.Label>
+            <Input
+              type='range'
+              appearance='auto'
+              accentColor='green.solid'
+              borderWidth={0}
+              p={0}
+              min={0}
+              max={120}
+              step={5}
+              value={smoothingSeconds}
+              aria-valuetext={
+                smoothingSeconds ? `${smoothingSeconds} seconds` : '0 seconds (unsmoothed)'
+              }
+              onChange={event => {
+                setSmoothingSeconds(Number(event.currentTarget.value));
+              }}
+            />
+            <Field.HelperText alignSelf='center'>
+              {smoothingSeconds} seconds
+              {smoothingSeconds === 0 ? ' (unsmoothed)' : ''}
+            </Field.HelperText>
+            <Text fontSize='sm' color='fg.muted'>
+              Move right for a smoother line; left for more detail.
+            </Text>
+          </Field.Root>
+          {hasSlowPace ? (
+            <Stack align='start' gap={2}>
+              {!fullPaceRange ? (
+                <Text fontSize='sm' color='fg.muted'>
+                  Paces slower than {formatChartValue(paceLimit, motionUnit)} {motionUnit} are shown
+                  at the top. Select a point to see its value.
+                </Text>
+              ) : null}
+              <Button
+                size='sm'
+                variant='outline'
+                onClick={() => {
+                  setFullPaceRange(!fullPaceRange);
+                }}
+              >
+                {fullPaceRange ? 'Show normal pace range' : 'Show full pace range'}
+              </Button>
+            </Stack>
+          ) : null}
+        </Stack>
       ) : (
         <Text>
           {motion === 'pace' && analysis.timedIntervalCount
-            ? 'No pace to display: stationary intervals have no finite pace.'
-            : 'No speed or pace chart: insufficient valid adjacent timestamps.'}
+            ? 'Pace is unavailable while stopped.'
+            : 'Speed and pace need recorded times. This section doesn’t have enough usable times.'}
         </Text>
       )}
       {hasElevation || hasMotion ? (
         <Text fontSize='sm' color='fg.muted'>
-          Select a chart position or use Inspect point. Charts use every source point in order.
-          Lines guide the eye between measurements; no missing measurements are interpolated.
-          Segment gaps and null values remain breaks. Speed/pace is an interval average shown at its
-          ending point; stationary pace is unavailable.
-          {motion === 'pace'
-            ? ' Pace uses decimal minutes: 1.5 minutes is 1 minute 30 seconds.'
-            : ''}
+          Select a point on the chart to see its location on the map. Gaps show where measurements
+          are missing.
         </Text>
       ) : null}
       {analysis.points.length ? (
         <Field.Root>
-          <Field.Label>Inspect point</Field.Label>
+          <Field.Label>Position on route</Field.Label>
           <Input
             type='range'
+            appearance='auto'
+            accentColor='green.solid'
+            borderWidth={0}
+            p={0}
             min={0}
             max={analysis.points.length - 1}
             step={1}
@@ -184,11 +257,9 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
               setSelectedId(analysis.points[0].sample.id);
             }}
           >
-            Inspect first point
+            Start of route
           </Button>
-          <Field.HelperText>
-            Use arrow keys to inspect source points, including missing measurements.
-          </Field.HelperText>
+          <Field.HelperText>Use the slider or arrow keys to move along the route.</Field.HelperText>
         </Field.Root>
       ) : null}
       {selected ? (
@@ -212,14 +283,21 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
               labels.elevation
             )}
           </Text>
-          <Text>{motion === 'speed' ? 'Interval speed:' : 'Interval pace:'}</Text>
           <Text>
-            {formatMeasurement(
-              motionValue(selected.speedMetresPerSecond, units, motion),
-              motionUnit
-            )}
+            {motion === 'speed' ? 'Speed:' : 'Pace:'}
+            {smoothingSeconds ? ` (${smoothingSeconds}-second average)` : ''}
           </Text>
-          <Text>Source timestamp:</Text>
+          <Text>
+            {selectedMotion === null
+              ? 'Unavailable'
+              : formatChartMeasurement(selectedMotion, motionUnit)}
+          </Text>
+          {motion === 'speed' && selectedChartPoint?.trendSpeed != null ? (
+            <Text>
+              5-minute average: {formatChartMeasurement(selectedChartPoint.trendSpeed, motionUnit)}
+            </Text>
+          ) : null}
+          <Text>Recorded time:</Text>
           <Text overflowWrap='anywhere'>
             {selected.sample.sourceTime === ''
               ? '(empty)'
@@ -228,6 +306,45 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
           {selected.timeIssue ? <Text>{selected.timeIssue}</Text> : null}
         </Stack>
       ) : null}
+      <Box as='details' fontSize='sm' color='fg.muted'>
+        <Box as='summary' cursor='pointer' fontWeight='medium' color='fg'>
+          How speed is calculated
+        </Box>
+        <Stack gap={2} pt={3}>
+          <Text>
+            We calculate speed from the distance and time between recorded locations. Small GPS
+            errors can make this jump around, even when you move steadily.
+          </Text>
+          <Text>
+            The blue trend line averages speed over the previous 5 minutes to show sustained
+            changes. It restarts after gaps and uses the available time at the start of a section.
+          </Text>
+          <Text>
+            The dashed line shows the average speed for the selected track or section, including
+            recorded stops. Sections without usable times are left out. Changing smoothing does not
+            change this average.
+          </Text>
+          <Text>
+            The smoothing slider averages speed over the number of seconds you choose. Higher values
+            make the overall pattern easier to see, but soften brief changes. Set it to 0 seconds to
+            see the unsmoothed measurements.
+          </Text>
+          <Text>
+            We restart the average after missing or unusable times. At the start of each section, we
+            use the time available. Pace is the time it takes to cover one kilometre or mile, shown
+            as minutes:seconds.
+          </Text>
+          <Text>
+            Distance and duration are calculated from the recording. Elevation and recorded times
+            come from your file. Totals saved by your device may differ; we don’t read those totals
+            yet. Your original file is unchanged.
+          </Text>
+          <Text>
+            {analysis.timedIntervalCount} of {analysis.intervalCount} pairs of recorded locations
+            have usable times.
+          </Text>
+        </Stack>
+      </Box>
     </Stack>
   );
 };

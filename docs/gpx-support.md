@@ -38,20 +38,57 @@ adjacency. The UI reports the number of timed intervals and data-quality warning
 No arbitrary time-gap threshold is used: absent an explicit segment break or bad
 timestamp, an interval represents the entire time between the adjacent points.
 
-Speed converts to km/h or mph. Pace is minutes per kilometre or mile (decimal
-minutes); stationary intervals retain zero speed and have unavailable pace, not an
+Speed converts to km/h or mph. Pace is minutes per kilometre or mile, displayed as
+minutes:seconds. Unsmoothed stationary intervals retain zero speed and unavailable pace, not an
 infinite chart value. Elevation uses metres or feet. Conversion constants are
 1 mile = 1609.344 metres and 1 foot = 0.3048 metres.
 
 ## Charts and selection
 
 Recharts uses labelled numeric distance/value axes. Null measurements and segment
-boundaries break lines. Every displayed dot refers to one original point; interval
-speed/pace belongs to the interval ending at that point. Lines only guide the eye;
-missing measurements are not interpolated. Chart dots and the keyboard-accessible
-point selector select by source identity and highlight the corresponding map
-position. Changing the entity, segment or imported data clears the old selection.
-Textual results remain available when WebGL fails.
+boundaries break lines. Dense recordings use lines instead of a marker at every
+point: overlapping white marker outlines previously obscured the elevation line.
+Clicking a chart position or using the keyboard-accessible position slider selects
+the nearest source point and highlights it on the map. Selection never fabricates
+a location in a missing-measurement gap. Isolated measurements may use a small dot.
+Changing the entity, segment or imported data clears the old selection. Textual
+results remain available when WebGL fails.
+
+Speed and pace default to a labelled 30-second trailing average. A smoothing slider
+directly below the chart offers 0–120 seconds in five-second steps, with the selected
+seconds below it. Zero shows the original calculated interval speeds. Averaging is time-weighted
+(distance divided by time), including zero speed, and restarts after unusable time
+or a segment boundary. The start of a section uses the time available. A window
+boundary inside an interval uses a proportional share of that interval, assuming
+its calculated average speed is constant during the interval. Averaging can soften
+brief changes and delay stop/start transitions by up to the window length; the
+unsmoothed view remains available to inspect them. Pace is calculated from the
+averaged speed, rather than averaging individual pace values. The selected
+measurement and tooltip use the same displayed value, tied to the ending source
+point of the averaging window. Source values and full-resolution totals do not
+change. Elevation is not averaged.
+
+Pace ticks use minutes:seconds, or hours and minutes for very large values. Unit
+labels sit above the plot to avoid overlapping ticks. When near-stationary readings
+exceed 30 min/km (the equivalent in imperial units), the default chart caps their
+plotted height at that limit, with an explicit explanation and a “Show full pace
+range” control. Tooltips and selected measurements retain the actual averaged pace;
+this display limit never changes source values or calculations.
+
+The Speed chart also shows a dashed overall average-speed line with its value in
+the legend. It uses distance divided by duration over the same usable timed
+intervals, including recorded stops, for the selected track or segment. Untimed
+distance and gaps between segments are excluded. This reference does not change
+with smoothing and converts with the selected display units.
+
+A thicker blue speed-trend line uses a 5-minute trailing time-weighted average,
+independent of the detail slider. It shares the same gap, stop and partial-window
+rules as smoothing. The detailed trace is thinner and lighter so the trend remains
+readable. Tooltips show both values at the source point. The tooltip renders one
+content block instead of unkeyed children through Chakra's tooltip list renderer.
+
+The primary helper copy explains chart/map selection and missing measurements.
+Calculation details are behind “How speed is calculated”.
 
 Display conversion is separate from full-resolution analysis. There is currently
 no downsampling or arbitrary point limit. Large-file performance and any future
@@ -64,11 +101,14 @@ are hidden, with an explanation of unavailable measurements.
 - `pnpm tsc`, `pnpm lint`, `pnpm knip`: static checks.
 - `pnpm build` followed by `pnpm test:browser`: focused desktop/mobile Chrome checks
   against the static export, including actual local MapLibre workers, chart gaps,
-  chart-to-map selection, keyboard inspection, unit changes and empty charts.
+  chart-to-map selection, keyboard inspection, unit changes, dense charts and empty charts.
   The browser checks use installed Google Chrome and Python 3 for the local server.
 
-Fixtures are synthetic, defined in the test files, and contain no personal activity
-data. They do not establish real-exporter compatibility or large-file limits.
+Committed fixtures are synthetic, defined in the test files, and contain no personal activity
+data. Set `GPX_VERIFY_FILE` to a local GPX path when running `pnpm test:browser`
+to run the optional real-recording check; it does not copy the recording into the
+repository. Screenshots are stored in the ignored `test-results` directory.
+These checks do not establish general real-exporter compatibility or large-file limits.
 Production basemap selection and other product-spec release gates remain open.
 
 Primary references: [GPX 1.1 schema](https://www.topografix.com/GPX/1/1/),

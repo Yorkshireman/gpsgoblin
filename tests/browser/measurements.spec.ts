@@ -29,20 +29,50 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     buffer: Buffer.from(contents)
   });
   await expect(page.getByRole('heading', { name: 'Elevation profile' })).toBeVisible();
+  await expect(page.getByText('Average speed: 66.7 km/h')).toBeVisible();
+  const averageLine = page.locator('.recharts-reference-line-line');
+  await expect(averageLine).toBeAttached();
+  expect(Number(await averageLine.getAttribute('x2'))).toBeGreaterThan(
+    Number(await averageLine.getAttribute('x1'))
+  );
+  expect(await averageLine.getAttribute('y1')).toBe(await averageLine.getAttribute('y2'));
+  const trend = page.locator('.speed-trend .recharts-line-curve');
+  await expect(trend).toBeAttached();
+  expect((await trend.getAttribute('d'))?.match(/M/g)).toHaveLength(2);
   const elevationLine = page.locator('.recharts-line-curve').first();
   await expect(elevationLine).toBeVisible();
   // Two measurement runs in the first segment plus the separate second segment.
   expect((await elevationLine.getAttribute('d'))?.match(/M/g)).toHaveLength(3);
-  await page.locator('.recharts-line-dots').first().locator('circle').nth(1).click();
+  const selectionArea = page.locator('.measurement-selection-area').first();
+  const bounds = await selectionArea.boundingBox();
+  if (!bounds) {
+    throw new Error('Chart selection area missing');
+  }
+  await selectionArea.click({ position: { x: bounds.width / 5, y: bounds.height / 2 } });
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText('100.0 m');
   await expect(
     page.getByRole('img', { name: 'Selected map position: 0, 0.01', exact: true })
   ).toBeVisible();
+  const pointOnLine = await elevationLine.evaluate(element => {
+    if (!(element instanceof SVGPathElement)) {
+      throw new Error('Expected elevation line');
+    }
+    const point = element.getPointAtLength(8);
+    const matrix = element.getScreenCTM();
+    if (!matrix) {
+      throw new Error('Missing chart transform');
+    }
+    const position = new DOMPoint(point.x, point.y).matrixTransform(matrix);
+    return { x: position.x, y: position.y };
+  });
+  await page.mouse.click(pointOnLine.x, pointOnLine.y);
+  await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText('0.0 m');
+  await selectionArea.click({ position: { x: bounds.width / 5, y: bounds.height / 2 } });
   await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
     '328.1 ft'
   );
-  await page.getByRole('slider', { name: 'Inspect point' }).focus();
+  await page.getByRole('slider', { name: 'Position on route' }).focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toContainText(
     'Unavailable'
@@ -51,7 +81,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     page.getByRole('img', { name: 'Selected map position: 0, 0.02', exact: true })
   ).toBeVisible();
   await page.getByRole('combobox', { name: 'Speed or pace' }).selectOption('pace');
-  await expect(page.getByRole('heading', { name: 'Interval pace' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Pace' })).toBeVisible();
   const paceTicks = await page
     .locator('.recharts-yAxis-tick-labels')
     .nth(1)
@@ -67,7 +97,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   await page.screenshot({ path: testInfo.outputPath('measurements.png'), fullPage: true });
   await page.getByRole('combobox', { name: 'Item to inspect' }).selectOption('route-0');
   await expect(page.getByRole('heading', { name: 'Elevation profile' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'Interval pace' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Pace' })).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Selected measurement' })).toHaveCount(0);
   await expect(page.getByText('No elevation measurements available.')).toBeVisible();
   expect(errors).toEqual([]);
