@@ -59,6 +59,17 @@ test('optional local recording verification', async ({ page }, testInfo) => {
     path: testInfo.outputPath('local-elevation.png')
   });
   const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('..');
+  const elevationToggle = speed.getByRole('checkbox', { name: 'Show elevation' });
+  await expect(elevationToggle).not.toBeChecked();
+  await expect(speed.locator('.elevation-background')).toHaveCount(0);
+  await speed.getByText('Show elevation', { exact: true }).click();
+  await expect(elevationToggle).toBeChecked();
+  await expect(speed.locator('.elevation-background .recharts-area-area')).toBeVisible();
+  await speed.screenshot({ path: testInfo.outputPath('local-speed-with-elevation.png') });
+  await elevationToggle.focus();
+  await elevationToggle.press('Space');
+  await expect(elevationToggle).not.toBeChecked();
+  await expect(speed.locator('.elevation-background')).toHaveCount(0);
   const averageLine = speed.locator('.recharts-reference-line-line');
   await expect(averageLine).toBeAttached();
   expect(Number(await averageLine.getAttribute('x2'))).toBeGreaterThan(
@@ -81,7 +92,9 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   await expect(smoothing).toHaveAttribute('aria-valuetext', '10 minutes');
   await expect(speed.getByText(/Average speed:/)).toHaveText(averageLabel ?? '');
   await expect(page.getByText('10 minutes', { exact: true })).toBeVisible();
-  await speed.locator('..').screenshot({ path: testInfo.outputPath('local-speed-ten-minutes.png') });
+  await speed
+    .locator('..')
+    .screenshot({ path: testInfo.outputPath('local-speed-ten-minutes.png') });
   await smoothing.press('ArrowLeft');
   await expect(smoothing).toHaveAttribute('aria-valuetext', '9 minutes 30 seconds');
   await smoothing.press('End');

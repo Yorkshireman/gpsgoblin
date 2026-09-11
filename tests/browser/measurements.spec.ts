@@ -36,6 +36,16 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     Number(await averageLine.getAttribute('x1'))
   );
   expect(await averageLine.getAttribute('y1')).toBe(await averageLine.getAttribute('y2'));
+  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('..');
+  const elevationToggle = speed.getByRole('checkbox', { name: 'Show elevation' });
+  await speed.getByText('Show elevation', { exact: true }).click();
+  await expect(elevationToggle).toBeChecked();
+  const background = speed.locator('.recharts-area-area');
+  await expect(background).toBeVisible();
+  expect((await background.getAttribute('d'))?.match(/M/g)).toHaveLength(3);
+  await elevationToggle.focus();
+  await elevationToggle.press('Space');
+  await expect(elevationToggle).not.toBeChecked();
   const elevationLine = page.locator('.recharts-line-curve').first();
   await expect(elevationLine).toBeVisible();
   // Two measurement runs in the first segment plus the separate second segment.

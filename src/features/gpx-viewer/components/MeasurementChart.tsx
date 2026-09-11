@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { Chart, useChart } from '@chakra-ui/charts';
-import { Box, Heading, Stack, Text } from '@chakra-ui/react';
+import { Box, Heading, Stack, Switch, Text } from '@chakra-ui/react';
 import {
+  Area,
   CartesianGrid,
   Line,
-  LineChart,
+  ComposedChart,
   ReferenceDot,
   ReferenceLine,
   Tooltip,
@@ -21,6 +22,11 @@ type MeasurementChartProps = Readonly<{
   title: string;
   description?: string;
   maximum?: number;
+  elevationOverlay?: Readonly<{
+    enabled: boolean;
+    unit: string;
+    onToggle: (enabled: boolean) => void;
+  }>;
   reference?: Readonly<{ value: number; label: string }>;
   unit: string;
   distanceUnit: string;
@@ -35,6 +41,7 @@ export const MeasurementChart = ({
   description,
   maximum,
   reference,
+  elevationOverlay,
   unit,
   distanceUnit,
   selectedId,
@@ -70,6 +77,21 @@ export const MeasurementChart = ({
       <Heading as='h3' size='lg'>
         {title}
       </Heading>
+      {elevationOverlay ? (
+        <Switch.Root
+          checked={elevationOverlay.enabled}
+          onCheckedChange={details => {
+            elevationOverlay.onToggle(details.checked);
+          }}
+          colorPalette='green'
+        >
+          <Switch.HiddenInput />
+          <Switch.Control>
+            <Switch.Thumb />
+          </Switch.Control>
+          <Switch.Label>Show elevation</Switch.Label>
+        </Switch.Root>
+      ) : null}
       {description ? (
         <Text fontSize='sm' color='fg.muted'>
           {description}
@@ -89,11 +111,12 @@ export const MeasurementChart = ({
           </Text>
         </Stack>
       ) : null}
-      <Text fontSize='sm' color='fg.muted'>
-        {unit}
-      </Text>
+      <Stack direction='row' justify='space-between' fontSize='sm' color='fg.muted'>
+        <Text>{unit}</Text>
+        {elevationOverlay?.enabled ? <Text>Elevation ({elevationOverlay.unit})</Text> : null}
+      </Stack>
       <Chart.Root chart={chart} h={{ base: '64', md: '72' }} maxH='sm' minW={0}>
-        <LineChart
+        <ComposedChart
           responsive
           style={{ width: '100%', height: '100%' }}
           data={chart.data}
@@ -129,6 +152,35 @@ export const MeasurementChart = ({
               return formatChartValue(Number(value), unit);
             }}
           />
+          {elevationOverlay?.enabled ? (
+            <YAxis
+              yAxisId='backgroundElevation'
+              orientation='right'
+              width={44}
+              tickCount={4}
+              domain={['auto', 'auto']}
+              tickFormatter={value => {
+                return formatChartValue(Number(value), elevationOverlay.unit);
+              }}
+            />
+          ) : null}
+          {elevationOverlay?.enabled ? (
+            <Area
+              className='elevation-background'
+              yAxisId='backgroundElevation'
+              type='linear'
+              dataKey='elevation'
+              baseValue='dataMin'
+              stroke={chart.color('blue.solid')}
+              strokeOpacity={0.25}
+              fill={chart.color('blue.solid')}
+              fillOpacity={0.12}
+              connectNulls={false}
+              activeDot={false}
+              dot={false}
+              isAnimationActive={false}
+            />
+          ) : null}
           <Tooltip
             content={({ active, payload, label }) => {
               const point = payload?.[0]?.payload;
@@ -143,6 +195,11 @@ export const MeasurementChart = ({
                   <Text>
                     {title}: {formatChartMeasurement(point.originalValue, unit)}
                   </Text>
+                  {elevationOverlay?.enabled && typeof point.elevation === 'number' ? (
+                    <Text>
+                      Elevation: {formatChartMeasurement(point.elevation, elevationOverlay.unit)}
+                    </Text>
+                  ) : null}
                 </Stack>
               );
             }}
@@ -188,7 +245,7 @@ export const MeasurementChart = ({
             />
           ) : null}
           <ChartSelection data={plottedData} metric={metric} onSelect={onSelect} />
-        </LineChart>
+        </ComposedChart>
       </Chart.Root>
     </Stack>
   );

@@ -86,6 +86,13 @@ There is one adjustable speed trace plus the fixed overall average. Longer
 smoothing windows show sustained speed changes. The tooltip renders one
 content block instead of unkeyed children through Chakra's tooltip list renderer.
 
+The Speed chart offers an obvious “Show elevation” switch above the plot, off by
+default. When enabled, a subtle blue filled elevation profile sits behind the speed
+line, sharing its distance axis and using an independently labelled elevation axis
+on the right. It preserves missing readings and segment breaks and converts with
+metric/imperial units. The switch is absent when elevation is unavailable. The
+separate elevation chart remains available.
+
 The primary helper copy explains chart/map selection and missing measurements.
 Calculation details are behind “How speed is calculated”.
 

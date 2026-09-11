@@ -33,6 +33,7 @@ type MeasurementExplorerProps = (
 
 export const MeasurementExplorer = ({ track, segment, route, units }: MeasurementExplorerProps) => {
   const [motion, setMotion] = useState<MotionDisplay>('speed');
+  const [showElevation, setShowElevation] = useState(false);
   const [smoothingSeconds, setSmoothingSeconds] = useState(SPEED_AVERAGE_SECONDS);
   const [fullPaceRange, setFullPaceRange] = useState(false);
   const analysis = useMemo(() => {
@@ -155,6 +156,15 @@ export const MeasurementExplorer = ({ track, segment, route, units }: Measuremen
           <MeasurementChart
             data={data}
             metric='motion'
+            elevationOverlay={
+              motion === 'speed' && hasElevation
+                ? {
+                    enabled: showElevation,
+                    unit: labels.elevation,
+                    onToggle: setShowElevation
+                  }
+                : undefined
+            }
             title={motion === 'speed' ? 'Speed' : 'Pace'}
             description={
               smoothingSeconds

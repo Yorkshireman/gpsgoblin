@@ -42,6 +42,11 @@ describe('GPX file viewer', () => {
     );
     expect(await screen.findByRole('heading', { name: 'Elevation profile' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Speed' })).toBeVisible();
+    const elevationToggle = screen.getByRole('checkbox', { name: 'Show elevation' });
+    expect(elevationToggle).not.toBeChecked();
+    fireEvent.click(elevationToggle);
+    expect(elevationToggle).toBeChecked();
+    expect(await screen.findByText('Elevation (m)')).toBeVisible();
     expect(screen.getByRole('slider', { name: 'Smoothing' })).toHaveAttribute(
       'aria-valuetext',
       '1 minute'
@@ -70,6 +75,7 @@ describe('GPX file viewer', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Display units' }), 'imperial');
     expect(within(selection).getByText('328.1 ft')).toBeVisible();
     expect(screen.getByText('Average speed: 41.5 mph')).toBeVisible();
+    expect(screen.getByText('Elevation (ft)')).toBeVisible();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Speed or pace' }), 'pace');
     expect(screen.getByRole('heading', { name: 'Pace' })).toBeVisible();
     expect(within(selection).getByText(/\/mi/)).toBeVisible();
