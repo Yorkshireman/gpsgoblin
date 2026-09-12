@@ -82,19 +82,38 @@ try {
         const after = await cdp.send('Performance.getMetrics');
         const imported = await page.evaluate(() => window.importProfile);
         let selectionMs;
+        let chartClickMs;
+        let smoothingMs;
+        let sourcePoints;
+        let drawnVertices;
         if (outcome === 'loaded') {
+          sourcePoints = Number(await page.getByRole('slider', { name: 'Position on route' }).getAttribute('max')) + 1;
+          const path = await page.locator('.recharts-line-curve').getAttribute('d');
+          drawnVertices = (path?.match(/[ML]/g) || []).length;
           const start = performance.now();
           await page.getByRole('slider', { name: 'Position on route' }).press('ArrowRight');
           await page.getByLabel('Selected measurement', { exact: true }).waitFor();
           await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
           selectionMs = Math.round(performance.now() - start);
+          const hitArea = page.locator('.measurement-selection-area');
+          const bounds = await hitArea.boundingBox();
+          if (bounds) {
+            const clickStart = performance.now();
+            await hitArea.click({ position: { x: bounds.width / 2, y: bounds.height / 2 } });
+            await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+            chartClickMs = Math.round(performance.now() - clickStart);
+          }
+          const smoothingStart = performance.now();
+          await page.getByRole('slider', { name: 'Smoothing' }).press('ArrowRight');
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+          smoothingMs = Math.round(performance.now() - smoothingStart);
         }
         const metric = (response, name) => { return response.metrics.find(item => item.name === name)?.value || 0; };
         const { input, workerCreated, workerDelivered, painted } = imported.events;
         const tasks = imported.tasks.filter(task => { return task.start >= input; });
         const data = { scenario: scenario.name, bytes: readFileSync(scenario.path).length, cpuRate, run, viewport, outcome,
           workerToPaintMs: Math.round(painted - workerCreated), workerRoundTripMs: Math.round(workerDelivered - workerCreated),
-          afterWorkerMs: Math.round(painted - workerDelivered), selectionMs,
+          afterWorkerMs: Math.round(painted - workerDelivered), selectionMs, chartClickMs, smoothingMs, sourcePoints, drawnVertices,
           maxMainThreadTaskMs: Math.round(tasks.reduce((max, task) => Math.max(max, task.ms), 0)),
           mainThreadScriptMs: Math.round(1000 * (metric(after, 'ScriptDuration') - metric(before, 'ScriptDuration'))),
           layoutMs: Math.round(1000 * (metric(after, 'LayoutDuration') - metric(before, 'LayoutDuration'))),

@@ -95,9 +95,10 @@ export type ChartMeasurement = Readonly<{
   distance: number;
   elevation: number | null;
   motion: number | null;
+  zeroSpeed?: boolean;
 }>;
 
-// Display conversion stays separate from full-resolution calculations. No downsampling yet.
+// Full-resolution display values also serve exact selection. Drawing is reduced later.
 export const chartMeasurements = (
   points: readonly MeasurementPoint[],
   units: DisplayUnits,
@@ -122,6 +123,7 @@ export const chartMeasurements = (
       distance: point.distanceMetres / labels.metresPerDistance,
       elevation:
         point.elevationMetres === null ? null : point.elevationMetres / labels.metresPerElevation,
+      zeroSpeed: point.speedMetresPerSecond === 0,
       motion: motionValue(speeds[index], units, motion)
     });
   }

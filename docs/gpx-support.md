@@ -103,14 +103,29 @@ separate elevation chart remains available.
 The primary helper copy explains chart/map selection and missing measurements.
 Calculation details are behind “How speed is calculated”.
 
-Display conversion is separate from full-resolution analysis. No downsampling
-is applied yet. The viewer opens one document at a time, with no configured hard
-byte, point, XML-count/depth, structure-count or processing-time cutoff. This does
-not establish unlimited device capacity or comfortable interaction at every size.
-[Large-file profiling and remaining work](import-benchmarks.md) records the
-observed costs and required improvements. Hard resource restrictions require
-explicit owner discussion and agreement. Unsupported empty charts are hidden,
-with an explanation of unavailable measurements.
+Display values remain available at full resolution for calculations and selection.
+The drawn chart adapts to its container's CSS width: each distance bucket retains
+its first/last samples and the minimum/maximum elevation and motion values.
+Segment boundaries, missing-measurement boundaries and transitions into/out of
+calculated zero speed start a new fragment, whose extrema are retained separately.
+This preserves narrow peaks and isolated readings even when separate fragments
+share a screen pixel. It is display reduction, not physical stop detection or a
+hard point limit; heavily fragmented inputs may retain many drawn points.
+
+Click/tap selection searches the full-resolution data. It prefers an original
+measurement within four CSS pixels of the target, then falls back to the nearest
+distance with vertical proximity breaking ties. Missing values remain missing.
+The keyboard position slider can select every source sample, and the marker uses
+that original sample even when it is not a vertex in the reduced line. Hover
+values refer to retained original measurements, not an interpolated bucket value.
+Resizing and unit/metric/smoothing changes never modify source data or totals.
+
+The viewer opens one document at a time, with no configured hard byte, point,
+XML-count/depth, structure-count or processing-time cutoff. Hard resource
+restrictions require explicit owner discussion and agreement. See the
+[initial profiling](import-benchmarks.md) and [chart performance follow-up](chart-performance.md)
+for measured improvements and remaining work. No configured cap does not establish
+unlimited device capacity. Unsupported empty charts are hidden with an explanation.
 
 ## Viewer workspace
 

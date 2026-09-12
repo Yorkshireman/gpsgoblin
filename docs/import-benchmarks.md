@@ -1,6 +1,7 @@
 # Large GPX import profiling — issue #4
 
-Measured 12 September 2026. **Issue #4 remains open.** The current code accepts
+Measured 12 September 2026 at commit `9b27be2`, before chart display reduction.
+See the [chart performance follow-up](chart-performance.md) for the subsequent implementation and measurements. **Issue #4 remains open.** The current code accepts
 large recordings, but long main-thread pauses mean large-file responsiveness is
 not complete. No deployment or broad device-support claim follows from this report.
 
