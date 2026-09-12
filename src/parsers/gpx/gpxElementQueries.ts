@@ -1,3 +1,4 @@
+import type { Element } from '@xmldom/xmldom';
 export const findDirectChildren = (element: Element, name: string) => {
   return Array.from(element.children).filter(child => {
     return child.localName === name;

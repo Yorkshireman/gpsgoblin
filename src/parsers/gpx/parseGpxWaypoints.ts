@@ -1,3 +1,4 @@
+import type { Element } from '@xmldom/xmldom';
 import type { Waypoint } from '@/domain/activityDocument';
 
 import { findDirectChildren } from './gpxElementQueries';

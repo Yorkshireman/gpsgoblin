@@ -1,3 +1,6 @@
+import { DOMParser, onWarningStopParsing } from '@xmldom/xmldom';
+import type { Document } from '@xmldom/xmldom';
+import { SaxesParser } from 'saxes';
 import type { GpxParseResult } from '@/domain/activityDocument';
 import { parseGpxRoutes } from './parseGpxRoutes';
 import { parseGpxTracks } from './parseGpxTracks';
@@ -12,18 +15,22 @@ export const parseGpx = (fileText: string): GpxParseResult => {
     };
   }
 
-  const xmlDocument = new DOMParser().parseFromString(fileText.trim(), 'application/xml');
-
-  const parserError = xmlDocument.querySelector('parsererror');
-
-  if (parserError) {
+  let xmlDocument: Document;
+  try {
+    // xmldom alone accepts some malformed character data without a warning.
+    // Validate XML well-formedness before building the adapter's DOM.
+    new SaxesParser({ xmlns: true }).write(fileText.trim()).close();
+    xmlDocument = new DOMParser({ onError: onWarningStopParsing }).parseFromString(
+      fileText.trim(), 'application/xml'
+    );
+  } catch {
     return {
       ok: false,
       error: 'The file contains malformed XML.'
     };
   }
 
-  if (xmlDocument.documentElement.localName !== 'gpx') {
+  if (xmlDocument.documentElement?.localName !== 'gpx') {
     return {
       ok: false,
       error: 'The file is not a GPX document.'
@@ -75,7 +82,6 @@ export const parseGpx = (fileText: string): GpxParseResult => {
   }
 
   const { waypoints } = waypointsResult;
-
   if (routes.length === 0 && tracks.length === 0 && waypoints.length === 0) {
     return {
       ok: false,
@@ -89,10 +95,13 @@ export const parseGpx = (fileText: string): GpxParseResult => {
     });
   });
 
-  if (!hasTrackPoints && routes.length === 0 && waypoints.length === 0) {
+  const hasRoutePoints = routes.some(route => {
+    return route.points.length > 0;
+  });
+  if (!hasTrackPoints && !hasRoutePoints && waypoints.length === 0) {
     return {
       ok: false,
-      error: 'This GPX file does not contain any track points to display.'
+      error: 'This GPX file does not contain any geographic points to display.'
     };
   }
 

@@ -2,8 +2,10 @@
 
 ## Parser and supported content
 
-GPSGoblin uses the browser's `DOMParser` behind the `parseGpx` adapter. Files stay
-local. The parser supports GPX 1.1 tracks, separate track segments, planned routes,
+GPSGoblin uses MIT-licensed `@xmldom/xmldom` 0.9.12 behind the `parseGpx` adapter,
+running in a dedicated Web Worker. A strict `saxes` 6.0.0 well-formedness pass
+rejects malformed character data before DOM construction; xmldom warnings/errors
+also stop parsing. XML is not silently repaired. Files stay local. The parser supports GPX 1.1 tracks, separate track segments, planned routes,
 waypoints, names/descriptions, coordinates and optional elevation. It retains the
 original file contents, source point order, stable point identifiers and raw point
 timestamps. Missing elevation differs from genuine zero elevation.
@@ -101,10 +103,14 @@ separate elevation chart remains available.
 The primary helper copy explains chart/map selection and missing measurements.
 Calculation details are behind “How speed is calculated”.
 
-Display conversion is separate from full-resolution analysis. There is currently
-no downsampling or arbitrary point limit. Large-file performance and any future
-downsampling threshold still require browser benchmarks. Unsupported empty charts
-are hidden, with an explanation of unavailable measurements.
+Display conversion is separate from full-resolution analysis. No downsampling
+is applied yet. The viewer opens one document at a time, with no configured hard
+byte, point, XML-count/depth, structure-count or processing-time cutoff. This does
+not establish unlimited device capacity or comfortable interaction at every size.
+[Large-file profiling and remaining work](import-benchmarks.md) records the
+observed costs and required improvements. Hard resource restrictions require
+explicit owner discussion and agreement. Unsupported empty charts are hidden,
+with an explanation of unavailable measurements.
 
 ## Viewer workspace
 
@@ -118,7 +124,13 @@ shared unit formatting and display conversion remain in `measurementDisplay.ts`.
 
 After a successful import, a compact filename/Change/Clear row replaces onboarding
 and the dropzone. A failed replacement keeps the previous successful file identity
-and results. Distance and readable Duration appear before the active chart.
+and results. A pending import offers Cancel while Change and Clear remain usable.
+Cancel preserves the loaded document and selection; Clear removes the document
+and cancels pending work. Cancel and Clear return keyboard focus to the file
+chooser. A worker response from an old request cannot restore cleared data or
+overwrite a newer file. Worker failures offer recovery guidance; a long-running import remains cancellable.
+The picker is transient, so the same file can be selected again after cancellation
+or failure. The workspace stays in memory only; refresh and clear lose the work. Distance and readable Duration appear before the active chart.
 The chart selector offers supported Speed, Pace and Elevation views; units are next
 to it. Only one chart is active. Measurement warnings, complete file/entity names,
 source metadata and calculation details remain available through disclosure controls.
@@ -156,12 +168,26 @@ not evidence from physical phones or other browser engines.
   chart-to-map selection, keyboard inspection, unit changes, dense charts and empty charts.
   The browser checks use installed Google Chrome and Python 3 for the local server.
 
-Committed fixtures are synthetic, defined in the test files, and contain no personal activity
-data. Set `GPX_VERIFY_FILE` to a local GPX path when running `pnpm test:browser`
+Committed fixtures include synthetic cases defined in the tests and
+[permissioned, sanitised exporter examples](../tests/fixtures/gpx/README.md)
+with pinned provenance. They contain no personal activity locations or measurements. Set `GPX_VERIFY_FILE` to a local GPX path when running `pnpm test:browser`
 to run the optional real-recording check; it does not copy the recording into the
 repository. Screenshots are stored in the ignored `test-results` directory.
-These checks do not establish general real-exporter compatibility or large-file limits.
-Production basemap selection and other product-spec release gates remain open.
+Tested exporter coverage is deliberately narrow:
+
+| Exporter/input | Verified behaviour |
+| --- | --- |
+| bikerouter.de 2025.46, sanitised GPX 1.1 | Imports its 169-point planned route exported as a track. |
+| StravaGPX, permissioned complete 8,142-point GPX 1.1 recording | Imports recorded structure, elevation and timestamps after sanitisation; the complete private original also opens in local Chrome profiling. |
+| GPSBabel, sanitised GPX 1.0 recording | Rejected explicitly as an unsupported version. |
+| Synthetic UTF-8 GPX 1.1 | Tracks, segments, routes, waypoints, names/descriptions, optional elevation and raw timestamps, plus hostile/malformed and missing-data cases. |
+| HR, cadence, power and other vendor extensions | Not interpreted; no vendor compatibility claim. |
+
+The Strava fixture preserves all 8,142 source points but replaces sensitive values
+and removes extensions. It does not establish support for all Strava exports.
+The benchmark report records the named Chrome/device evidence and O4's remaining
+performance and browser/device gaps. Production basemap selection and other
+product-spec release gates remain open.
 
 Primary references: [GPX 1.1 schema](https://www.topografix.com/GPX/1/1/),
 [Recharts Line](https://recharts.github.io/en-US/api/Line/).

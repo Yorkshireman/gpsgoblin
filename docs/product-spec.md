@@ -1,8 +1,8 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.4
-**Date:** 11 September 2026
+**Version:** 0.5
+**Date:** 12 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
 **Owned production domain:** `https://gpsgoblin.com` — purchased; a placeholder site is live. This is the canonical production origin.
@@ -104,7 +104,7 @@ The default flow is:
 
 `Land → understand → choose/drop file → validate/process → inspect or download result`
 
-Provide drag-and-drop and a normal file picker. Support multi-file selection where the tool requires it. No registration, mandatory onboarding or email capture. Show supported file types and tested size limits before selection.
+Provide drag-and-drop and a normal file picker. Support multi-file selection where the tool requires it. No registration, mandatory onboarding or email capture. Show supported file types before selection. Any owner-approved hard limits must be explained before selection; tested file sizes are evidence, not automatic rejection thresholds.
 
 Provide clear loading, success, partial-success and failure states. Keep successful imports when a different selected file fails. Allow users to remove or replace a file and clear the current workspace. File contents and filenames remain local.
 
@@ -199,7 +199,7 @@ Downloads are new files, not mutations of originals. Retaining the original allo
 
 ## 6. Parsing and file support
 
-FIT, GPX and TCX are agreed formats. Exact versions, subtypes, extension coverage and resource limits must be published from tested implementation evidence.
+FIT, GPX and TCX are agreed formats. Exact versions, subtypes and extension coverage must be published from tested implementation evidence. Any user-facing hard resource restriction requires explicit owner discussion and agreement first.
 
 Recommended compatibility baseline: GPX 1.1 and TCX v2 geographic/activity content, plus FIT activity files supported by the chosen decoder. Evaluate GPX 1.0 before claiming support. FIT workout/settings files must not be presented as corrupt activity recordings merely because they share the `.fit` extension.
 
@@ -211,7 +211,7 @@ Publish a compatibility matrix for known extensions, including supported HR/cade
 
 Source data is untrusted. Do not execute markup, resolve arbitrary external references or load URLs embedded in activity files. Reject or safely handle XML external entities and expansion attacks. Render names and descriptions as text, not trusted HTML.
 
-Set explicit maximum file size, point count, file count and processing limits after browser benchmarks. Fail gracefully before exhausting the device. These thresholds are open decisions, not arbitrary numbers to invent in landing-page copy.
+Benchmark large-file behaviour, memory use and cancellation on named browsers/devices. Explore workarounds before proposing maximum file size, point count, file count or processing-time restrictions; introducing any such hard resource limit requires explicit owner discussion and agreement. Fail gracefully before exhausting the device. Any proposed thresholds remain open product decisions; benchmarks do not approve restrictions.
 
 Real fixtures must have permission for use and must not expose an unsuspecting person's home, routine, identity or health measurements in a public repository. Keep provenance/licence notes alongside fixtures. Synthetic cases complement real exporter files; they do not replace them.
 
@@ -501,7 +501,7 @@ Do not use disabling SSR for the entire tool page as a shortcut that removes its
 
 Keep mathematics and format logic independent of React, Next.js, Recharts and MapLibre. Define typed worker requests/results, request IDs, cancellation and error handling. Discard stale results when inputs or settings change.
 
-Move CPU-heavy operations off the main thread where benchmarks justify it. Avoid unnecessary full-size copies of large recordings. Do not require shared-memory infrastructure or a worker pool without evidence.
+Move CPU-heavy operations off the main thread where benchmarks justify it. Avoid unnecessary full-size copies of large recordings. Large GPX recordings, including all-day, multi-day and densely sampled activities, are an intended use case. A supplied roughly 2.5-hour recording is an ordinary baseline, not a maximum target. Profile parsing, transfer, analysis, display preparation, rendering and memory separately. Explore display-only downsampling, worker-based calculations, incremental parsing and memory reductions before proposing restrictions. File bytes, point counts, XML structure counts/depth and processing deadlines must not become user-facing hard limits without explicit owner discussion and agreement. Retain malformed/hostile-input validation, user cancellation and recovery; absence of product caps does not imply unlimited device resources. Do not require shared-memory infrastructure or a worker pool without evidence.
 
 A future provider importer should be able to feed the same canonical model, but do not create OAuth, token handling, a backend or a generic plugin platform now.
 
@@ -637,7 +637,7 @@ Check that useful content exists in returned HTML, public links work on direct l
 
 Verify deployment metadata and indexing on the actual hosts: released production pages use `https://gpsgoblin.com` canonical/Open Graph URLs and GPSGoblin branding; sitemap entries and its robots reference use that origin; production is not accidentally marked `noindex`. Check permanent redirects from the Cloudflare Pages production hostname for both the root and a nested tool path, preserving paths and query strings without loops. Verify `noindex` on preview deployments, including branch previews, independently of production. These checks are required for Stage 1 and relevant subsequent deployment changes.
 
-Record measured file-size/performance limits on named test devices/browsers before advertising them. Do not claim universal device support or arbitrary processing times.
+Record large-file performance and practical failure modes on named test devices/browsers before advertising support. Do not convert a benchmark boundary into a hard product limit without owner agreement. Do not claim universal device support or arbitrary processing times.
 
 ## 20. Hosting and custom domain
 
@@ -676,14 +676,14 @@ Do not implement empty services, speculative databases or a generic plugin frame
 
 ## 22. Open decisions and when they matter
 
-O1 is retained below as a resolved decision for traceability. All other open items remain unchanged.
+O1 is retained below as a resolved decision for traceability. The remaining release gates stay open; O4 now explicitly covers large-file workarounds and owner agreement before restrictions.
 
 | ID  | Item / status                                                                                                                                                | Required by                                                                                             |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
 | O1  | Resolved: GPSGoblin; `gpsgoblin.com` purchased; canonical origin `https://gpsgoblin.com`. Record actual registration/renewal costs under operating expenses. | Name/domain selection and purchase are complete; verify production configuration before Stage 1 release |
 | O2  | Production basemap: terms, attribution, actual metering, privacy, limits and graceful failure                                                                | First public map-enabled release                                                                        |
 | O3  | GPX/TCX/FIT parser choices, licence checks and published format/extension coverage                                                                           | Each affected format release                                                                            |
-| O4  | Benchmark-derived file/sample limits and browser support matrix                                                                                              | Each affected tool release                                                                              |
+| O4  | Large-file performance, workarounds and browser support matrix; any hard limits require owner agreement                                                                                              | Each affected tool release                                                                              |
 | O5  | Privacy wording, contact details, security headers and third-party inventory                                                                                 | First public release; update before new suppliers                                                       |
 | O6  | Analytics supplier, consent/legal assessment and event implementation                                                                                        | Before product telemetry is enabled                                                                     |
 | O7  | AdSense approval, ad placement, CMP and advertising privacy verification                                                                                     | Before advertisements are enabled                                                                       |

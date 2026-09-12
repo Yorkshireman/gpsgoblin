@@ -1,3 +1,4 @@
+import type { Element } from '@xmldom/xmldom';
 import type { GeographicSample, RoutePoint } from '@/domain/activityDocument';
 
 import { findDirectChildren, findDirectChildText } from './gpxElementQueries';

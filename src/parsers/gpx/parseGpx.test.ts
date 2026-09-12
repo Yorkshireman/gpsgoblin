@@ -655,3 +655,17 @@ describe('parseGpx', () => {
     ]);
   });
 });
+
+it('preserves large point collections across tracks, routes and waypoints', () => {
+  const result = parseGpx(`<gpx version="1.1"><trk><trkseg>${'<trkpt lat="0" lon="0"/>'.repeat(30000)}</trkseg></trk><rte><rtept lat="0" lon="0"/></rte><wpt lat="0" lon="0"/></gpx>`);
+  expect(result.ok).toBe(true);
+  if (!result.ok) throw new Error(result.error);
+  expect(result.document.tracks[0].segments[0].samples).toHaveLength(30000);
+  expect(result.document.routes[0].points).toHaveLength(1);
+  expect(result.document.waypoints).toHaveLength(1);
+});
+
+it('rejects a route with no geographic points as missing data', () => {
+  const result = parseGpx('<gpx version="1.1"><rte><name>Empty route</name></rte></gpx>');
+  expect(result).toEqual({ ok: false, error: 'This GPX file does not contain any geographic points to display.' });
+});

@@ -1,3 +1,4 @@
+import type { Element } from '@xmldom/xmldom';
 import { findDirectChildren } from './gpxElementQueries';
 
 type GpxPointKind = 'route point' | 'track point' | 'waypoint';

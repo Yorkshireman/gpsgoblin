@@ -4,8 +4,55 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import GpxFileViewerPage from './page';
 import { createTestFile } from './pageTestFixtures';
+import type { GpxParseResult } from '@/domain/activityDocument';
+
+// Replace only the browser Worker transport in JSDOM; run the real GPX parser.
+// Playwright tests cover the bundled worker and structured-clone boundary.
+jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
+  createImportWorker: () => {
+    let reader: FileReader | undefined;
+    const worker: {
+      onmessage?: ((event: MessageEvent<{ requestId: number; result: GpxParseResult }>) => void) | null;
+      postMessage: (request: { requestId: number; file: File }) => void;
+      terminate: () => void;
+    } = {
+      postMessage: ({ requestId, file }) => {
+        reader = new FileReader();
+        reader.onload = () => {
+          const { parseGpx } = jest.requireActual('@/parsers/gpx');
+          worker.onmessage?.(new MessageEvent('message', { data: { requestId, result: parseGpx(reader?.result ?? '') } }));
+        };
+        reader.readAsText(file);
+      },
+      terminate: () => {
+        reader?.abort();
+      }
+    };
+    return worker;
+  }
+}));
 
 describe('GPX file viewer', () => {
+  it('lets users cancel a pending replacement while keeping their loaded file', async () => {
+    const user = userEvent.setup();
+    await user.upload(screen.getByLabelText('GPX file'), createTestFile('singleTrack'));
+    expect(await screen.findByText('Morning route')).toBeVisible();
+    const read = jest.spyOn(FileReader.prototype, 'readAsText').mockImplementation(() => {
+      return;
+    });
+    try {
+      await user.upload(screen.getByLabelText('GPX file'), createTestFile('routeOnly'));
+      expect(screen.getByRole('button', { name: 'Change GPX file' })).toBeEnabled();
+      await user.click(screen.getByRole('button', { name: 'Cancel import' }));
+      expect(screen.getByText('Import cancelled.')).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Change GPX file' })).toHaveFocus();
+      expect(screen.getByText('Morning route')).toBeVisible();
+      expect(screen.queryByText('Opening GPX file')).not.toBeInTheDocument();
+    } finally {
+      read.mockRestore();
+    }
+  });
+
   it('replaces onboarding with a compact workspace and restores it when cleared', async () => {
     const user = userEvent.setup();
     await user.upload(screen.getByLabelText('GPX file'), createTestFile('singleTrack'));
@@ -313,7 +360,7 @@ describe('GPX file viewer', () => {
       await user.upload(screen.getByLabelText('GPX file'), file);
 
       expect(
-        await screen.findByText('This GPX file does not contain any track points to display.')
+        await screen.findByText('This GPX file does not contain any geographic points to display.')
       ).toBeVisible();
     });
 

@@ -1,5 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  // Explicit entry: discovery misses this package script after Node's --expose-gc flag.
+  "entry": ["scripts/profileGpxPipeline.mjs"],
   // Vendor assets copied by scripts/copyMapLibreWorker.mjs and loaded by URL.
   "ignoreFiles": [
     "public/maplibre/maplibre-gl-worker.mjs",
