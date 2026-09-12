@@ -1,4 +1,4 @@
-import { Field, Grid, NativeSelect } from '@chakra-ui/react';
+import { Field, Flex, Grid, NativeSelect, Text } from '@chakra-ui/react';
 import type { DisplayUnits } from '../measurementDisplay';
 
 type ChartControlsProps = Readonly<{
@@ -8,6 +8,7 @@ type ChartControlsProps = Readonly<{
   hasElevation: boolean;
   units: DisplayUnits;
   onUnitsChange: (units: DisplayUnits) => void;
+  pending: boolean;
 }>;
 
 export const ChartControls = ({
@@ -16,12 +17,18 @@ export const ChartControls = ({
   hasTimedMotion,
   hasElevation,
   units,
-  onUnitsChange
+  onUnitsChange,
+  pending
 }: ChartControlsProps) => {
   return (
     <Grid templateColumns='repeat(2, minmax(0, 1fr))' gap={2}>
       <Field.Root>
-        <Field.Label>Chart</Field.Label>
+        <Flex align='baseline' justify='space-between' width='full' gap={1}>
+          <Field.Label>Chart</Field.Label>
+          <Text role='status' aria-label='Updating measurements' fontSize='xs'>
+            {pending ? 'Updating…' : ''}
+          </Text>
+        </Flex>
         <NativeSelect.Root>
           <NativeSelect.Field
             value={chart}

@@ -10,6 +10,7 @@ import { GPX_IMPORT_DESCRIPTION } from '@/parsers/gpx';
 import { GpxDocumentResults } from './components/GpxDocumentResults';
 import { GpxFileControls } from './components/GpxFileControls';
 import { openGpxFile } from './import-processing';
+import type { MeasurementSession } from './import-processing';
 import type { SelectedGpxItem } from './selectedGpxItem';
 
 const oneFileMessage =
@@ -19,13 +20,22 @@ export const GpxFilePicker = () => {
   const [filename, setFilename] = useState<string>();
   const [error, setError] = useState<string>();
   const [notice, setNotice] = useState<string>();
-  const [document, setDocument] = useState<ImportedGpxDocument>();
+  const [workspace, setWorkspace] = useState<{
+    document: ImportedGpxDocument;
+    measurements: MeasurementSession;
+    revision: number;
+  }>();
+  const document = workspace?.document;
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<SelectedGpxItem>();
   const activeImport = useRef<AbortController | undefined>(undefined);
+  const activeMeasurements = useRef<MeasurementSession | undefined>(undefined);
 
   useEffect(() => {
-    return () => activeImport.current?.abort();
+    return () => {
+      activeImport.current?.abort();
+      activeMeasurements.current?.dispose();
+    };
   }, []);
 
   const cancelPending = () => {
@@ -46,12 +56,23 @@ export const GpxFilePicker = () => {
     setNotice(undefined);
     try {
       const result = await openGpxFile(file, controller.signal);
-      if (activeImport.current !== controller || controller.signal.aborted) return;
+      if (activeImport.current !== controller || controller.signal.aborted) {
+        if (result.ok) result.measurements.dispose();
+        return;
+      }
       if (!result.ok) {
         setError(result.error);
         return;
       }
-      setDocument(result.document);
+      activeMeasurements.current?.dispose();
+      activeMeasurements.current = result.measurements;
+      setWorkspace(previous => {
+        return {
+          document: result.document,
+          measurements: result.measurements,
+          revision: (previous?.revision ?? 0) + 1
+        };
+      });
       setFilename(file.name);
       const firstTrack = result.document.tracks[0];
       const firstRoute = result.document.routes[0];
@@ -80,7 +101,9 @@ export const GpxFilePicker = () => {
 
   const clearFile = () => {
     cancelPending();
-    setDocument(undefined);
+    activeMeasurements.current?.dispose();
+    activeMeasurements.current = undefined;
+    setWorkspace(undefined);
     setFilename(undefined);
     setSelectedItem(undefined);
     setError(undefined);
@@ -171,9 +194,11 @@ export const GpxFilePicker = () => {
           </Alert.Content>
         </Alert.Root>
       ) : null}
-      {document ? (
+      {workspace ? (
         <GpxDocumentResults
-          document={document}
+          key={workspace.revision}
+          document={workspace.document}
+          measurements={workspace.measurements}
           filename={filename}
           onItemChange={setSelectedItem}
           selectedItem={selectedItem}

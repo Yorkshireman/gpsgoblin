@@ -10,9 +10,11 @@ import { GpxItemSelector } from './GpxItemSelector';
 import { WaypointDetails } from './WaypointDetails';
 import { TrackSegmentSelector } from './TrackSegmentSelector';
 import { GpxFileDetails } from './GpxFileDetails';
+import type { MeasurementSession } from '../import-processing';
 
 type GpxDocumentResultsProps = Readonly<{
   document: ImportedGpxDocument;
+  measurements: MeasurementSession;
   filename?: string;
   selectedItem: SelectedGpxItem | undefined;
   onItemChange: (item: SelectedGpxItem) => void;
@@ -20,6 +22,7 @@ type GpxDocumentResultsProps = Readonly<{
 
 export const GpxDocumentResults = ({
   document,
+  measurements,
   filename,
   selectedItem,
   onItemChange
@@ -96,6 +99,7 @@ export const GpxDocumentResults = ({
       {track ? (
         <MeasurementExplorer
           units={units}
+          measurements={measurements}
           onUnitsChange={setUnits}
           key={`${track.id}-${selectedSegment?.id ?? 'all'}`}
           track={track}
@@ -103,7 +107,7 @@ export const GpxDocumentResults = ({
         />
       ) : null}
       {route ? (
-        <MeasurementExplorer units={units} onUnitsChange={setUnits} key={route.id} route={route} />
+        <MeasurementExplorer units={units} measurements={measurements} onUnitsChange={setUnits} key={route.id} route={route} />
       ) : null}
       {waypoint ? <WaypointDetails units={units} waypoint={waypoint} /> : null}
       <Box as='details'>

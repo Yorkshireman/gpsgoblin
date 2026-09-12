@@ -1,5 +1,4 @@
-import type { MeasurementPoint } from '@/analysis/measurements';
-import { averageSpeeds, readTimestamp, SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
+import { readTimestamp } from '@/analysis/measurements';
 
 const recordedTimeFormatter = new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
@@ -59,18 +58,6 @@ export const displayUnits = (units: DisplayUnits) => {
       };
 };
 
-const motionValue = (speed: number | null, units: DisplayUnits, motion: MotionDisplay) => {
-  if (speed === null) {
-    return null;
-  }
-  const { metresPerDistance } = displayUnits(units);
-  return motion === 'speed'
-    ? (speed * 3600) / metresPerDistance
-    : speed > 0
-      ? metresPerDistance / speed / 60
-      : null;
-};
-
 export const formatMeasurement = (value: number | null, unit: string) => {
   return value === null ? 'Unavailable' : `${value.toFixed(1)} ${unit}`;
 };
@@ -94,38 +81,6 @@ export type ChartMeasurement = Readonly<{
   motion: number | null;
   zeroSpeed?: boolean;
 }>;
-
-// Full-resolution display values also serve exact selection. Drawing is reduced later.
-export const chartMeasurements = (
-  points: readonly MeasurementPoint[],
-  units: DisplayUnits,
-  motion: MotionDisplay,
-  smoothingSeconds = SPEED_AVERAGE_SECONDS
-) => {
-  const labels = displayUnits(units);
-  const data: ChartMeasurement[] = [];
-  const speeds = averageSpeeds(points, smoothingSeconds);
-  for (let index = 0; index < points.length; index += 1) {
-    const point = points[index];
-    if (index > 0 && point.segmentId !== points[index - 1].segmentId) {
-      data.push({
-        sampleId: null,
-        distance: point.distanceMetres / labels.metresPerDistance,
-        elevation: null,
-        motion: null
-      });
-    }
-    data.push({
-      sampleId: point.sample.id,
-      distance: point.distanceMetres / labels.metresPerDistance,
-      elevation:
-        point.elevationMetres === null ? null : point.elevationMetres / labels.metresPerElevation,
-      zeroSpeed: point.speedMetresPerSecond === 0,
-      motion: motionValue(speeds[index], units, motion)
-    });
-  }
-  return data;
-};
 
 export const formatDuration = (seconds: number | null) => {
   if (seconds === null) return 'Unavailable';

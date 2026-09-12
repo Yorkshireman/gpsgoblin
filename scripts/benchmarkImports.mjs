@@ -105,6 +105,9 @@ try {
           }
           const smoothingStart = performance.now();
           await page.getByRole('slider', { name: 'Smoothing' }).press('ArrowRight');
+          await page.waitForFunction(() => {
+            return document.querySelector('[aria-label="Measurement chart"]')?.getAttribute('aria-busy') === 'false';
+          }, undefined, { timeout: 60000 });
           await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
           smoothingMs = Math.round(performance.now() - smoothingStart);
         }

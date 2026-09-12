@@ -1,5 +1,8 @@
 # Large GPX import profiling — issue #4
 
+Historical slice report. The [large-file completion report](large-file-support.md)
+supersedes its outstanding implementation work and records final evidence.
+
 Measured 12 September 2026 at commit `9b27be2`, before chart display reduction.
 See the [chart performance follow-up](chart-performance.md) for the subsequent implementation and measurements. **Issue #4 remains open.** The current code accepts
 large recordings, but long main-thread pauses mean large-file responsiveness is

@@ -1,5 +1,8 @@
 # Large GPX chart performance — issue #4
 
+Historical slice report. The [large-file completion report](large-file-support.md)
+supersedes its outstanding implementation work and records final evidence.
+
 Measured 12 September 2026, following `9b27be2`. This completes the chart slice
 identified in the [initial profiling](import-benchmarks.md). Issue #4 and O4 remain
 open for analysis, parser memory and broader device evidence. No file-size,

@@ -71,6 +71,7 @@ test('a dense chart preserves sharp extrema, isolated readings and stop transiti
   await expect(trace).toBeVisible();
   await expect(page.locator('.recharts-reference-dot circle')).toHaveCount(1);
   const tapVertex = async (highest: boolean) => {
+    await expect(page.getByRole('region', { name: 'Measurement chart', exact: true })).toHaveAttribute('aria-busy', 'false');
     await trace.scrollIntoViewIfNeeded();
     const path = vertices(await trace.getAttribute('d') ?? '');
     const vertex = path.reduce((best, point) => {

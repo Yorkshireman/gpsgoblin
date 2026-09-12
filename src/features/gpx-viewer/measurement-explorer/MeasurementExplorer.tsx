@@ -1,9 +1,9 @@
-import { Box, Grid, Heading, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Grid, Heading, Stack, Text, useBreakpointValue } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
-import { analyseMeasurements, SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
+import { SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
 import type { Route, Track, TrackSegment } from '@/domain/activityDocument';
 import { RouteMap } from '../RouteMap';
-import { chartMeasurements, displayUnits } from '../measurementDisplay';
+import { displayUnits } from '../measurementDisplay';
 import type { DisplayUnits, MotionDisplay } from '../measurementDisplay';
 import { MeasurementChart } from './chart';
 import { SelectedMeasurement } from './SelectedMeasurement';
@@ -14,44 +14,53 @@ import { MotionControls } from './MotionControls';
 import { ChartControls } from './ChartControls';
 import { PaceRangeControls } from './PaceRangeControls';
 import { RoutePosition } from './RoutePosition';
+import type { MeasurementSession } from '../import-processing';
+import { useMeasurementView } from './useMeasurementView';
 
 type MeasurementExplorerProps = (
   | Readonly<{ track: Track; segment?: TrackSegment; route?: never }>
   | Readonly<{ route: Route; track?: never; segment?: never }>
 ) &
-  Readonly<{ units: DisplayUnits; onUnitsChange: (units: DisplayUnits) => void }>;
+  Readonly<{ measurements: MeasurementSession; units: DisplayUnits; onUnitsChange: (units: DisplayUnits) => void }>;
 
 export const MeasurementExplorer = ({
   track,
+  measurements,
   segment,
   route,
   units,
   onUnitsChange
 }: MeasurementExplorerProps) => {
+  const showDesktopMap = useBreakpointValue({ base: false, lg: true });
   const [activeChart, setActiveChart] = useState<'speed' | 'pace' | 'elevation'>('speed');
-  const motion: MotionDisplay = activeChart === 'pace' ? 'pace' : 'speed';
+  const requestedMotion: MotionDisplay = activeChart === 'pace' ? 'pace' : 'speed';
   const [showElevation, setShowElevation] = useState(false);
   const [customPaceRange, setCustomPaceRange] = useState(false);
   const [paceMaximumPerKm, setPaceMaximumPerKm] = useState<number>();
   const [smoothingSeconds, setSmoothingSeconds] = useState(SPEED_AVERAGE_SECONDS);
-  const analysis = useMemo(() => {
-    return analyseMeasurements(
-      track ? (segment ? [segment] : track.segments) : [{ id: route.id, samples: route.points }]
-    );
+  const segments = useMemo(() => {
+    return track ? (segment ? [segment] : track.segments) : [{ id: route.id, samples: route.points }];
   }, [track, segment, route]);
-  const [selection, setSelection] = useState<{
-    analysis: typeof analysis;
-    id: string;
-  }>();
-  const selectedId = selection?.analysis === analysis ? selection.id : undefined;
+  const settings = useMemo(() => {
+    return { entityId: track ? track.id : route.id, segmentId: segment?.id,
+      units, motion: requestedMotion, smoothingSeconds };
+  }, [track, route, segment, units, requestedMotion, smoothingSeconds]);
+  const prepared = useMeasurementView(measurements, segments, settings);
+  const [selection, setSelection] = useState<{ segments: typeof segments; id: string }>();
+  const selectedId = selection?.segments === segments ? selection.id : undefined;
   const setSelectedId = (id: string) => {
-    setSelection({ analysis, id });
+    setSelection({ segments, id });
     return;
   };
-  const data = useMemo(() => {
-    return chartMeasurements(analysis.points, units, motion, smoothingSeconds);
-  }, [analysis, units, motion, smoothingSeconds]);
-  const labels = displayUnits(units);
+  if (!prepared.snapshot) {
+    return <Stack gap={2} role='status'>
+      <Text>{prepared.error ?? 'Preparing measurements…'}</Text>
+      {prepared.error ? <Button onClick={prepared.retry} alignSelf='start'>Retry measurements</Button> : null}
+    </Stack>;
+  }
+  const { analysis, data, hasMotion, hasElevation } = prepared.snapshot;
+  const motion = prepared.snapshot.settings.motion;
+  const labels = displayUnits(prepared.snapshot.settings.units);
   const selectedIndex = analysis.points.findIndex(point => {
     return point.sample.id === selectedId;
   });
@@ -60,12 +69,6 @@ export const MeasurementExplorer = ({
     return point.sampleId === selectedId;
   });
   const selectedMotion = selectedChartPoint?.motion ?? null;
-  const hasElevation = data.some(point => {
-    return point.elevation !== null;
-  });
-  const hasMotion = data.some(point => {
-    return point.motion !== null;
-  });
   const motionUnit = motion === 'speed' ? labels.speed : labels.pace;
 
   const hasTimedMotion = analysis.averageSpeedMetresPerSecond !== null;
@@ -74,7 +77,7 @@ export const MeasurementExplorer = ({
       ? 'elevation'
       : activeChart === 'elevation' && !hasElevation
         ? 'speed'
-        : activeChart;
+        : activeChart === 'elevation' ? 'elevation' : motion;
   const paceMaximum = paceMaximumPerKm === undefined ? undefined : paceMaximumPerKm * (labels.metresPerDistance / 1000);
   const axisMaximum = chart === 'pace' && customPaceRange ? paceMaximum : undefined;
   const mapView = (
@@ -101,17 +104,22 @@ export const MeasurementExplorer = ({
         gap={5}
         alignItems='start'
       >
-        <Stack gap={2} minW={0} as='section' aria-label='Measurement chart'>
+        <Stack gap={2} minW={0} as='section' aria-label='Measurement chart' aria-busy={prepared.pending}>
           <ChartControls
-            chart={chart}
+            chart={activeChart === 'elevation' && !hasElevation ? chart : !hasTimedMotion ? chart : activeChart}
             setActiveChart={setActiveChart}
             hasTimedMotion={hasTimedMotion}
             hasElevation={hasElevation}
             units={units}
             onUnitsChange={onUnitsChange}
+            pending={prepared.pending}
           />
-          {chart === 'pace' ? (
-            <PaceRangeControls key={units} custom={customPaceRange} onCustomChange={setCustomPaceRange}
+          {prepared.error ? (
+            <Text role='status' fontSize='xs'>{prepared.error}</Text>
+          ) : null}
+          {prepared.error ? <Button size='sm' onClick={prepared.retry}>Retry measurements</Button> : null}
+          {activeChart === 'pace' && hasTimedMotion ? (
+            <PaceRangeControls key={labels.pace} custom={customPaceRange} onCustomChange={setCustomPaceRange}
               maximum={paceMaximum} unit={labels.pace} onMaximumChange={value => {
                 setPaceMaximumPerKm(value === undefined ? undefined : value / (labels.metresPerDistance / 1000));
               }} />
@@ -123,7 +131,7 @@ export const MeasurementExplorer = ({
             axisMaximum={axisMaximum}
             motion={motion}
             motionUnit={motionUnit}
-            smoothingSeconds={smoothingSeconds}
+            smoothingSeconds={prepared.snapshot.settings.smoothingSeconds}
           />
           {chart === 'elevation' ? (
             <>
@@ -177,6 +185,7 @@ export const MeasurementExplorer = ({
                     onSelect={setSelectedId}
                   />
                   <MotionControls
+                    pending={prepared.pending}
                     smoothingSeconds={smoothingSeconds}
                     setSmoothingSeconds={setSmoothingSeconds}
                   />
@@ -190,7 +199,7 @@ export const MeasurementExplorer = ({
               )}
             </>
           )}
-          <MobileMapDialog mapView={mapView} selected={selected} />
+          {!showDesktopMap ? <MobileMapDialog mapView={mapView} selected={selected} /> : null}
           <RoutePosition
             points={analysis.points}
             selectedIndex={selectedIndex}
@@ -199,7 +208,7 @@ export const MeasurementExplorer = ({
           />
         </Stack>
         <Box hideBelow='lg' minW={0}>
-          {mapView}
+          {showDesktopMap ? mapView : null}
         </Box>
       </Grid>
       {!hasTimedMotion && hasElevation ? (

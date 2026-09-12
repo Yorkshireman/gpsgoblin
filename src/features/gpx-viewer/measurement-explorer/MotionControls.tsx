@@ -1,17 +1,19 @@
-import { Field, Input } from '@chakra-ui/react';
+import { Field, Input, Text } from '@chakra-ui/react';
 import { smoothingDurations, formatSmoothingDuration } from '../measurementDisplay';
 
 type MotionControlsProps = Readonly<{
   smoothingSeconds: number;
   setSmoothingSeconds: (seconds: number) => void;
+  pending?: boolean;
 }>;
 
-export const MotionControls = ({ smoothingSeconds, setSmoothingSeconds }: MotionControlsProps) => {
+export const MotionControls = ({ smoothingSeconds, setSmoothingSeconds, pending }: MotionControlsProps) => {
   return (
     <Field.Root gap={0}>
       <Field.Label>
         Smoothing · <span>{formatSmoothingDuration(smoothingSeconds)}</span>
         {smoothingSeconds === 0 ? ' (unsmoothed)' : ''}
+        {pending ? <Text as='span' role='status' fontSize='xs' color='fg.muted'>Updating…</Text> : null}
       </Field.Label>
       <Input
         aria-label='Smoothing'

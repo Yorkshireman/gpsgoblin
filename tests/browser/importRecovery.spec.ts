@@ -8,7 +8,7 @@ const file = (name: string, contents = '<gpx version="1.1"><wpt lat="0" lon="0">
 test('actual worker rejects hostile input without network requests and recovers', async ({ page }) => {
   const outbound: string[] = [];
   page.on('request', request => {
-    if (!request.url().startsWith('http://127.0.0.1:4173/')) outbound.push(request.url());
+    if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') outbound.push(request.url());
   });
   await page.goto('/tools/gpx-file-viewer.html');
   const picker = page.getByLabel('GPX file', { exact: true });

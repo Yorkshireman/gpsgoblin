@@ -2,13 +2,14 @@
 
 ## Parser and supported content
 
-GPSGoblin uses MIT-licensed `@xmldom/xmldom` 0.9.12 behind the `parseGpx` adapter,
-running in a dedicated Web Worker. A strict `saxes` 6.0.0 well-formedness pass
-rejects malformed character data before DOM construction; xmldom warnings/errors
-also stop parsing. XML is not silently repaired. Files stay local. The parser supports GPX 1.1 tracks, separate track segments, planned routes,
-waypoints, names/descriptions, coordinates and optional elevation. It retains the
-original file contents, source point order, stable point identifiers and raw point
-timestamps. Missing elevation differs from genuine zero elevation.
+GPSGoblin uses ISC-licensed `saxes` 6.0.0 behind the `parseGpx` adapter,
+running in a dedicated Web Worker. One strict SAX pass validates XML and extracts
+supported values without constructing a temporary DOM tree. Unknown extensions
+are validated but not interpreted or retained as a second tree. XML is not silently
+repaired. Files stay local. GPX 1.1 tracks, separate track segments, planned routes,
+waypoints, names/descriptions, coordinates and optional elevation are supported.
+The original file contents, source point order, stable identifiers and raw point
+timestamps remain available. Missing elevation differs from genuine zero elevation.
 
 Malformed XML, non-GPX documents, unsupported versions, `DOCTYPE` declarations,
 missing/invalid/out-of-range coordinates, and empty/non-numeric/infinite elevation
@@ -141,8 +142,32 @@ The viewer opens one document at a time, with no configured hard byte, point,
 XML-count/depth, structure-count or processing-time cutoff. Hard resource
 restrictions require explicit owner discussion and agreement. See the
 [initial profiling](import-benchmarks.md) and [chart performance follow-up](chart-performance.md)
-for measured improvements and remaining work. No configured cap does not establish
+and [completed large-file implementation](large-file-support.md) for measured results and evidence boundaries. No configured cap does not establish
 unlimited device capacity. Unsupported empty charts are hidden with an explanation.
+
+## Background measurement processing
+
+The import worker also calculates full-resolution geometry/timing and packs the
+results into numerical columns. After sending the canonical document to the page,
+it retains only derived columns, segment ranges and warning metadata. It does
+not retain a second canonical source graph or the original XML for later settings.
+
+Smoothing and metric/imperial speed, pace and elevation preparation run in that
+worker. Initial views include numeric analysis columns; settings updates reuse
+those columns and transfer only the changed display values. The page adapts them to chart and
+selection objects referencing the original samples. Missing values, segment gaps,
+zero-speed transitions and all original selectable samples are preserved. This
+moves expensive work off the page thread without changing the calculation basis.
+The page still draws the chart and map; transferring a buffer does not remove
+rendering costs or establish unlimited memory capacity.
+
+A file owns one worker session, terminated on successful replacement, Clear or
+unmount. Failed or cancelled replacements preserve the previous session and view.
+There is at most one active settings calculation and the latest queued update;
+obsolete requests cannot overwrite a newer selection. The last completed values
+and their units remain visible during updates, with nearby Updating feedback,
+including beside Smoothing. Failures retain the previous view and offer retry or
+clear/reopen guidance. No processing deadline was introduced.
 
 ## Viewer workspace
 
@@ -152,7 +177,8 @@ display settings; its local components render the summary, chart controls, selec
 measurement, motion controls, route-position control and mobile map dialog. The
 nested `chart/` module exposes `MeasurementChart` and keeps Recharts plotting and
 point hit-testing private. Smaller document/file components remain in `components/`;
-shared unit formatting and display conversion remain in `measurementDisplay.ts`.
+shared unit labels and formatting remain in `measurementDisplay.ts`, while numeric
+display conversion belongs to the worker's prepared-measurements module.
 
 After a successful import, a compact filename/Change/Clear row replaces onboarding
 and the dropzone. A failed replacement keeps the previous successful file identity
@@ -174,7 +200,9 @@ disclosure within that box; there is no separate selected-point details section.
 The position slider describes the selected distance rather than a source point number.
 Smoothing remains directly below the plot. Phones
 use a “View on map” dialog, with “Back to chart” restoring focus to its trigger and
-preserving selection. The route-position slider remains a keyboard alternative to
+preserving selection. The phone map is mounted only while the dialog is open;
+desktop and phone views do not keep duplicate maps alive. Resizing preserves the
+selected point while disposing the previous map. The route-position slider remains a keyboard alternative to
 clicking or tapping plotted measurements. Opening the map is explicit; selecting a
 point never scrolls the page automatically.
 
@@ -217,8 +245,9 @@ Tested exporter coverage is deliberately narrow:
 
 The Strava fixture preserves all 8,142 source points but replaces sensitive values
 and removes extensions. It does not establish support for all Strava exports.
-The benchmark report records the named Chrome/device evidence and O4's remaining
-performance and browser/device gaps. Production basemap selection and other
+The [completion report](large-file-support.md) records named Chrome, Firefox and
+WebKit engine evidence and measured memory/map costs. Physical phones and native
+Safari remain unverified; O4 retains the public-release evidence boundary. Production basemap selection and other
 product-spec release gates remain open.
 
 Primary references: [GPX 1.1 schema](https://www.topografix.com/GPX/1/1/),

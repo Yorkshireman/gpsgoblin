@@ -1,6 +1,7 @@
 import type { GeographicSample, TrackSegment } from '@/domain/activityDocument';
 import { calculatePathDistanceMetres } from '../geometry/calculateTrackDistanceMetres';
 import { readTimestamp } from './readTimestamp';
+import { summariseMeasurements } from './summariseMeasurements';
 
 export type MeasurementPoint = Readonly<{
   sample: GeographicSample;
@@ -91,23 +92,11 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
   }
   const start = readTimestamp(points[0]?.sample.sourceTime).milliseconds;
   const finish = readTimestamp(points.at(-1)?.sample.sourceTime).milliseconds;
-  const elapsedDurationSeconds =
-    points.length > 1 && start !== null && finish !== null && finish >= start
-      ? (finish - start) / 1000
-      : null;
   return {
     points,
-    distanceMetres,
-    elapsedDurationSeconds,
-    timedDurationSeconds: timedIntervalCount ? durationSeconds : null,
-    averageSpeedMetresPerSecond: timedIntervalCount ? timedDistanceMetres / durationSeconds : null,
-    timedIntervalCount,
-    intervalCount,
-    warnings: Array.from(issueCounts, ([issue, count]) => {
-      if (issue === 'invalid elevation') {
-        return `${count} point(s): invalid elevation. These values are unavailable in elevation results.`;
-      }
-      return `${count} point(s): ${issue}. Affected intervals are excluded from speed calculations.`;
+    ...summariseMeasurements({
+      distanceMetres, durationSeconds, timedDistanceMetres, timedIntervalCount, intervalCount,
+      pointCount: points.length, startMilliseconds: start, finishMilliseconds: finish, issueCounts
     })
   };
 };

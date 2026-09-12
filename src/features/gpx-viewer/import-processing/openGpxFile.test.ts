@@ -1,5 +1,6 @@
 import { openGpxFile } from '.';
 import type { ImportRequest, ImportResponse } from './workerMessages';
+import { parseGpx } from '@/parsers/gpx';
 
 const mockWorker: {
   onmessage: ((event: MessageEvent<ImportResponse>) => void) | null;
@@ -76,4 +77,48 @@ it('releases the worker and returns a recovery error if sending the file fails',
   mockWorker.postMessage.mockImplementationOnce(() => { throw new Error('Structured clone failed'); });
   await expect(openGpxFile(new File(['<gpx/>'], 'route.gpx'), new AbortController().signal)).resolves.toEqual({ ok: false, error: 'The file could not be processed. Try again or choose another GPX file.' });
   expect(jest.getTimerCount()).toBe(0);
+});
+
+it('keeps successful processing available for views and releases it explicitly', async () => {
+  const pending = openGpxFile(new File([''], 'route.gpx'), new AbortController().signal);
+  const requestId = mockWorker.postMessage.mock.calls[0][0].requestId;
+  const result = parseGpx('<gpx version="1.1"><wpt lat="0" lon="0"/></gpx>');
+  mockWorker.onmessage?.(new MessageEvent('message', { data: { requestId, result } }));
+  const opened = await pending;
+  if (!opened.ok) throw new Error(opened.error);
+  expect(mockWorker.terminate).not.toHaveBeenCalled();
+  opened.measurements.dispose();
+  expect(mockWorker.terminate).toHaveBeenCalledTimes(1);
+});
+
+it('coalesces queued settings and ignores cancelled and unrelated view replies', async () => {
+  const pending = openGpxFile(new File([''], 'route.gpx'), new AbortController().signal);
+  mockWorker.onmessage?.(new MessageEvent('message', { data: {
+    requestId: mockWorker.postMessage.mock.calls[0][0].requestId,
+    result: parseGpx('<gpx version="1.1"><wpt lat="0" lon="0"/></gpx>')
+  } }));
+  const opened = await pending;
+  if (!opened.ok) throw new Error(opened.error);
+  const settings = { entityId: 'track-0', units: 'metric', motion: 'speed', smoothingSeconds: 60 } as const;
+  const first = new AbortController();
+  const second = new AbortController();
+  const firstResult = opened.measurements.prepareView(settings, first.signal);
+  const firstRejected = expect(firstResult).rejects.toMatchObject({ name: 'AbortError' });
+  const secondResult = opened.measurements.prepareView({ ...settings, smoothingSeconds: 120 }, second.signal);
+  const secondRejected = expect(secondResult).rejects.toMatchObject({ name: 'AbortError' });
+  first.abort();
+  second.abort();
+  const latestResult = opened.measurements.prepareView({ ...settings, smoothingSeconds: 600 }, new AbortController().signal);
+  const latestRejected = expect(latestResult).rejects.toThrow('Recoverable view failure');
+  expect(mockWorker.postMessage).toHaveBeenCalledTimes(2); // Import and one running view.
+  const runningId = mockWorker.postMessage.mock.calls[1][0].requestId;
+  mockWorker.onmessage?.(new MessageEvent('message', { data: { type: 'view', requestId: -1, ok: false, error: 'Unrelated' } }));
+  expect(mockWorker.postMessage).toHaveBeenCalledTimes(2);
+  mockWorker.onmessage?.(new MessageEvent('message', { data: { type: 'view', requestId: runningId, ok: false, error: 'Cancelled reply' } }));
+  expect(mockWorker.postMessage).toHaveBeenCalledTimes(3);
+  const latest = mockWorker.postMessage.mock.calls[2][0];
+  expect(latest).toMatchObject({ type: 'view', settings: { smoothingSeconds: 600 } });
+  mockWorker.onmessage?.(new MessageEvent('message', { data: { type: 'view', requestId: latest.requestId, ok: false, error: 'Recoverable view failure' } }));
+  await Promise.all([firstRejected, secondRejected, latestRejected]);
+  opened.measurements.dispose();
 });

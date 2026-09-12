@@ -71,3 +71,47 @@ it('preserves valid escaped and CDATA text while rejecting malformed XML', () =>
   if (!result.ok) throw new Error(result.error);
   expect(result.document.waypoints[0].name).toBe('A & B 😀 <C & D>');
 });
+
+it('preserves supported fields and segment boundaries around deep, repeated extensions', () => {
+  const extension = `${'<v:group>'.repeat(2000)}<v:value>unused</v:value>${'</v:group>'.repeat(2000)}`;
+  const contents = `<g:gpx xmlns:g="http://www.topografix.com/GPX/1/1" xmlns:v="urn:vendor" version="1.1" creator="  Recorder  ">
+    <g:metadata><g:name>First &amp; only</g:name><g:name>Ignored duplicate</g:name></g:metadata>
+    <g:metadata><g:name>Ignored metadata</g:name></g:metadata>
+    <g:extensions>${extension}</g:extensions>
+    <g:trk><g:name>  A <![CDATA[<B>]]> C  </g:name><g:desc>before<v:span> middle </v:span>after</g:desc>
+      <g:trkseg/><g:trkseg><g:trkpt lat="0" lon="0"><g:ele>0</g:ele><g:time> 2026-09-12T01:02:03Z </g:time><g:extensions>${'<v:record value="1"/>'.repeat(10000)}</g:extensions></g:trkpt></g:trkseg>
+      <g:trkseg><g:trkpt lat="1" lon="2"><g:time/></g:trkpt></g:trkseg>
+    </g:trk>
+  </g:gpx>`;
+  const result = parseGpx(contents);
+  if (!result.ok) throw new Error(result.error);
+  expect(result.document).toEqual({
+    creator: 'Recorder', format: 'gpx', version: '1.1', originalContents: contents,
+    metadata: { name: 'First & only' }, routes: [], waypoints: [],
+    tracks: [{ id: 'track-0', name: 'A <B> C', description: 'before middle after', segments: [
+      { id: 'track-0-segment-0', samples: [] },
+      { id: 'track-0-segment-1', samples: [{ id: 'track-0-segment-1-sample-0', latitudeDegrees: 0, longitudeDegrees: 0, elevationMetres: 0, sourceTime: ' 2026-09-12T01:02:03Z ' }] },
+      { id: 'track-0-segment-2', samples: [{ id: 'track-0-segment-2-sample-0', latitudeDegrees: 1, longitudeDegrees: 2, sourceTime: '' }] }
+    ] }]
+  });
+});
+
+it('validates XML in ignored extensions and after supported geographic content', () => {
+  const contents = `<gpx version="1.1"><wpt lat="0" lon="0"/><extensions>${'<entry/>'.repeat(10000)}<entry>&undefined;</entry></extensions></gpx>`;
+  expect(parseGpx(contents)).toEqual({ ok: false, error: 'The file contains malformed XML.' });
+});
+
+it('keeps the first optional field even when it is empty and preserves XML text normalization', () => {
+  const contents = '<gpx version="1.1"><wpt lat="0" lon="0"><name/><name>Later name</name><desc> A\r\nB<!--ignored--><?note ignored?>&#13;C </desc><time/><time>Later time</time><ele>0</ele><ele>invalid ignored duplicate</ele></wpt></gpx>';
+  const result = parseGpx(contents);
+  if (!result.ok) throw new Error(result.error);
+  expect(result.document.waypoints).toEqual([{
+    id: 'waypoint-0', latitudeDegrees: 0, longitudeDegrees: 0,
+    elevationMetres: 0, sourceTime: '', description: 'A\nB\rC'
+  }]);
+});
+
+it('reports missing coordinates before invalid values independently of source order', () => {
+  const contents = '<gpx version="1.1"><wpt lat="0"/><trk><trkseg><trkpt lat="0"/></trkseg></trk><rte><rtept lat="invalid" lon="0"/><rtept lat="0" lon="0"><ele>invalid</ele></rtept><rtept lat="0"/></rte></gpx>';
+  expect(parseGpx(contents)).toEqual({ ok: false, error: 'A route point is missing its coordinates.' });
+});

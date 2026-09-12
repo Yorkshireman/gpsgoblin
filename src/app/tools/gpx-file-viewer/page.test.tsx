@@ -4,23 +4,34 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import GpxFileViewerPage from './page';
 import { createTestFile } from './pageTestFixtures';
-import type { GpxParseResult } from '@/domain/activityDocument';
+import type { ImportRequest, ImportResponse } from '@/features/gpx-viewer/import-processing';
+import type { createMeasurementStore } from '@/analysis/prepared-measurements';
 
 // Replace only the browser Worker transport in JSDOM; run the real GPX parser.
 // Playwright tests cover the bundled worker and structured-clone boundary.
 jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
   createImportWorker: () => {
     let reader: FileReader | undefined;
+    let measurements: ReturnType<typeof createMeasurementStore> | undefined;
     const worker: {
-      onmessage?: ((event: MessageEvent<{ requestId: number; result: GpxParseResult }>) => void) | null;
-      postMessage: (request: { requestId: number; file: File }) => void;
+      onmessage?: ((event: MessageEvent<ImportResponse>) => void) | null;
+      postMessage: (request: ImportRequest) => void;
       terminate: () => void;
     } = {
-      postMessage: ({ requestId, file }) => {
+      postMessage: (request) => {
+        if ('type' in request) {
+          const view = measurements?.prepareView(request.settings);
+          if (!view) throw new Error('Missing prepared measurements');
+          worker.onmessage?.(new MessageEvent('message', { data: { type: 'view', requestId: request.requestId, ok: true, view } }));
+          return;
+        }
+        const { requestId, file } = request;
         reader = new FileReader();
         reader.onload = () => {
           const { parseGpx } = jest.requireActual('@/parsers/gpx');
-          worker.onmessage?.(new MessageEvent('message', { data: { requestId, result: parseGpx(reader?.result ?? '') } }));
+          const result = parseGpx(reader?.result ?? '');
+          if (result.ok) measurements = jest.requireActual('@/analysis/prepared-measurements').createMeasurementStore(result.document);
+          worker.onmessage?.(new MessageEvent('message', { data: { requestId, result } }));
         };
         reader.readAsText(file);
       },

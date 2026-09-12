@@ -24,13 +24,19 @@ export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSel
         width={area.width}
         height={area.height}
         fill='transparent'
+        stroke='transparent'
+        strokeWidth={8}
+        vectorEffect='non-scaling-stroke'
+        pointerEvents='all'
         className='measurement-selection-area'
         aria-hidden='true'
         style={{ cursor: 'crosshair' }}
         onClick={event => {
-          const bounds = event.currentTarget.getBoundingClientRect();
-          const x = area.x + ((event.clientX - bounds.left) * area.width) / bounds.width;
-          const y = area.y + ((event.clientY - bounds.top) * area.height) / bounds.height;
+          const matrix = event.currentTarget.getScreenCTM();
+          if (!matrix) return;
+          // Some engines include the hit stroke in getBoundingClientRect. Use
+          // the SVG transform so the forgiving edge never changes coordinates.
+          const { x, y } = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
           let nearest: ChartMeasurement | undefined;
           let nearestX = Infinity;
           let nearestY = Infinity;
@@ -38,8 +44,8 @@ export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSel
           // samples. Prefer a real measurement within four pixels of the target;
           // otherwise keep nearest-distance selection, including missing values.
           const radius = 4;
-          const scaleX = bounds.width / area.width;
-          const scaleY = bounds.height / area.height;
+          const scaleX = Math.hypot(matrix.a, matrix.b);
+          const scaleY = Math.hypot(matrix.c, matrix.d);
           const lowerBound = (target: number) => {
             let low = 0;
             let high = data.length;

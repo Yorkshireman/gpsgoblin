@@ -2,10 +2,12 @@ import type { MeasurementPoint } from './analyseMeasurements';
 
 export const SPEED_AVERAGE_SECONDS = 60;
 
+type SpeedInterval = Pick<MeasurementPoint, 'segmentId' | 'speedMetresPerSecond' | 'intervalSeconds'>;
+
 // A trailing, time-weighted view. Source measurements and totals remain untouched.
-export const averageSpeeds = (points: readonly MeasurementPoint[], windowSeconds: number) => {
+export const averageSpeeds = (points: Iterable<SpeedInterval>, windowSeconds: number) => {
   if (windowSeconds <= 0) {
-    return points.map(point => {
+    return Array.from(points, point => {
       return point.speedMetresPerSecond;
     });
   }
@@ -15,7 +17,8 @@ export const averageSpeeds = (points: readonly MeasurementPoint[], windowSeconds
   let distance = 0;
   let movingIntervals = 0;
   let segmentId: string | undefined;
-  return points.map(point => {
+  const averaged: (number | null)[] = [];
+  for (const point of points) {
     const speed = point.speedMetresPerSecond;
     const duration = point.intervalSeconds;
     if (point.segmentId !== segmentId || speed === null || duration === null) {
@@ -27,7 +30,8 @@ export const averageSpeeds = (points: readonly MeasurementPoint[], windowSeconds
     }
     segmentId = point.segmentId;
     if (speed === null || duration === null) {
-      return null;
+      averaged.push(null);
+      continue;
     }
     intervals.push({ seconds: duration, distance: speed * duration, speed });
     seconds += duration;
@@ -43,8 +47,9 @@ export const averageSpeeds = (points: readonly MeasurementPoint[], windowSeconds
     // containing only exact zero-speed intervals has exactly zero distance.
     if (movingIntervals === 0) distance = 0;
     const excess = Math.max(0, seconds - windowSeconds);
-    return (
+    averaged.push(
       Math.max(0, distance - intervals[start].speed * excess) / Math.min(seconds, windowSeconds)
     );
-  });
+  }
+  return averaged;
 };

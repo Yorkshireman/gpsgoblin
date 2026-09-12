@@ -24,8 +24,7 @@ const loadSource = (path) => {
   return loadedModule.exports;
 };
 const { parseGpx } = loadSource(resolve('src/parsers/gpx'));
-const { analyseMeasurements } = loadSource(resolve('src/analysis/measurements'));
-const { chartMeasurements } = loadSource(resolve('src/features/gpx-viewer/measurementDisplay'));
+const { createMeasurementStore } = loadSource(resolve('src/analysis/prepared-measurements'));
 const timings = {};
 const measure = (name, action) => {
   const start = performance.now();
@@ -35,8 +34,7 @@ const measure = (name, action) => {
 };
 // Instrument installed parser methods only within this short-lived Node process.
 for (const [prototype, method, name] of [
-  [require('saxes').SaxesParser.prototype, 'write', 'xmlValidationMs'],
-  [require('@xmldom/xmldom').DOMParser.prototype, 'parseFromString', 'xmlDomMs']
+  [require('saxes').SaxesParser.prototype, 'write', 'xmlExtractionMs']
 ]) {
   const original = prototype[method];
   prototype[method] = function (...args) {
@@ -60,13 +58,12 @@ for (const scenario of cases) {
     if (!parsed.ok) throw new Error(`Benchmark input rejected: ${scenario.name}`);
     const afterParseMiB = process.memoryUsage().heapUsed / 1024 ** 2;
     const document = measure('cloneMs', () => { return structuredClone(parsed.document); });
-    const segments = document.tracks.flatMap(track => { return track.segments; });
-    const analysis = measure('analysisMs', () => { return analyseMeasurements(segments); });
-    const display = measure('displayMs', () => { return chartMeasurements(analysis.points, 'metric', 'speed'); });
+    const measurements = measure('analysisAndPackingMs', () => { return createMeasurementStore(document); });
+    const view = measure('displayMs', () => { return measurements.prepareView({ entityId: document.tracks[0].id, units: 'metric', motion: 'speed', smoothingSeconds: 60 }); });
     global.gc?.();
-    console.log(JSON.stringify({ scenario: scenario.name, run, points: analysis.points.length, displayedPoints: display.length,
+    console.log(JSON.stringify({ scenario: scenario.name, run, points: view.analysis.metrics.length / 4, displayedPoints: view.display.length / 3,
       ...Object.fromEntries(Object.entries(timings).map(([name, value]) => { return [name, Math.round(value)]; })),
-      adapterMs: Math.round(timings.parseMs - timings.xmlValidationMs - timings.xmlDomMs),
+      adapterOutsideXmlMs: Math.round(timings.parseMs - timings.xmlExtractionMs),
       heapBeforeMiB: Math.round(beforeMiB), heapAfterParseMiB: Math.round(afterParseMiB),
       retainedHeapMiB: Math.round(process.memoryUsage().heapUsed / 1024 ** 2) }));
   }
