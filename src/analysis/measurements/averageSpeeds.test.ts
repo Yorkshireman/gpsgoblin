@@ -13,6 +13,13 @@ const point = (id: string, speed: number | null, seconds: number | null): Measur
 };
 
 describe('averageSpeeds', () => {
+  it('returns exact zero after movement leaves a stationary window without discarding tiny movement', () => {
+    const points = [point('a', 0.1, 1), point('b', 0.2, 1), point('c', 0, 1), point('d', 1e-14, 1)];
+    const speeds = averageSpeeds(points, 1);
+    expect(speeds[2]).toBe(0);
+    expect(speeds[3]).toBe(1e-14);
+  });
+
   it('shows sustained speed changes with a five-minute window', () => {
     const points = [point('a', 2, 150), point('b', 6, 150), point('c', 6, 150)];
     expect(averageSpeeds(points, 300)).toEqual([2, 4, 6]);

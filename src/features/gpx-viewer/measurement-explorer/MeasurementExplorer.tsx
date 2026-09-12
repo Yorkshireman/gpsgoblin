@@ -31,7 +31,6 @@ export const MeasurementExplorer = ({
   const motion: MotionDisplay = activeChart === 'pace' ? 'pace' : 'speed';
   const [showElevation, setShowElevation] = useState(false);
   const [smoothingSeconds, setSmoothingSeconds] = useState(SPEED_AVERAGE_SECONDS);
-  const [fullPaceRange, setFullPaceRange] = useState(false);
   const analysis = useMemo(() => {
     return analyseMeasurements(
       track ? (segment ? [segment] : track.segments) : [{ id: route.id, samples: route.points }]
@@ -65,13 +64,6 @@ export const MeasurementExplorer = ({
     return point.motion !== null;
   });
   const motionUnit = motion === 'speed' ? labels.speed : labels.pace;
-
-  const paceLimit = (30 * labels.metresPerDistance) / 1000;
-  const hasSlowPace =
-    motion === 'pace' &&
-    data.some(point => {
-      return point.motion !== null && point.motion > paceLimit;
-    });
 
   const hasTimedMotion = analysis.averageSpeedMetresPerSecond !== null;
   const chart =
@@ -166,7 +158,6 @@ export const MeasurementExplorer = ({
                           }
                         : undefined
                     }
-                    maximum={hasSlowPace && !fullPaceRange ? paceLimit : undefined}
                     unit={motionUnit}
                     distanceUnit={labels.distance}
                     selectedId={selected?.sample.id}
@@ -175,11 +166,6 @@ export const MeasurementExplorer = ({
                   <MotionControls
                     smoothingSeconds={smoothingSeconds}
                     setSmoothingSeconds={setSmoothingSeconds}
-                    hasSlowPace={hasSlowPace}
-                    fullPaceRange={fullPaceRange}
-                    setFullPaceRange={setFullPaceRange}
-                    paceLimit={paceLimit}
-                    motionUnit={motionUnit}
                   />
                 </Stack>
               ) : (

@@ -5,7 +5,6 @@ export type MeasurementChartProps = Readonly<{
   metric: 'elevation' | 'motion';
   title: string;
   description?: string;
-  maximum?: number;
   elevationOverlay?: Readonly<{
     enabled: boolean;
     unit: string;

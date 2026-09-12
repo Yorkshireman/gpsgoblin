@@ -114,11 +114,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
     true
   );
   await smoothing.press('Home');
-  await expect(page.getByRole('button', { name: 'Show full pace range' })).toBeVisible();
-  await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('30:00');
-  await page.getByRole('button', { name: 'Show full pace range' }).click();
-  await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('h');
-  await page.getByRole('button', { name: 'Show normal pace range' }).click();
+  await expect(page.getByRole('button', { name: /pace range/ })).toHaveCount(0);
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
   const area = elevation.locator('.measurement-selection-area');
   const bounds = await area.boundingBox();
@@ -138,34 +134,49 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   expect(errors).toEqual([]);
 });
 
-test('pace keeps near-stop outliers inspectable without flattening the default scale', async ({
-  page
-}) => {
-  const points = [0, 0.000000001, 0.0001, 0.0002]
-    .map((longitude, index) => {
-      return `<trkpt lat="0" lon="${longitude}"><time>2026-09-11T12:00:${String(index * 10).padStart(2, '0')}Z</time></trkpt>`;
-    })
-    .join('');
+test('pace plots actual values above 30 with explicit minutes per distance', async ({ page }, testInfo) => {
+  const times = [0, 3600, 10800, 11160];
+  const points = times.map((seconds, index) => {
+    return `<trkpt lat="0" lon="${index * 0.01}"><time>${new Date(Date.UTC(2026, 0, 1, 0, 0, seconds)).toISOString()}</time></trkpt>`;
+  }).join('');
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles({
-    name: 'near-stop.gpx',
-    mimeType: 'application/gpx+xml',
-    buffer: Buffer.from(
-      `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>${points}</trkseg></trk></gpx>`
-    )
+    name: 'slow-pace.gpx', mimeType: 'application/gpx+xml',
+    buffer: Buffer.from(`<gpx version="1.1"><trk><trkseg>${points}</trkseg></trk></gpx>`)
   });
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
-  const pace = page.getByRole('heading', { name: 'Pace', exact: true }).locator('../..');
-  await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('30:00');
-  await expect(page.getByText(/Paces slower than 30:00/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /pace range/ })).toHaveCount(0);
+  await expect(page.getByText(/Paces slower than/)).toHaveCount(0);
+  const smoothing = page.getByRole('slider', { name: 'Smoothing' });
+  await smoothing.press('Home');
+  const trace = page.locator('.recharts-line-curve');
+  const path = await trace.getAttribute('d') ?? '';
+  const vertices = Array.from(path.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g), match => {
+    return { x: Number(match[1]), y: Number(match[2]) };
+  });
+  expect(vertices).toHaveLength(3);
+  const area = page.locator('.measurement-selection-area');
+  const top = Number(await area.getAttribute('y'));
+  const bottom = top + Number(await area.getAttribute('height'));
+  // The 108-minute peak is twice the 54-minute peak, not flattened to one ceiling.
+  expect(vertices[1].y - top).toBeCloseTo(3, 1);
+  expect((bottom - vertices[0].y) / (bottom - vertices[1].y)).toBeCloseTo(0.5, 2);
   const position = page.getByRole('slider', { name: 'Position on route' });
-  await position.focus();
+  await position.press('Home');
   await position.press('ArrowRight');
-  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText(
-    /\d+h \d+m \/km/
-  );
-  await page.getByRole('button', { name: 'Show full pace range' }).click();
-  await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('h');
-  await page.getByRole('button', { name: 'Show normal pace range' }).click();
-  await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('30:00');
+  const selected = page.getByLabel('Selected measurement', { exact: true });
+  await expect(selected).toContainText(/53:\d{2} min\/km/);
+  await position.press('ArrowRight');
+  await expect(selected).toContainText(/107:\d{2} min\/km/);
+  const marker = page.locator('.recharts-reference-dot circle');
+  expect(Number(await marker.getAttribute('cy'))).toBeCloseTo(vertices[1].y, 2);
+  await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
+  await expect(selected).toContainText(/173:\d{2} min\/mi/);
+  await page.getByRole('combobox', { name: 'Display units' }).selectOption('metric');
+  await smoothing.press('End');
+  await expect(selected).toContainText(/107:\d{2} min\/km/);
+  await page.getByRole('region', { name: 'Measurement chart', exact: true }).evaluate(element => {
+    element.scrollIntoView({ block: 'start' });
+  });
+  await page.screenshot({ path: testInfo.outputPath('uncapped-pace.png') });
 });

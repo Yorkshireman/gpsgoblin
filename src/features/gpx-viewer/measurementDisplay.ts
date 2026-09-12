@@ -78,16 +78,13 @@ export const formatMeasurement = (value: number | null, unit: string) => {
 export const formatChartValue = (value: number, unit: string) => {
   if (unit.startsWith('min/')) {
     const seconds = Math.round(value * 60);
-    if (seconds >= 3600) {
-      return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-    }
     return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
   }
   return Number(value.toFixed(1)).toString();
 };
 
 export const formatChartMeasurement = (value: number, unit: string) => {
-  return `${formatChartValue(value, unit)} ${unit.replace('min/', '/')}`;
+  return `${formatChartValue(value, unit)} ${unit}`;
 };
 
 export type ChartMeasurement = Readonly<{

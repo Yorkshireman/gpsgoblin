@@ -75,12 +75,15 @@ measurement and tooltip use the same displayed value, tied to the ending source
 point of the averaging window. Source values and full-resolution totals do not
 change. Elevation is not averaged.
 
-Pace ticks use minutes:seconds, or hours and minutes for very large values. Unit
-labels sit above the plot to avoid overlapping ticks. When near-stationary readings
-exceed 30 min/km (the equivalent in imperial units), the default chart caps their
-plotted height at that limit, with an explicit explanation and a “Show full pace
-range” control. Tooltips and selected measurements retain the actual averaged pace;
-this display limit never changes source values or calculations.
+Pace uses minutes:seconds throughout, including values over an hour. Selected
+values and tooltips explicitly show min/km or min/mi, matching the axis unit.
+The pace axis covers the highest displayed value with three CSS pixels of top
+padding. Values are not capped, and there is no alternate restricted range.
+Users can adjust smoothing to reduce brief anomalies; the line, selected marker
+and displayed value all use the same pace. Unit labels sit above the plot.
+A smoothing window containing only exact zero-speed intervals returns exact zero
+speed and unavailable pace, avoiding subtraction residue being inverted into an
+enormous pace. This uses the actual interval values, not a small-speed threshold.
 
 The Speed chart also shows a dashed overall average-speed line with its value in
 the legend. It uses distance divided by duration over the same usable timed

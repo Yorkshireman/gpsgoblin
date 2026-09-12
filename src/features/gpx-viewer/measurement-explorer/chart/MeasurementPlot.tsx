@@ -25,7 +25,6 @@ export const MeasurementPlot = ({
   data,
   metric,
   title,
-  maximum,
   reference,
   elevationOverlay,
   unit,
@@ -50,29 +49,20 @@ export const MeasurementPlot = ({
   const displayData = useMemo(() => {
     return downsampleChart(data, width);
   }, [data, width]);
-  const plottedData = useMemo(() => {
-    return displayData.map(point => {
-      return {
-        ...point,
-        originalValue: point[metric],
-        [metric]: point[metric] === null ? null : Math.min(point[metric], maximum ?? Infinity)
-      };
-    });
-  }, [displayData, metric, maximum]);
   const chart = useChart({
-    data: plottedData,
+    data: displayData,
     series: [{ name: metric, color: 'green.solid', label: `${title} (${unit})` }]
   });
   const selected = data.find(point => {
     return point.sampleId === selectedId;
   });
-  const isolated = plottedData.filter((point, index) => {
+  const isolated = displayData.filter((point, index) => {
     return (
       point.sampleId &&
       point.sampleId !== selectedId &&
       point[metric] !== null &&
-      plottedData[index - 1]?.[metric] == null &&
-      plottedData[index + 1]?.[metric] == null
+      displayData[index - 1]?.[metric] == null &&
+      displayData[index + 1]?.[metric] == null
     );
   });
   return (
@@ -107,14 +97,13 @@ export const MeasurementPlot = ({
             <YAxis
               type='number'
               domain={
-                maximum !== undefined
-                  ? [0, maximum]
+                unit.startsWith('min/')
+                  ? [0, 'dataMax']
                   : metric === 'motion'
                     ? [0, 'auto']
                     : ['auto', 'auto']
               }
-              allowDataOverflow={maximum !== undefined}
-              padding={{ top: maximum !== undefined ? 3 : 0 }}
+              padding={{ top: unit.startsWith('min/') ? 3 : 0 }}
               width='auto'
               tickFormatter={value => {
                 return formatChartValue(Number(value), unit);
@@ -152,7 +141,7 @@ export const MeasurementPlot = ({
             <Tooltip
               content={({ active, payload, label }) => {
                 const point = payload?.[0]?.payload;
-                if (!active || !point || typeof point.originalValue !== 'number') {
+                if (!active || !point || typeof point[metric] !== 'number') {
                   return null;
                 }
                 return (
@@ -161,7 +150,7 @@ export const MeasurementPlot = ({
                       Distance: {Number(label).toFixed(2)} {distanceUnit}
                     </Text>
                     <Text>
-                      {title}: {formatChartMeasurement(point.originalValue, unit)}
+                      {title}: {formatChartMeasurement(point[metric], unit)}
                     </Text>
                     {elevationOverlay?.enabled && typeof point.elevation === 'number' ? (
                       <Text>
@@ -206,13 +195,13 @@ export const MeasurementPlot = ({
             {selected && selected[metric] !== null ? (
               <ReferenceDot
                 x={selected.distance}
-                y={Math.min(selected[metric], maximum ?? Infinity)}
+                y={selected[metric]}
                 r={6}
                 fill={chart.color('green.solid')}
                 stroke={chart.color('fg')}
               />
             ) : null}
-            <ChartSelection data={data} metric={metric} maximum={maximum} onSelect={onSelect} />
+            <ChartSelection data={data} metric={metric} onSelect={onSelect} />
           </ComposedChart>
         </Chart.Root>
       ) : null}
