@@ -114,6 +114,7 @@ export const MeasurementPlot = ({
                     : ['auto', 'auto']
               }
               allowDataOverflow={maximum !== undefined}
+              padding={{ top: maximum !== undefined ? 3 : 0 }}
               width='auto'
               tickFormatter={value => {
                 return formatChartValue(Number(value), unit);
