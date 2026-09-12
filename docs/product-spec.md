@@ -513,6 +513,8 @@ Downsample display datasets independently from full-resolution analysis. Preserv
 
 Use numeric continuous axes and consistent units. Do not connect null values or smooth a line in a way that implies supported measurements through an unknown interval.
 
+The pace axis defaults to Automatic, showing the full displayed range. Users may explicitly choose a custom axis maximum in the current pace units. This changes only the viewport: clip the line beyond that range without flattening its values, identify overflow visibly, and keep the actual measurements selectable with an above-range explanation. Convert the chosen maximum when display units change. This control does not detect stops, exclude time or change source data or calculations.
+
 Benchmark before committing to display point limits. Replacing the renderer later must not require changing canonical data or analysis formulas.
 
 ## 16. Mapping and operating-cost controls

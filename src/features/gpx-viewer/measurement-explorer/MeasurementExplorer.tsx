@@ -12,6 +12,7 @@ import { MobileMapDialog } from './MobileMapDialog';
 import { SpeedExplanation } from './SpeedExplanation';
 import { MotionControls } from './MotionControls';
 import { ChartControls } from './ChartControls';
+import { PaceRangeControls } from './PaceRangeControls';
 import { RoutePosition } from './RoutePosition';
 
 type MeasurementExplorerProps = (
@@ -30,6 +31,8 @@ export const MeasurementExplorer = ({
   const [activeChart, setActiveChart] = useState<'speed' | 'pace' | 'elevation'>('speed');
   const motion: MotionDisplay = activeChart === 'pace' ? 'pace' : 'speed';
   const [showElevation, setShowElevation] = useState(false);
+  const [customPaceRange, setCustomPaceRange] = useState(false);
+  const [paceMaximumPerKm, setPaceMaximumPerKm] = useState<number>();
   const [smoothingSeconds, setSmoothingSeconds] = useState(SPEED_AVERAGE_SECONDS);
   const analysis = useMemo(() => {
     return analyseMeasurements(
@@ -72,6 +75,8 @@ export const MeasurementExplorer = ({
       : activeChart === 'elevation' && !hasElevation
         ? 'speed'
         : activeChart;
+  const paceMaximum = paceMaximumPerKm === undefined ? undefined : paceMaximumPerKm * (labels.metresPerDistance / 1000);
+  const axisMaximum = chart === 'pace' && customPaceRange ? paceMaximum : undefined;
   const mapView = (
     <>
       {' '}
@@ -105,10 +110,17 @@ export const MeasurementExplorer = ({
             units={units}
             onUnitsChange={onUnitsChange}
           />
+          {chart === 'pace' ? (
+            <PaceRangeControls key={units} custom={customPaceRange} onCustomChange={setCustomPaceRange}
+              maximum={paceMaximum} unit={labels.pace} onMaximumChange={value => {
+                setPaceMaximumPerKm(value === undefined ? undefined : value / (labels.metresPerDistance / 1000));
+              }} />
+          ) : null}
           <SelectedMeasurement
             selected={selected}
             labels={labels}
             selectedMotion={selectedMotion}
+            axisMaximum={axisMaximum}
             motion={motion}
             motionUnit={motionUnit}
             smoothingSeconds={smoothingSeconds}
@@ -158,6 +170,7 @@ export const MeasurementExplorer = ({
                           }
                         : undefined
                     }
+                    axisMaximum={axisMaximum}
                     unit={motionUnit}
                     distanceUnit={labels.distance}
                     selectedId={selected?.sample.id}

@@ -77,10 +77,24 @@ change. Elevation is not averaged.
 
 Pace uses minutes:seconds throughout, including values over an hour. Selected
 values and tooltips explicitly show min/km or min/mi, matching the axis unit.
-The pace axis covers the highest displayed value with three CSS pixels of top
-padding. Values are not capped, and there is no alternate restricted range.
-Users can adjust smoothing to reduce brief anomalies; the line, selected marker
-and displayed value all use the same pace. Unit labels sit above the plot.
+The pace axis defaults to Automatic, covering the highest displayed value with
+three CSS pixels of top padding. A Pace range control beside the chart settings
+allows a user to choose Custom maximum and enter minutes per kilometre or mile.
+Empty or invalid input leaves the automatic range active; invalid non-positive
+values show an explanation. The maximum converts when units change and can be
+removed by switching back to Automatic.
+
+The custom maximum only changes the visible axis range. Original line coordinates
+are clipped outside that viewport, not flattened onto the ceiling. Upward arrow
+buttons mark the highest original sample in nearby overflow sections of the
+width-adapted drawing. Indicators within 32 screen pixels are grouped to keep
+the touch targets separate. Selecting an arrow shows its actual pace and an “Above
+visible maximum” explanation. The keyboard position control can still select any
+source sample, with an arrow for that selected sample if it is above the range.
+Missing data and segment gaps still split runs. Source data, smoothing and totals
+are unchanged; this is independent of any future stop detector. Units and smoothing
+remain user controls. Unit labels sit above the plot.
+
 A smoothing window containing only exact zero-speed intervals returns exact zero
 speed and unavailable pace, avoiding subtraction residue being inverted into an
 enormous pace. This uses the actual interval values, not a small-speed threshold.

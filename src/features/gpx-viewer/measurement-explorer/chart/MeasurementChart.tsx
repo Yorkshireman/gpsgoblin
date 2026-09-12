@@ -46,6 +46,11 @@ export const MeasurementChart = (props: MeasurementChartProps) => {
           </Text>
         </Stack>
       ) : null}
+      {props.axisMaximum !== undefined && props.data.some(point => {
+        return point.motion !== null && point.motion > (props.axisMaximum ?? Infinity);
+      }) ? (
+        <Text fontSize='xs'>↑ Above {formatChartMeasurement(props.axisMaximum, unit)}. Select an arrow to inspect the peak.</Text>
+      ) : null}
       <Stack direction='row' justify='space-between' fontSize='sm' color='fg.muted'>
         <Text>{unit}</Text>
         {elevationOverlay?.enabled ? <Text>Elevation ({elevationOverlay.unit})</Text> : null}

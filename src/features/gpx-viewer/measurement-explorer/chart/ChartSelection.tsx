@@ -4,10 +4,11 @@ import type { ChartMeasurement } from '../../measurementDisplay';
 type ChartSelectionProps = Readonly<{
   data: readonly ChartMeasurement[];
   metric: 'elevation' | 'motion';
+  axisMaximum?: number;
   onSelect: (id: string) => void;
 }>;
 
-export const ChartSelection = ({ data, metric, onSelect }: ChartSelectionProps) => {
+export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSelectionProps) => {
   const area = usePlotArea();
   const xScale = useXAxisScale();
   const yScale = useYAxisScale();
@@ -60,6 +61,7 @@ export const ChartSelection = ({ data, metric, onSelect }: ChartSelectionProps) 
           let hitDistance = radius ** 2;
           for (let index = first; index < end; index += 1) {
             const point = data[index];
+            if (axisMaximum !== undefined && point[metric] !== null && point[metric] > axisMaximum) continue;
             const pointX = xScale(point.distance);
             if (pointX === undefined) {
               continue;

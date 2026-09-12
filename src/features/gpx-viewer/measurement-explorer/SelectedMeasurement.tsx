@@ -13,6 +13,7 @@ type SelectedMeasurementProps = Readonly<{
   selected: MeasurementPoint | undefined;
   labels: ReturnType<typeof displayUnits>;
   selectedMotion: number | null;
+  axisMaximum?: number;
   motion: MotionDisplay;
   motionUnit: string;
   smoothingSeconds: number;
@@ -22,6 +23,7 @@ export const SelectedMeasurement = ({
   selected,
   labels,
   selectedMotion,
+  axisMaximum,
   motion,
   motionUnit,
   smoothingSeconds
@@ -79,6 +81,9 @@ export const SelectedMeasurement = ({
                 </Text>
               </Box>
             </Grid>
+            {axisMaximum !== undefined && selectedMotion !== null && selectedMotion > axisMaximum ? (
+              <Text fontSize='xs'>Above visible maximum ({formatChartMeasurement(axisMaximum, motionUnit)}).</Text>
+            ) : null}
             <Text fontSize='xs'>
               Recorded time: <span>{formatRecordedTime(selected.sample.sourceTime)}</span>
             </Text>
