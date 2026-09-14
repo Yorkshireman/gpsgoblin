@@ -4,7 +4,8 @@ The owner approved Workers Static Assets on 14 September 2026, replacing the
 undeployed Pages plan. `wrangler.jsonc` serves only the Next static export `out/`.
 There is no application Worker script, OpenNext adapter, server-side GPX handling,
 asset binding or custom-domain route in this configuration. Worker observability
-is disabled; Cloudflare's platform logging/services still need an owner assessment.
+is disabled; verified platform behaviour and dashboard evidence are recorded in
+[hosting privacy](hosting-privacy.md).
 
 ## Local validation
 
@@ -23,8 +24,8 @@ Neither establishes deployed Cloudflare behaviour.
 
 ## Cloudflare build settings
 
-These are reference settings for the guided dashboard setup, not a record that
-an application has been created or deployed:
+The GitHub integration has been deployed and verified on workers.dev; see
+[release evidence](release-readiness.md). Current build settings:
 
 | Setting | Value |
 | --- | --- |
@@ -39,8 +40,8 @@ an application has been created or deployed:
 
 The configuration must be committed and pushed to the branch being built first.
 It currently lives on `feat/7-release-verification`; master does not yet contain
-it. Select that branch for initial verification if creating the application now,
-without attaching gpsgoblin.com. Once reviewed work is merged, use master as the
+it. That branch is currently the temporary production build branch for the
+workers.dev testing deployment. gpsgoblin.com is not attached. Once reviewed work is merged, use master as the
 production build branch and enable non-production branch builds for previews.
 Do not treat the initial workers.dev deployment as public-release approval.
 
@@ -72,3 +73,49 @@ remain indefinitely deferred; this configuration does not declare release readin
 - [HTML routing](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/)
 - [Build branches](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/)
 - [Preview URLs](https://developers.cloudflare.com/workers/versions-and-deployments/preview-urls/)
+
+## Prepared public-domain cutover
+
+Preparation checked 14 September 2026; no DNS or domain change executed.
+Public DNS currently delegates to ns51.domaincontrol.com and
+ns52.domaincontrol.com. Apex A records returned 13.248.243.5 and 76.223.105.230;
+www is a CNAME to gpsgoblin.com. HTTPS returned the GoDaddy placeholder
+(Server DPS). No MX or AAAA answers were returned by the sampled queries; this
+is not a full authoritative zone export.
+
+Cloudflare requires an active zone for a Workers Custom Domain. Before changing
+nameservers, export/review the complete existing DNS zone, including TXT, mail,
+verification and DNSSEC/DS settings. Preserve the placeholder during DNS onboarding.
+Select only the free plan; registration remains with the existing registrar.
+The owner must authorise DNS onboarding/cutover; these notes do not authorise it.
+
+Once that prerequisite and release approval are satisfied, the implementation
+change is to add a routes entry with pattern gpsgoblin.com and custom_domain true,
+set workers_dev false and retain preview_urls true. Keep this change out of the
+automatically deployed branch until cutover is authorised. The existing www
+hostname needs a deliberate redirect to the canonical apex, preserving path and
+query, plus HTTPS verification; attaching the apex alone does not cover www.
+
+After deployment, check root and nested pages, canonical/Open Graph metadata,
+sitemap/robots, absence of noindex on the public domain, disabled default
+workers.dev route and retained noindex previews. Repeat privacy canaries,
+CSP/hydration checks and the bounded map-referrer check on the public host.
+Inspect its actual cookies, NEL and script injection. Only then record the
+public-host gates as passed.
+
+Merge order after authorisation is #20, then #21 with its base updated/reconciled
+against the squash merge; rerun checks if reconciliation changes source. Move
+Cloudflare's production build branch to master after master contains the hosting
+setup. Keep non-production builds enabled. Do not close #6/#7 while their
+remaining applicable acceptance criteria are incomplete.
+
+Rollback has two different targets. An application regression can use a verified
+previous Worker version (4342ec3a-9cac-4a0b-b833-874d5773ad49 was tested) through
+Workers deployment rollback, followed by public-host verification. Restoring the
+GoDaddy placeholder requires removing the custom-domain attachment and restoring
+the captured DNS/routing configuration; Worker version rollback alone does not
+restore the previous host. Keep the complete DNS export and placeholder service
+available until the cutover is accepted. No rollback was performed as a test.
+
+Sources: [Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/),
+[rollbacks](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/).
