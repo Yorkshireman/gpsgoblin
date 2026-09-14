@@ -1,7 +1,7 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.6
+**Version:** 0.7
 **Date:** 14 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
@@ -122,6 +122,8 @@ For same-route comparison, favour comparison extent/reference/time basis, headli
 
 Use progressive disclosure. Do not present every possible FIT field or twelve default graphs just because the parser exposes them.
 
+The initial default experience must be simple, clear and understandable without configuring advanced options or reading calculation documentation. Keep the primary result and essential actions immediately visible; make more detailed analysis and controls discoverable through plainly named disclosures. When an advanced option changes the meaning of a result, keep its active basis visible beside that result even after the options are closed. Simplicity must not hide consequential warnings, uncertainty or the distinction between complete and filtered data.
+
 Support metric and imperial display units. Running pace and cycling speed are different presentations of supported measurements. Never silently infer a sport solely from file extension. Permit a local sport override where required, preserving the original metadata and clearly identifying the override.
 
 ### 4.3 Mobile and accessibility
@@ -232,6 +234,26 @@ A failure to load the basemap must not prevent parsing, textual results, convers
 Support selection and display of tracks/segments, routes and waypoints within the supported schema scope. Show geometric distance with its calculation basis. Derive duration/speed only from sufficient valid timestamps. Show elevation only where available.
 
 Do not describe a planned route as a completed workout or sparse route waypoints as a precisely recorded journey.
+
+#### Recording gaps in speed and pace — agreed first improvement
+
+Keep the complete recording as the default view. Identify recording gaps conservatively: an interval must be both unusually long relative to the recording's normal sampling frequency and above a minimum duration. Numerical thresholds, the sampling-frequency estimator and behaviour for sparse or insufficient data remain validation decisions; do not silently classify ordinary sparse sampling as a gap or a gap as a stop.
+
+Show identified gaps as interruptions with no plotted speed or pace across the interval. Restart smoothing after each gap using subsequent eligible intervals. Preserve a visible, selectable gap marker even when endpoints are close together on the distance axis. Provide keyboard and touch access to nearby details stating the interval duration and endpoint distance, for example “No recorded points for 18 min 13 s; endpoints 10 m apart.” Do not imply a known position or speed inside the gap.
+
+This first improvement leaves source data, calculated distance, elapsed duration and the existing overall average unchanged. Explain that the overall average includes time in recording gaps; suppressing a local chart measurement does not remove that interval from the complete-recording totals. Recorded stationary periods remain visible. Validate the gap policy against representative recordings and synthetic sparse/irregular sampling cases, keeping personal files and screenshots local unless publication is separately authorised.
+
+#### Moving-only viewer — agreed follow-up, deferred
+
+After gap presentation, provide independent **Include stops / Exclude detected stops** and **Distance / Time** choices for speed and pace. Include stops remains the default. With detected stops excluded, the time axis uses estimated moving time; distance remains available for inspecting moving measurements by route position. Preserve the separate pace-range viewport control.
+
+Keep the initial graph understandable without opening settings. Place advanced stop-exclusion and axis controls in a plainly named disclosure near the chart, such as **Chart options**, rather than exposing every choice initially. Keep gap markers and essential summary information visible in the default view. When a filtered view is active, show its calculation basis beside the graph with the options closed. Exact disclosure wording and grouping remain UI design choices to verify through the UX workflow.
+
+Use conservative stop detection that retains ambiguous slow movement, including uphill or near-vertical climbing. Keep detected stops, device timer pauses and unknown recording gaps distinct. In the moving-only view, exclude unknown gaps from both eligible distance and time for moving-speed calculations, disclose their duration separately from detected stops, and retain visible breaks. Do not imply that unknown time was stationary or that a partial observation establishes the whole activity's moving time.
+
+Keep elapsed duration visible and add clearly labelled **Estimated moving time** and **Average moving speed**, with coverage and uncertainty explained. The chart's average reference must match its selected calculation basis. Derived moving values do not overwrite original or complete-recording totals.
+
+This follow-up does not make stop detection a Stage 1 dependency or approve bringing Stage 5/O9 forward. Detection policy, eligibility and release timing remain open before implementation. The viewer choices do not change the comparison-specific exclusion rules in section 11.
 
 ### 7.3 FIT and TCX viewers
 
