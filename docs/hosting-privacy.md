@@ -29,6 +29,24 @@ Cloudflare Web Analytics uses a JavaScript beacon, loaded from `static.cloudflar
 
 Product telemetry remains disabled under O6. This assessment does not approve Web Analytics, another tracker or changes to CSP to accommodate one.
 
+## Owner-provided dashboard evidence — 14 September 2026
+
+The GPSGoblin Worker overview screenshot showed Workers Logs and Workers Traces
+disabled, zero bindings, the workers.dev hostname and no custom domains or
+routes. This corroborates the repository configuration on the deployed Worker.
+
+The owner confirmed that selecting Analytics → Web analytics directly opened
+the initial “Get started with Web Analytics” hostname setup screen already
+shared. This supports that Web Analytics has not been configured in the viewed
+account; it is owner-provided UI evidence, not an API enumeration of sites.
+Together with the absent beacon in the sampled hosted page, this supports Web
+Analytics being inactive for GPSGoblin. No hostname was entered and no analytics
+service was enabled. No further dashboard action is needed for this check.
+
+These observations do not disable or negate Cloudflare's ordinary network
+processing or the separately observed NEL headers. They also do not establish
+settings for the future public-domain deployment.
+
 ## Evidence boundaries and remaining verification
 
 The same hosted privacy page was loaded in a fresh automated Chrome context on
