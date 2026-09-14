@@ -197,7 +197,7 @@ describe('GPX file viewer', () => {
 
       await user.upload(screen.getByLabelText('GPX file'), file);
 
-      expect(screen.getByText('route.gpx')).toBeVisible();
+      expect(await screen.findByText('route.gpx')).toBeVisible();
     });
 
     it('clears the opened track and filename', async () => {
@@ -305,7 +305,7 @@ describe('GPX file viewer', () => {
       const selector = await screen.findByRole('combobox', {
         name: 'View'
       });
-      const map = screen.getByRole('region', { name: 'Route map' });
+      const map = await screen.findByRole('region', { name: 'Route map' });
       await user.click(within(map).getByText('Route description', { exact: true }));
       expect(within(map).getByText('<em>Recorded walk notes</em>')).toBeVisible();
       expect(map.querySelector('em')).toBeNull();
