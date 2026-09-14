@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browserTest';
 
 // These synthetic workloads exercise intended use cases, not product limits.
 const recording = (pointCount: number, segmentLength = pointCount, extensions = false) => {

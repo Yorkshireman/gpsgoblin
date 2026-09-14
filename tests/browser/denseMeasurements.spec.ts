@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browserTest';
 
 // Synthetic one-second recording with a hill, speed jitter and a missing-elevation gap.
 const recording = Array.from({ length: 2400 }, (_, index) => {

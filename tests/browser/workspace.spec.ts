@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, blockExternalTiles } from './browserTest';
 
 // Synthetic recording; no personal file contents or coordinates.
 const points = Array.from({ length: 120 }, (_, index) => {
@@ -15,6 +15,7 @@ for (const viewport of [
     browser
   }, testInfo) => {
     const context = await browser.newContext({ viewport, hasTouch: viewport.width < 600 });
+    await blockExternalTiles(context);
     const page = await context.newPage();
     await page.goto('/tools/gpx-file-viewer.html');
     await page.screenshot({ path: testInfo.outputPath('initial.png') });

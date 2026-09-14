@@ -1,5 +1,6 @@
 import type { Map as MapLibreMapInstance, Marker as MapLibreMarker } from 'maplibre-gl';
 import type { GeographicSample } from '@/domain/activityDocument';
+import { addBasemap, type BasemapStatus } from './basemap';
 
 export type MapPath = Readonly<{
   id: string;
@@ -14,6 +15,7 @@ type InitialiseRouteMapOptions = Readonly<{
   routeColor: string;
   point?: GeographicSample;
   onStatusChange?: (status: MapStatus) => void;
+  onBasemapStatusChange?: (status: BasemapStatus) => void;
 }>;
 
 export const initialiseRouteMap = ({
@@ -21,7 +23,8 @@ export const initialiseRouteMap = ({
   paths,
   routeColor,
   point,
-  onStatusChange
+  onStatusChange,
+  onBasemapStatusChange
 }: InitialiseRouteMapOptions) => {
   let map: MapLibreMapInstance | undefined;
   let cancelled = false;
@@ -30,8 +33,10 @@ export const initialiseRouteMap = ({
   let marker: MapLibreMarker | undefined;
   let mapModule: typeof import('maplibre-gl') | undefined;
   let ready = false;
+  let basemap: ReturnType<typeof addBasemap> | undefined;
 
   const removeMap = () => {
+    basemap?.dispose();
     const currentMap = map;
     map = undefined;
     marker?.remove();
@@ -80,6 +85,7 @@ export const initialiseRouteMap = ({
   };
 
   onStatusChange?.('loading');
+  onBasemapStatusChange?.('loading');
   if (typeof WebGLRenderingContext === 'undefined') {
     onStatusChange?.('unsupported');
     return controller;
@@ -96,7 +102,7 @@ export const initialiseRouteMap = ({
     setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
 
     const loadedMap = new MapLibreMap({
-      attributionControl: false,
+      attributionControl: { compact: false },
       container,
       cooperativeGestures: true,
       style: {
@@ -107,7 +113,12 @@ export const initialiseRouteMap = ({
     });
 
     map = loadedMap;
-    loadedMap.on('error', reportFailure);
+    loadedMap.on('error', (event) => {
+      if (!event || !('sourceId' in event) || event.sourceId !== 'basemap') {
+        reportFailure();
+      }
+      return;
+    });
 
     loadedMap.once('load', () => {
       if (cancelled || failed) {
@@ -148,6 +159,7 @@ export const initialiseRouteMap = ({
           });
           if (!failed) {
             onStatusChange?.('ready');
+            basemap = addBasemap(loadedMap, 'waypoint', onBasemapStatusChange);
           }
           return;
         }
@@ -205,6 +217,7 @@ export const initialiseRouteMap = ({
 
         if (!failed) {
           onStatusChange?.('ready');
+          basemap = addBasemap(loadedMap, 'route', onBasemapStatusChange);
         }
       } catch {
         reportFailure();

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, blockExternalTiles } from './browserTest';
 
 // A dense recording with two segments, sharp extrema, a stop and missing elevation.
 const points = Array.from({ length: 50000 }, (_, index) => {
@@ -62,6 +62,7 @@ test('chart detail adapts to width while every original measurement stays select
 
 test('a dense chart preserves sharp extrema, isolated readings and stop transitions for touch selection', async ({ browser }, testInfo) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  await blockExternalTiles(context);
   const page = await context.newPage();
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles({ name: 'large-boundaries.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(recording) });

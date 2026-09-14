@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browserTest';
 
 // Synthetic fixture: equatorial points and known one-minute intervals; no personal data.
 const contents = `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">

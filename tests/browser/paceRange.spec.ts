@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, blockExternalTiles } from './browserTest';
 
 const points = [0, 600, 1800, 9000, 9600].map((seconds, index) => {
   return `<trkpt lat="0" lon="${index * 0.01}"><ele>100</ele><time>${new Date(Date.UTC(2026, 0, 1, 0, 0, seconds)).toISOString()}</time></trkpt>`;
@@ -11,6 +11,7 @@ for (const viewport of [
 ]) {
   test(`custom pace range clips the view and keeps overflow selectable at ${viewport.width} × ${viewport.height}`, async ({ browser }, testInfo) => {
     const context = await browser.newContext({ viewport, hasTouch: viewport.width < 600 });
+    await blockExternalTiles(context);
     const page = await context.newPage();
     await page.goto('/tools/gpx-file-viewer.html');
     await page.getByLabel('GPX file', { exact: true }).setInputFiles({

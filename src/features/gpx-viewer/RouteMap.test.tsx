@@ -173,3 +173,21 @@ describe('RouteMap segment selection', () => {
     }
   });
 });
+
+
+describe('RouteMap background notices', () => {
+  it.each(['unavailable', 'disabled'] as const)('keeps the map visible when the background is %s', (basemapStatus) => {
+    jest.mocked(initialiseRouteMap).mockImplementation(({ onStatusChange, onBasemapStatusChange }) => {
+      onStatusChange?.('ready');
+      onBasemapStatusChange?.(basemapStatus);
+      return { dispose: jest.fn(), selectPoint: jest.fn() };
+    });
+    render(<ChakraProvider value={defaultSystem}><RouteMap track={track} /></ChakraProvider>);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      basemapStatus === 'disabled' ? 'Background map is turned off' : 'Background map unavailable'
+    );
+    expect(screen.getByLabelText('Interactive route map')).toBeVisible();
+    expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
+    expect(screen.getByText(/Map requests reveal the viewed area to OpenStreetMap/)).toBeVisible();
+  });
+});

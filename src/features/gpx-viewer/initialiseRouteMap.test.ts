@@ -9,7 +9,11 @@ const mockMap = {
   fitBounds: jest.fn(),
   jumpTo: jest.fn(),
   once: jest.fn<void, [string, () => void]>(),
-  on: jest.fn<void, [string, () => void]>(),
+  on: jest.fn<void, [string, (event?: { sourceId?: string; isSourceLoaded?: boolean }) => void]>(),
+  getLayer: jest.fn(),
+  getSource: jest.fn(),
+  removeLayer: jest.fn(),
+  removeSource: jest.fn(),
   remove: jest.fn()
 };
 
@@ -47,11 +51,13 @@ const emitMapLoad = () => {
 };
 
 describe('initialiseRouteMap', () => {
+  const originalBasemapDisabled = process.env.NEXT_PUBLIC_BASEMAP_DISABLED;
   const originalWebGl = Object.getOwnPropertyDescriptor(globalThis, 'WebGLRenderingContext');
   const originalScroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.NEXT_PUBLIC_BASEMAP_DISABLED = 'true';
     mockBounds.isEmpty.mockReturnValue(false);
     Object.defineProperty(globalThis, 'WebGLRenderingContext', {
       configurable: true,
@@ -64,6 +70,11 @@ describe('initialiseRouteMap', () => {
   });
 
   afterAll(() => {
+    if (originalBasemapDisabled === undefined) {
+      delete process.env.NEXT_PUBLIC_BASEMAP_DISABLED;
+    } else {
+      process.env.NEXT_PUBLIC_BASEMAP_DISABLED = originalBasemapDisabled;
+    }
     if (originalWebGl) {
       Object.defineProperty(globalThis, 'WebGLRenderingContext', originalWebGl);
     } else {
@@ -74,6 +85,100 @@ describe('initialiseRouteMap', () => {
     } else {
       Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
     }
+  });
+
+  describe('production basemap', () => {
+    it('retains the local map when tiles fail and ignores late events after disposal', async () => {
+      delete process.env.NEXT_PUBLIC_BASEMAP_DISABLED;
+      mockMap.getLayer.mockReturnValue({});
+      mockMap.getSource.mockReturnValue({});
+      const onStatusChange = jest.fn();
+      const onBasemapStatusChange = jest.fn();
+      const { dispose } = initialiseRouteMap({
+        container: document.createElement('div'), paths: [], routeColor: 'green',
+        onStatusChange, onBasemapStatusChange
+      });
+      await waitFor(() => { expect(MapLibreMap).toHaveBeenCalledTimes(1); });
+      emitMapLoad();
+      const handleError = () => {
+        mockMap.on.mock.calls.filter(([event]) => { return event === 'error'; })
+          .forEach(([, handler]) => { handler({ sourceId: 'basemap' }); });
+        return;
+      };
+      handleError();
+      expect(onBasemapStatusChange).toHaveBeenLastCalledWith('unavailable');
+      expect(onStatusChange).toHaveBeenLastCalledWith('ready');
+      expect(mockMap.remove).not.toHaveBeenCalled();
+      expect(mockMap.removeLayer).toHaveBeenCalledWith('basemap');
+      expect(mockMap.removeSource).toHaveBeenCalledWith('basemap');
+      dispose();
+      onBasemapStatusChange.mockClear();
+      handleError();
+      expect(onBasemapStatusChange).not.toHaveBeenCalled();
+    });
+
+    it('reports disabled backgrounds without adding an external source', async () => {
+      const onBasemapStatusChange = jest.fn();
+      const { dispose } = initialiseRouteMap({
+        container: document.createElement('div'), paths: [], routeColor: 'green',
+        onBasemapStatusChange
+      });
+      await waitFor(() => { expect(MapLibreMap).toHaveBeenCalledTimes(1); });
+      emitMapLoad();
+      expect(onBasemapStatusChange).toHaveBeenLastCalledWith('disabled');
+      expect(mockMap.addSource.mock.calls.map(([id]) => { return id; })).toEqual(['route']);
+      dispose();
+    });
+
+    it('gives up on unresponsive tiles while retaining local geometry', async () => {
+      delete process.env.NEXT_PUBLIC_BASEMAP_DISABLED;
+      jest.useFakeTimers();
+      try {
+        const onBasemapStatusChange = jest.fn();
+        const { dispose } = initialiseRouteMap({
+          container: document.createElement('div'), paths: [], routeColor: 'green',
+          onBasemapStatusChange
+        });
+        await waitFor(() => { expect(MapLibreMap).toHaveBeenCalledTimes(1); });
+        emitMapLoad();
+        // Source metadata can arrive before any viewport tiles have loaded.
+        mockMap.on.mock.calls.find(([event]) => {
+          return event === 'sourcedata';
+        })?.[1]({ sourceId: 'basemap', isSourceLoaded: true });
+        jest.advanceTimersByTime(15000);
+        expect(onBasemapStatusChange).toHaveBeenLastCalledWith('unavailable');
+        expect(mockMap.remove).not.toHaveBeenCalled();
+        dispose();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('adds attributed OSM tiles after positioning the local route', async () => {
+      delete process.env.NEXT_PUBLIC_BASEMAP_DISABLED;
+      const { dispose } = initialiseRouteMap({
+        container: document.createElement('div'),
+        paths: [],
+        routeColor: 'green'
+      });
+      await waitFor(() => {
+        expect(MapLibreMap).toHaveBeenCalledTimes(1);
+      });
+      emitMapLoad();
+      expect(mockMap.addSource).toHaveBeenCalledWith('basemap', expect.objectContaining({
+        type: 'raster',
+        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
+      }));
+      expect(mockMap.addLayer).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'basemap', type: 'raster' }), 'route'
+      );
+      expect(MapLibreMap).toHaveBeenCalledWith(expect.objectContaining({
+        attributionControl: { compact: false }
+      }));
+      dispose();
+    });
   });
 
   describe('unavailable maps', () => {

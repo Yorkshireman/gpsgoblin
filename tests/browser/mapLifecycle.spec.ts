@@ -1,7 +1,8 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, blockExternalTiles } from './browserTest';
 
 test('phone maps mount only when requested and adapt to desktop without losing selection', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  await blockExternalTiles(context);
   const page = await context.newPage();
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles({

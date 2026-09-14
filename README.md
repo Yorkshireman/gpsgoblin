@@ -10,7 +10,9 @@ The GPX File Viewer opens GPX 1.1 track recordings, displays their route and
 segments, and calculates geometric distance from the recorded GPS points.
 
 See [GPX support](docs/gpx-support.md) for the tested format scope and current
-limitations.
+limitations. Background maps use OpenStreetMap public tiles; map requests reveal
+the viewed area while your file stays on your device. See [basemap operation](docs/basemap.md)
+for provider terms, verification and the build-time disable switch.
 
 ## Development
 

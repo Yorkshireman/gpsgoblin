@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, blockExternalTiles } from './browserTest';
 import { readFileSync } from 'node:fs';
 
 const file = (name: string, contents = '<gpx version="1.1"><wpt lat="0" lon="0"><name>Safe waypoint</name></wpt></gpx>') => {
@@ -46,6 +46,7 @@ test('actual worker rejects hostile input without network requests and recovers'
 for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }, { width: 390, height: 844 }, { width: 375, height: 667 }]) {
   test(`cancel, clear and retry remain usable at ${viewport.width} × ${viewport.height}`, async ({ browser }, testInfo) => {
     const context = await browser.newContext({ viewport, hasTouch: viewport.width < 600 });
+    await blockExternalTiles(context);
     const page = await context.newPage();
     await page.goto('/tools/gpx-file-viewer.html');
     await page.screenshot({ path: testInfo.outputPath('initial.png') });
@@ -155,6 +156,7 @@ test('clearing a pending import prevents it from restoring data after a newer im
 
 test('first-import progress and failure feedback fit the short phone viewport', async ({ browser }, testInfo) => {
   const context = await browser.newContext({ viewport: { width: 375, height: 667 }, hasTouch: true });
+  await blockExternalTiles(context);
   const page = await context.newPage();
   await page.goto('/tools/gpx-file-viewer.html');
   let release: (() => void) | undefined;

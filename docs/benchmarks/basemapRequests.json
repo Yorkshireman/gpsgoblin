@@ -1,0 +1,159 @@
+{
+  "date": "2026-09-14",
+  "browser": "Chrome 153, macOS, visible guest window",
+  "fixture": "Synthetic York route: 53.958/-1.083 to 53.962/-1.078; three points, no personal recording",
+  "viewportCssPixels": {
+    "width": 645,
+    "height": 1999
+  },
+  "mapCssPixels": {
+    "width": 595,
+    "height": 318
+  },
+  "initialZoom16Requests": 8,
+  "zoom17Requests": 9,
+  "zoom18Requests": 10,
+  "totalRequests": 27,
+  "successfulResponses": 24,
+  "cancelledDuringZoom": 3,
+  "referer": "http://127.0.0.1:4175/",
+  "cacheBypassHeadersPresent": false,
+  "exampleCacheControl": "max-age=20664, stale-while-revalidate=604800, stale-if-error=604800",
+  "requests": [
+    {
+      "tilePath": "16/32571/21054.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "16/32571/21055.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "16/32570/21054.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "16/32570/21055.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "16/32572/21054.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "16/32572/21055.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "16/32569/21054.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "16/32569/21055.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65142/42109.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65143/42109.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65142/42110.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65142/42108.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65141/42109.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65143/42110.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65143/42108.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65141/42110.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "17/65141/42108.png",
+      "method": "GET",
+      "status": 0
+    },
+    {
+      "tilePath": "18/130285/84219.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "18/130285/84218.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "18/130284/84219.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "18/130284/84218.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "18/130286/84219.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "18/130285/84220.png",
+      "method": "GET",
+      "status": 0
+    },
+    {
+      "tilePath": "18/130286/84218.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "18/130284/84220.png",
+      "method": "GET",
+      "status": 0
+    },
+    {
+      "tilePath": "18/130283/84219.png",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "tilePath": "18/130283/84218.png",
+      "method": "GET",
+      "status": 200
+    }
+  ]
+}

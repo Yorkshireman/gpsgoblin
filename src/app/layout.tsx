@@ -3,6 +3,7 @@ import { Provider } from '@/components/ui/provider';
 
 export const metadata: Metadata = {
   title: 'GPSGoblin',
+  referrer: 'strict-origin-when-cross-origin',
   description:
     'Open GPX files locally to inspect routes, elevation and available timing with metric or imperial units.'
 };

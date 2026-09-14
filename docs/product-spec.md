@@ -1,8 +1,8 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.5
-**Date:** 12 September 2026
+**Version:** 0.6
+**Date:** 14 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
 **Owned production domain:** `https://gpsgoblin.com` — purchased; a placeholder site is live. This is the canonical production origin.
@@ -525,7 +525,7 @@ MapLibre GL JS is the renderer. Application routes, stops, sections and animated
 
 No provider-specific route-planning or geocoding API is needed. Basemap replacement should not require rewriting the analysis or interactions. Do not build a general mapping abstraction beyond these actual needs.
 
-### 16.2 Provider is unresolved — first public map release gate
+### 16.2 Initial production provider — resolved
 
 **Correction to the earlier discussion:** Mapbox's map-load free allowance for Mapbox GL JS is not the billing model for MapLibre. Mapbox documents individually billed tile requests when its maps are consumed through a third-party renderer. No 50,000-free-map-load assumption is authorised for this architecture. [S10]
 
@@ -533,7 +533,9 @@ Before adopting any hosted basemap, record commercial permission, supported rend
 
 Measure actual requests for representative initial views, zooms and comparison sessions. Do not equate visits with map loads or map loads with tile requests.
 
-OpenStreetMap's public raster tile service is not this product's production backend. Its policy describes limited shared infrastructure rather than an unlimited hosted-map entitlement. This is an architectural risk decision, not a claim that OSM bans all commercial sites. [S11]
+**Selected — 14 September 2026:** OpenStreetMap's public raster tile service is the initial production basemap. The brief comparison found no compelling alternative under the current free commercial-use constraint. The owner accepts best-effort availability and possible access withdrawal for the initial release. This supersedes the earlier blanket exclusion of OSM public raster infrastructure. See [the provider assessment, operating switch and verification evidence](basemap.md).
+
+Commercial use is not prohibited, but attribution alone is insufficient. For OSM public raster tiles, verify visible map attribution, the required HTTPS endpoint, browser Referer identification, caching behaviour and the absence of prohibited bulk downloading or offline prefetching against the current policy. Its shared infrastructure is not an unlimited hosted-map entitlement. Retain the disable mechanism and graceful failure behaviour below. [S11]
 
 Development may use local/test tiles or an explicitly permitted development service. Demo endpoints must not accidentally become production dependencies.
 
@@ -678,12 +680,12 @@ Do not implement empty services, speculative databases or a generic plugin frame
 
 ## 22. Open decisions and when they matter
 
-O1 is retained below as a resolved decision for traceability. The remaining release gates stay open; O4 now explicitly covers large-file workarounds and owner agreement before restrictions.
+O1 and O2 are retained below as resolved decisions for traceability. The remaining release gates stay open; O4 now explicitly covers large-file workarounds and owner agreement before restrictions.
 
 | ID  | Item / status                                                                                                                                                | Required by                                                                                             |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
 | O1  | Resolved: GPSGoblin; `gpsgoblin.com` purchased; canonical origin `https://gpsgoblin.com`. Record actual registration/renewal costs under operating expenses. | Name/domain selection and purchase are complete; verify production configuration before Stage 1 release |
-| O2  | Production basemap: terms, attribution, actual metering, privacy, limits and graceful failure                                                                | First public map-enabled release                                                                        |
+| O2  | Resolved: OSM public raster tiles; terms, request sample, privacy, disable switch and fallback recorded in [basemap assessment](basemap.md)                                                                | First public map-enabled release                                                                        |
 | O3  | GPX/TCX/FIT parser choices, licence checks and published format/extension coverage                                                                           | Each affected format release                                                                            |
 | O4  | Large-file performance, workarounds and browser support matrix; any hard limits require owner agreement                                                                                              | Each affected tool release                                                                              |
 | O5  | Privacy wording, contact details, security headers and third-party inventory                                                                                 | First public release; update before new suppliers                                                       |
@@ -718,7 +720,7 @@ Resolve stage-relevant technical choices with current primary documentation and 
 
 Implement a thin GPX-viewer vertical slice: static landing page, local import, canonical representation, useful summary, local route overlay, available elevation/timing displays, clear missing-data behaviour, tests and static build.
 
-Use a permitted local/development map setup while O2 is open. Do not ship a guessed production tile provider, fabricate credentials or enable a paid account. Use GPSGoblin branding and `https://gpsgoblin.com` as the production origin from the first stage. Work on unblocked code while any remaining release gates are resolved; name and domain selection are already settled.
+Use the selected OSM basemap and documented operating controls from section 16. Do not fabricate credentials or enable a paid account. Use GPSGoblin branding and `https://gpsgoblin.com` as the production origin from the first stage. Work on unblocked code while any remaining release gates are resolved; name and domain selection are already settled.
 
 At the end of the stage report what works, tests actually run, build status, known limitations, open release gates and changes to this specification. Do not report the full V1 as complete because the first viewer works.
 

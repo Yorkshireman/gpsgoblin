@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browserTest';
 
 declare global {
   interface Window {
