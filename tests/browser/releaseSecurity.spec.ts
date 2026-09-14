@@ -88,6 +88,15 @@ test('activity canaries stay local through import, inspection, replacement and c
   for (const canary of canaries) expect(persisted).not.toContain(canary);
 });
 
+test('Workers verification hosts are noindex without affecting the public origin', async ({ request }) => {
+  for (const host of ['gpsgoblin.example.workers.dev', 'version-gpsgoblin.example.workers.dev', 'branch-gpsgoblin.example.workers.dev', 'gpsgoblin.com']) {
+    const response = await request.get('/tools/gpx-file-viewer', { headers: { Host: host } });
+    expect(response.status()).toBe(200);
+    expect(response.headers()['x-robots-tag']).toBe(host.endsWith('.workers.dev') ? 'noindex' : undefined);
+    expect(response.headers()['content-security-policy']).toContain("worker-src 'self'");
+  }
+});
+
 test('static assets exclude private files and known credential signatures', async () => {
   const files = readdirSync('out', { recursive: true, encoding: 'utf8' });
   const forbidden = /(^|\/)(?:\.env(?:\.[^/]*)?|private-recordings|tests|\.git)(?:\/|$)|\.(?:gpx|pem|key)$/i;

@@ -482,7 +482,7 @@ Do not claim that browser-only processing guarantees isolation from all third-pa
 | Domain tests                                         | Jest                                           |
 | Frontend integration and appropriate component tests | React Testing Library with Jest                |
 | Browser integration                                  | Focused Playwright where necessary             |
-| Hosting                                              | Cloudflare Pages with a Next.js static export  |
+| Hosting                                              | Cloudflare Workers Static Assets with a Next.js static export  |
 | Runtime processing                                   | Browser-only; workers for expensive operations |
 
 Use a single application repository initially, not a monorepo. Suggested responsibility boundaries:
@@ -579,7 +579,7 @@ Treat every metadata description as a release-scoped product claim. When a tool 
 
 Keep generic pages sport-neutral. Create sport-specific pages only for distinct useful content/functionality; do not generate duplicate run/ride pages with changed nouns. Useful content and avoidance of doorway pages align with Google's published guidance. [S12, S13]
 
-Provide absolute canonical URLs and a sitemap of published routes using `https://gpsgoblin.com` as their origin. Use the same origin for Open Graph page URLs, site-hosted sharing assets and applicable structured-data site/page URLs; set the Open Graph site name to GPSGoblin. Use descriptive tool titles with the GPSGoblin brand, for example **“GPX File Viewer — GPSGoblin”**. Provide appropriate robots directives and structured data only where truthful and applicable. The production robots file must reference the sitemap on `https://gpsgoblin.com`. Exclude preview hosts, the production `pages.dev` hostname, unfinished tools and user-specific results from the sitemap. Never fabricate reviews or expect structured data to guarantee a search enhancement.
+Provide absolute canonical URLs and a sitemap of published routes using `https://gpsgoblin.com` as their origin. Use the same origin for Open Graph page URLs, site-hosted sharing assets and applicable structured-data site/page URLs; set the Open Graph site name to GPSGoblin. Use descriptive tool titles with the GPSGoblin brand, for example **“GPX File Viewer — GPSGoblin”**. Provide appropriate robots directives and structured data only where truthful and applicable. The production robots file must reference the sitemap on `https://gpsgoblin.com`. Exclude preview hosts, the default `workers.dev` hostname, unfinished tools and user-specific results from the sitemap. Never fabricate reviews or expect structured data to guarantee a search enhancement.
 
 Keep the tool above lengthy copy. Do not impose an SEO word count or populate a blog to delay release. Publish focused guides later when they address a real user/search need.
 
@@ -663,23 +663,23 @@ For user-facing changes, include viewport and control/result checks from section
 
 Check that useful content exists in returned HTML, public links work on direct load, third-party failures degrade safely and activity content is absent from outbound telemetry.
 
-Verify deployment metadata and indexing on the actual hosts: released production pages use `https://gpsgoblin.com` canonical/Open Graph URLs and GPSGoblin branding; sitemap entries and its robots reference use that origin; production is not accidentally marked `noindex`. Check permanent redirects from the Cloudflare Pages production hostname for both the root and a nested tool path, preserving paths and query strings without loops. Verify `noindex` on preview deployments, including branch previews, independently of production. These checks are required for Stage 1 and relevant subsequent deployment changes.
+Verify deployment metadata and indexing on the actual hosts: released production pages use `https://gpsgoblin.com` canonical/Open Graph URLs and GPSGoblin branding; sitemap entries and its robots reference use that origin; production is not accidentally marked `noindex`. Check that the default production workers.dev hostname is disabled after custom-domain cutover; verify the custom domain serves both root and nested tool paths directly. Verify `noindex` on preview deployments, including branch previews, independently of production. These checks are required for Stage 1 and relevant subsequent deployment changes.
 
 Record large-file performance and practical failure modes on named test devices/browsers before advertising support. Do not convert a benchmark boundary into a hard product limit without owner agreement. Do not claim universal device support or arbitrary processing times.
 
 ## 20. Hosting and custom domain
 
-Deploy the Next.js static export directory (`out/`) to Cloudflare Pages. No Next.js runtime server, Pages Functions or Worker application backend is required for V1.
+Deploy the Next.js static export directory (`out/`) to Cloudflare Workers Static Assets. This replaces the earlier Pages choice, approved by the owner on 14 September 2026 before any deployment. No Next.js runtime server or Worker application script is required for V1. GPX processing stays in the browser.
 
-Cloudflare currently documents static asset requests as free and unlimited when they do not invoke Functions; platform limits still apply. This does not make third-party tiles, a domain or future object storage free. [S15, S16]
+Cloudflare currently documents static asset requests as free and unlimited when they do not invoke a Worker script; platform limits still apply. This does not make third-party tiles, a domain or future object storage free. [S15, S16]
 
 Use one build pipeline with documented pnpm/Node versions, type checking, linting, appropriate tests and static build verification. Preserve a straightforward rollback path.
 
 The product name **GPSGoblin** and owned domain **`gpsgoblin.com`** are settled. The canonical production origin is **`https://gpsgoblin.com`**. A placeholder site is already live there; replace it with the useful Stage 1 release when the relevant public-release gates pass. Development/previews may use Cloudflare addresses.
 
-Configure canonical URLs, sitemap entries, the robots sitemap reference and Open Graph/sharing metadata from a single public-origin setting fixed to `https://gpsgoblin.com`; do not derive the public origin from an incoming host or a preview deployment URL. Permanently redirect the Cloudflare Pages production `pages.dev` hostname to `https://gpsgoblin.com`, preserving the matching path and query string with an HTTP 301 or 308 response. Do not collapse nested tool URLs onto the homepage. Scope the redirect to the production hostname so preview deployments remain usable, and verify that the custom-domain destination does not redirect back or loop. Cloudflare documents both custom-domain setup and this redirect mechanism. [S17, S18]
+Configure canonical URLs, sitemap entries, the robots sitemap reference and Open Graph/sharing metadata from a single public-origin setting fixed to `https://gpsgoblin.com`; do not derive the public origin from an incoming host or a preview deployment URL. Attach `gpsgoblin.com` as a Workers Custom Domain only when public-release gates pass and cutover is authorised. Disable the default production workers.dev route at cutover (`workers_dev: false`) instead of retaining an alternative production hostname. Preview URLs can remain enabled independently. No pages.dev redirect is needed because this project was never deployed on Pages. Verify custom-domain HTTPS, direct nested paths and the disabled default route on the real hosts. [S17, S18]
 
-Preview deployments, including branch previews, must remain non-indexable using a verified `noindex` robots directive (for example, an `X-Robots-Tag: noindex` response header). Cloudflare documents a default preview `noindex` header, which must be verified rather than assumed; a production canonical URL does not replace this requirement. Do not accidentally apply preview `noindex` directives to released pages on `https://gpsgoblin.com`. `noindex` is not authentication or access control. [S19]
+All workers.dev addresses used during verification, including version and branch-alias previews, must remain non-indexable. Generate the host-scoped `X-Robots-Tag: noindex` rule documented for Workers Static Assets; do not assume Pages' preview defaults carry over. Verify it on the real preview URLs and verify its absence on `https://gpsgoblin.com`. A production canonical URL does not replace this requirement; `noindex` is not access control. [S19]
 
 The owner has already chosen GPSGoblin and purchased `gpsgoblin.com`; do not reopen name selection or domain purchase as a release gate. Retain domain registration and renewal costs in the operating-cost record, using the registrar's actual terms. New purchases, registrations, production supplier accounts or enabling billing still require the owner's action/approval; do not perform them autonomously.
 
@@ -796,17 +796,18 @@ These references support specific technical and policy facts, not a claim that t
 **[S14] Google AdSense — Consent-management requirements for EEA, UK and Switzerland.** Certified CMP/TCF requirements; check the applicable publisher configuration before enabling ads.
 `https://support.google.com/adsense/answer/13554020?hl=en`
 
-**[S15] Cloudflare Pages — Pricing.** Static asset request pricing versus Functions.
-`https://developers.cloudflare.com/pages/functions/pricing/`
+**[S15] Cloudflare Workers Static Assets — Billing and limitations.** Static asset requests versus script execution.
+`https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/`
 
-**[S16] Cloudflare Pages — Limits.** Plan-specific platform constraints.
-`https://developers.cloudflare.com/pages/platform/limits/`
+**[S16] Cloudflare Workers — Limits.** Platform constraints.
+`https://developers.cloudflare.com/workers/platform/limits/`
 
-**[S17] Cloudflare Pages — Custom domains.** Domain attachment.
-`https://developers.cloudflare.com/pages/configuration/custom-domains/`
+**[S17] Cloudflare Workers — Custom Domains.** Domain attachment.
+`https://developers.cloudflare.com/workers/configuration/routing/custom-domains/`
 
-**[S18] Cloudflare Pages — Redirecting pages.dev to a custom domain.** Production canonical-host setup.
-`https://developers.cloudflare.com/pages/how-to/redirect-to-custom-domain/`
+**[S18] Cloudflare Workers — workers.dev.** Default route configuration.
+`https://developers.cloudflare.com/workers/configuration/routing/workers-dev/`
 
-**[S19] Cloudflare Pages — Preview deployments.** Default noindex behaviour.
-`https://developers.cloudflare.com/pages/configuration/preview-deployments/`
+**[S19] Cloudflare Workers — Static Assets headers and preview URLs.** Explicit host-scoped noindex and preview configuration.
+`https://developers.cloudflare.com/workers/static-assets/headers/`
+`https://developers.cloudflare.com/workers/versions-and-deployments/preview-urls/`

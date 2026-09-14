@@ -21,7 +21,7 @@ must not be described as completing #6 or authorising public release.
 All four pages use that origin for canonical and Open Graph metadata; sitemap
 and robots use the same setting. The sitemap explicitly lists only those pages.
 Metadata and URLs never derive from imported data. No unfinished tool, preview
-host, pages.dev address or individual result is included.
+host, workers.dev address or individual result is included.
 
 ## Privacy and third-party inventory
 
@@ -31,7 +31,7 @@ code, not a completed legal assessment. Supplier policies were checked on
 
 | Boundary | Requests and storage | Evidence / outstanding work |
 | --- | --- | --- |
-| Cloudflare Pages | Serves public HTML and assets; receives IP address and requested paths, not imported file contents | Agreed hosting in product spec §20; [Cloudflare privacy policy](https://www.cloudflare.com/privacypolicy/). Verify actual deployed headers, enabled services, logs and retention before resolving O5. |
+| Cloudflare Workers Static Assets | Serves public HTML and assets; receives IP address and requested paths, not imported file contents | Agreed hosting in product spec §20; [Cloudflare privacy policy](https://www.cloudflare.com/privacypolicy/). Verify actual deployed headers, enabled services, logs and retention before resolving O5. |
 | OpenStreetMap Foundation | `tile.openstreetmap.org` receives viewed tile coordinates, IP address and origin Referer; local route overlay and imported file are not sent | [Basemap assessment](basemap.md), request sample and [OSMF privacy policy](https://osmfoundation.org/wiki/Privacy_Policy). Recheck deployed-host network behaviour at release. |
 | Application and bundled dependencies | Local parsing, analysis and maps; no remote fonts, geocoding, activity URL fetching, product analytics, ads or error-reporting service | Source inspection and existing browser privacy checks. No new remote integration in #6. |
 | Browser storage and cache | File and results remain in the open viewer session. Browser may cache assets/tiles. `next-themes` reads the `theme` preference and can write it when changed; no appearance control is currently exposed | Provider and installed next-themes implementation inspected. Activity data is not persisted in browser storage. |
@@ -61,9 +61,9 @@ not claim FIT/TCX, GPX 1.0, sensor extensions, conversion or file repair support
 This ticket prepares local static output. No deployment, push, PR publication,
 merge or issue closure is authorised by this work. Before release, verify useful
 HTML and direct clean-path links on the actual host; production metadata/indexing;
-production pages.dev redirects preserving paths and queries; and noindex on both
-hash and branch preview hosts. Local robots allows crawling and must not be used
-as evidence of preview noindex. Do not deploy while the deferred contact/O5
+custom-domain direct paths and a disabled default production workers.dev route; and noindex on both
+version and branch-alias preview hosts. Local robots allows crawling and must not be used
+as evidence of preview noindex. Do not publicly release while the deferred contact/O5
 requirements or other relevant Stage 1 gates remain open.
 
 ## Verification — 14 September 2026

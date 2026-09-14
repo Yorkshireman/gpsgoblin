@@ -38,11 +38,14 @@ const headers = `/*
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+https://:version.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
 `;
-// Cloudflare Pages rejects individual lines over 2,000 characters. Fail the
+// Cloudflare Static Assets rejects individual lines over 2,000 characters. Fail the
 // build rather than ship a silently missing policy as the site grows.
 if (headers.split('\n').some((line) => { return line.length > 2000; })) {
-  throw new Error('Security headers exceed the Cloudflare Pages line limit.');
+  throw new Error('Security headers exceed the Cloudflare Static Assets line limit.');
 }
 writeFileSync(path.join(output, '_headers'), headers);
 console.log(`Generated security headers for ${htmlFiles.length} HTML files (${hashes.size} inline script hashes).`);

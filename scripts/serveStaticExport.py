@@ -1,9 +1,10 @@
-"""Local test server for out/, including its global Cloudflare Pages headers.
+"""Local test server for out/, including its generated Cloudflare headers.
 
-This supports only the global rule we generate, not arbitrary Cloudflare rules.
+This supports only our global and workers.dev header rules, not arbitrary rules.
 Actual-host redirects, preview indexing and Cloudflare behaviour need live QA.
 """
 import argparse
+import re
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -12,10 +13,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=int, default=4173)
 args = parser.parse_args()
 output = Path('out').resolve()
-lines = (output / '_headers').read_text().splitlines()
-assert lines[0] == '/*', 'Expected one global header rule'
-assert all(line.startswith('  ') for line in lines[1:] if line), 'Unsupported header rule'
-headers = [line.strip().split(': ', 1) for line in lines[1:] if line]
+blocks = (output / '_headers').read_text().strip().split('\n\n')
+headers_by_rule = {}
+for block in blocks:
+    rule, *lines = block.splitlines()
+    assert rule in ('/*', 'https://:version.:subdomain.workers.dev/*'), 'Unsupported header rule'
+    assert all(line.startswith('  ') for line in lines), 'Unsupported header syntax'
+    headers_by_rule[rule] = [line.strip().split(': ', 1) for line in lines]
+
 
 
 class ExportHandler(SimpleHTTPRequestHandler):
@@ -27,8 +32,11 @@ class ExportHandler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(output), **kwargs)
 
     def end_headers(self):
-        for name, value in headers:
-            self.send_header(name, value)
+        for rule, headers in headers_by_rule.items():
+            host = self.headers.get('Host', '').split(':', 1)[0].lower()
+            if rule == '/*' or re.fullmatch(r'[^.]+\.[^.]+\.workers\.dev', host):
+                for name, value in headers:
+                    self.send_header(name, value)
         super().end_headers()
 
     def send_head(self):

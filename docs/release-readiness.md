@@ -15,8 +15,33 @@ a deployment, approval to merge, or closure of #6/#7.
 | O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
 | O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
 | O5 | Local header/CSP implementation and privacy checks below. **Owner contact channel deferred**; final privacy assessment, deployed headers and hosting-side services/logging inventory remain open. |
-| Actual hosts | Production canonical/indexing, path/query-preserving pages.dev redirects, and noindex on both hash and branch previews remain unverified. Local checks cannot close these gates. |
+| Actual hosts | Production canonical/indexing, Workers custom-domain routing/default-route disabling, and noindex on version and branch-alias previews remain unverified. Local checks cannot close these gates. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
+
+## Workers hosting transition — 14 September 2026
+
+The owner approved replacing the undeployed Pages plan with Workers Static Assets.
+The configuration and dashboard reference settings are in [Workers hosting](workers-hosting.md).
+Only `out/` is served; there is no application backend or GPX processing on Cloudflare.
+The generated host-specific rule marks workers.dev URLs noindex while leaving the
+public origin unaffected. The release checklist now requires Workers custom-domain
+verification and disabling the default workers.dev route at cutover, replacing
+Pages-specific redirects. This is local configuration work, not a deployment.
+
+Validation: `pnpm build`, `pnpm tsc`, `pnpm lint`, `pnpm knip` and the Wrangler
+deployment dry run passed. Wrangler 4.131.1 accepted both generated header rules.
+`pnpm test:browser:hosting --workers=2` passed all 12 desktop/mobile Chrome checks
+against the local Workers emulator: direct-load hydration, CSP enforcement, actual
+import/map workers, prohibited outbound activity canaries, asset scanning and
+host-specific noindex. The noindex cases use synthetic Host headers; they do not
+establish real Cloudflare DNS, TLS, preview aliases or custom-domain behaviour.
+The same two header checks passed against the ordinary Python test server.
+Temporary local servers were stopped after verification. No new physical-device
+or visual-layout assessment is claimed for this hosting-only change.
+
+The Cloudflare application, version/branch previews, public-domain cutover,
+host-side logging/services assessment and remaining release gates are still open.
+Contact details stay indefinitely deferred.
 
 ## Security policy and build
 
@@ -39,7 +64,7 @@ and disables camera, microphone and geolocation permissions. CSP limits resource
 loading; it cannot guarantee that trusted same-origin JavaScript never transmits
 data. That is why request inspection remains a separate check.
 
-[Cloudflare Pages headers documentation](https://developers.cloudflare.com/pages/configuration/headers/)
+[Cloudflare Static Assets headers documentation](https://developers.cloudflare.com/workers/static-assets/headers/)
 defines the `_headers` deployment format and 2,000-character line limit. The
 generator fails the build if a line exceeds that limit. Next's installed
 `node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md` explains
@@ -75,8 +100,8 @@ application environment accesses, and no configured telemetry or error collector
 ## Local verification setup
 
 Both Playwright configurations start `scripts/serveStaticExport.py`. It serves
-clean URLs and applies the generated global header rule to responses; it refuses
-unsupported rule syntax. Server reuse is disabled so a stale header-free server
+clean URLs and applies the generated global header rule to responses; it also recognises our workers.dev noindex rule and refuses
+other unsupported rule syntax. Server reuse is disabled so a stale header-free server
 cannot silently invalidate security tests. Choose a free port with
 `PLAYWRIGHT_PORT=4187` if 4173 is already occupied. This small test server does
 not emulate Cloudflare redirect, caching or preview behaviour.
