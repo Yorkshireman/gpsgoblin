@@ -15,7 +15,7 @@ a deployment, approval to merge, or closure of #6/#7.
 | O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
 | O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
 | O5 | Local header/CSP implementation and privacy checks below. **Owner contact channel deferred**; final privacy assessment, deployed headers and hosting-side services/logging inventory remain open. |
-| Actual hosts | Production canonical/indexing, Workers custom-domain routing/default-route disabling, and noindex on version and branch-alias previews remain unverified. Local checks cannot close these gates. |
+| Actual hosts | Default workers.dev, version preview and branch-alias HTTPS/CSP/noindex checks passed; see hosted evidence below. Public-domain canonical/indexing, custom-domain routing/default-route disabling and final hosting privacy assessment remain open. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
 
 ## Workers hosting transition — 14 September 2026
@@ -91,6 +91,52 @@ this hosted run. No new iPhone, keyboard, assistive-technology, large-file or
 failure-recovery coverage is inferred. Actual-host checks of version/branch-alias
 previews, GitHub builds, custom-domain cutover and hosting privacy assessment
 remain outstanding. Contact details remain indefinitely deferred; #7 remains open.
+
+## GitHub build integration — 14 September 2026
+
+The owner connected GitHub Builds to `Yorkshireman/gpsgoblin`, selecting
+`feat/7-release-verification` as the temporary production build branch and enabling
+non-production previews. Adding gpsgoblin to the GitHub App's selected repositories
+removed the disconnected-account warning, as confirmed by the owner.
+
+Pushing `059e713` triggered a successful Cloudflare build and deployment, confirmed
+by the owner-provided build log. It used Node 24.20.0, pnpm 12.3.4, frozen-lockfile
+installation, the static build/header generator and Wrangler 4.131.1. Version
+`2796dfe2-8b7e-4523-bf4f-2b1ebe8f9557` replaced the initial workers.dev deployment.
+The owner refreshed the hosted page and confirmed a recording displayed its
+summary, chart and map. This is owner-reported workflow evidence, not a new
+agent-observed physical-device test. The build log also reported Next.js build
+telemetry; Wrangler metrics were separately disabled in the configured build
+variables. No claim is made that all build-tool telemetry is disabled.
+
+### Non-production branch preview verification — 14 September 2026
+
+Pushed verification branch `verify/7-workers-preview` at `059e713` without changing
+the checked-out #7 branch or its source. The configured GitHub integration built
+it successfully as a non-production version. GitHub check run `104107270649`
+reported build `df04fbf3-4138-4dc5-9158-d57b3a8d6675`, version
+`0f6fb8df-bc75-49e3-908c-bfb33b159b57`, and both URLs:
+
+- Version: https://0f6fb8df-gpsgoblin.andrew-stelmach.workers.dev
+- Branch alias: https://verify-7-workers-preview-gpsgoblin.andrew-stelmach.workers.dev
+
+HTTPS requests to `/`, `/tools/gpx-file-viewer`, `/privacy` and `/limitations`
+returned 200 with noindex and the generated CSP on both hosts. An initial Python
+HTTP request returned 403; subsequent curl and browser checks succeeded without
+changing site configuration or access controls. Sixteen Chrome desktop/mobile
+checks passed across both URLs, reusing hydration and release-security workflow
+tests with synthetic GPX input and blocked public tiles. These covered CSP browser
+enforcement, hydration, actual import/map workers and inspection/replacement/clear;
+map success with real tiles was not tested in this automated preview run. Logs:
+`/private/tmp/gpsgoblin-preview-tests.log`. Knip passed with no findings.
+
+Wrangler deployment listings before and after the preview build showed the same
+latest active deployment: version `2796dfe2-8b7e-4523-bf4f-2b1ebe8f9557` at 100%.
+The preview upload did not promote its version or replace the main testing URL.
+The verification branch is retained for reproducibility; no extra PR was opened.
+No custom-domain change, release approval or issue closure occurred. Remaining
+public-domain and hosting-privacy gates and indefinitely deferred contact details
+are unchanged.
 
 ## Security policy and build
 
