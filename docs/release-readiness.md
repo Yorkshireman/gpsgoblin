@@ -3,7 +3,7 @@
 Status: **public apex deployed; release follow-up remains open**. The owner
 connected gpsgoblin.com and confirmed the complete viewer works on their phone.
 Do not request a repeat of that manual check. Contact details are optional for
-launch and indefinitely deferred. The www HTTPS/redirect setup and merge/master
+launch and indefinitely deferred. The www HTTPS redirect is verified; HTTP verification and the merge/master
 build-branch transition remain outstanding. Earlier entries record historical
 states and are superseded by the cutover evidence below.
 
@@ -14,11 +14,11 @@ PR #20. Neither PR has been merged and #6/#7 remain open.
 
 | Gate | Evidence and remaining boundary |
 | --- | --- |
-| O2 basemap | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Six real tile requests on workers.dev passed with the expected origin-only referrer; repeat on the public domain at cutover. |
+| O2 basemap | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Six real tile requests on workers.dev passed with the expected origin-only referrer. The owner confirmed the map works on the public domain; public-host automated tests blocked tiles, so that evidence does not establish a new public-host tile-referrer sample. |
 | O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
 | O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
-| O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Contact optional and indefinitely deferred**; public-domain settings and checks remain open. |
-| Actual hosts | Default workers.dev, version preview and branch-alias HTTPS/CSP/noindex checks passed; see hosted evidence below. Public-domain canonical/indexing, custom-domain routing/default-route disabling and final hosting privacy assessment remain open. |
+| O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Contact optional and indefinitely deferred**. Public-host hydration/security/privacy checks passed with synthetic activity canaries; see cutover evidence below. |
+| Actual hosts | Public apex HTTPS, root/nested routes, canonical/indexing and privacy checks passed; the default workers.dev URL is disabled and preview noindex remains verified. WWW HTTPS redirects preserve path/query; HTTP remains unverified from this environment. PR merge/master production-branch transition is outstanding. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
 
 ## Workers hosting transition — 14 September 2026
@@ -529,3 +529,32 @@ configure its HTTPS redirect to the apex and verify path/query preservation.
 Production Builds still uses feat/7-release-verification; do not select master
 until the reviewed hosting code is merged there. No merge was authorised or
 performed in this cutover follow-up.
+
+
+### WWW redirect — 14 September 2026
+
+The owner changed the existing www CNAME (target gpsgoblin.com) to Proxied and
+reported deploying a Single Redirect with request pattern
+`http*://www.gpsgoblin.com/*`, target `https://gpsgoblin.com/${2}`, status 301 and
+Preserve query string enabled. This rule is managed in the Cloudflare dashboard,
+not wrangler.jsonc. The existing CLI OAuth login cannot read DNS records or
+rulesets (both API requests returned 403), so rule settings are supported by the
+owner's screenshot and deployment confirmation rather than an API export.
+
+An HTTPS HEAD request to /tools/gpx-file-viewer?redirect_check=1 returned 301 with
+Location https://gpsgoblin.com/tools/gpx-file-viewer?redirect_check=1 and normal
+certificate validation. Authoritative DNS returned 104.21.95.20 and
+172.67.169.44; curl --resolve bypassed a local DNS resolution failure while
+retaining the correct Host and TLS SNI. The earlier certificate mismatch is
+resolved. HTTP requests to both addresses returned an empty reply, including a
+retry with --noproxy '*'; HTTP behaviour remains unverified, not a confirmed
+redirect failure. No further owner viewer retest was requested.
+
+### Pre-merge review follow-up — 14 September 2026
+
+Independent standards and spec reviewers inspected 320130a...HEAD and pending
+documentation. Standards: no actionable findings. Spec: no implementation merge
+blockers or later-stage scope creep; one stale current-status gate table was
+identified and reconciled with the cutover evidence. HTTP www verification and
+merge/master transition remain explicit. Reviewers did not rerun tests. Knip and
+diff whitespace checks passed for this documentation follow-up.

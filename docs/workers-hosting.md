@@ -122,3 +122,17 @@ available until the cutover is accepted. No rollback was performed as a test.
 
 Sources: [Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/),
 [rollbacks](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/).
+
+
+## Current WWW redirect
+
+The owner deployed a dashboard Single Redirect on 14 September 2026. The www
+CNAME still targets gpsgoblin.com and is now Proxied. Request pattern
+`http*://www.gpsgoblin.com/*` redirects to `https://gpsgoblin.com/${2}` with 301
+and Preserve query string enabled. The second capture retains the path because
+the first captures the protocol suffix. This dashboard rule is separate from
+the apex custom domain recorded in wrangler.jsonc.
+
+HTTPS certificate validation and a nested-path/query redirect passed against
+Cloudflare's authoritative address. HTTP verification remains outstanding after
+empty responses from this environment. See release-readiness.md for evidence.

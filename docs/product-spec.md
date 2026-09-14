@@ -5,7 +5,7 @@
 **Date:** 14 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
-**Owned production domain:** `https://gpsgoblin.com` — purchased; a placeholder site is live. This is the canonical production origin.
+**Owned production domain:** `https://gpsgoblin.com` — registered at GoDaddy; the Stage 1 viewer is live on Cloudflare Workers Static Assets. This is the canonical production origin.
 **Suggested repository location:** `docs/product-spec.md`
 
 ## 1. How to use this specification
@@ -675,7 +675,7 @@ Cloudflare currently documents static asset requests as free and unlimited when 
 
 Use one build pipeline with documented pnpm/Node versions, type checking, linting, appropriate tests and static build verification. Preserve a straightforward rollback path.
 
-The product name **GPSGoblin** and owned domain **`gpsgoblin.com`** are settled. The canonical production origin is **`https://gpsgoblin.com`**. A placeholder site is already live there; replace it with the useful Stage 1 release when the relevant public-release gates pass. Development/previews may use Cloudflare addresses.
+The product name **GPSGoblin** and owned domain **`gpsgoblin.com`** are settled. The canonical production origin is **`https://gpsgoblin.com`**. The owner connected the Stage 1 viewer there on 14 September 2026; public-host evidence and remaining release follow-up are recorded in docs/release-readiness.md. Development/previews may use Cloudflare addresses.
 
 Configure canonical URLs, sitemap entries, the robots sitemap reference and Open Graph/sharing metadata from a single public-origin setting fixed to `https://gpsgoblin.com`; do not derive the public origin from an incoming host or a preview deployment URL. Attach `gpsgoblin.com` as a Workers Custom Domain only when public-release gates pass and cutover is authorised. Disable the default production workers.dev route at cutover (`workers_dev: false`) instead of retaining an alternative production hostname. Preview URLs can remain enabled independently. No pages.dev redirect is needed because this project was never deployed on Pages. Verify custom-domain HTTPS, direct nested paths and the disabled default route on the real hosts. [S17, S18]
 
