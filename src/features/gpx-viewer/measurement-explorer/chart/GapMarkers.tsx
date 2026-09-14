@@ -28,7 +28,7 @@ export const GapMarkers = ({ data, selectedId, onSelect, onHover }: GapMarkersPr
     {groups.map((group, index) => {
       const selectedIndex = selectedId ? group.ids.indexOf(selectedId) : -1;
       const label = group.ids.length > 1
-        ? `${group.ids.length} nearby ${group.hasStops ? "stop/gap intervals; select next interval" : "recording gaps; select next gap"}`
+        ? `${group.ids.length} nearby ${group.hasStops ? "possible stops or recording gaps; select to see the next one" : "recording gaps; select to see the next one"}`
         : `${group.hasStops ? "Possible stop" : "Recording gap"} ${index + 1}`;
       return <foreignObject key={group.ids[0]} x={group.x - 22} y={0} width={44} height={44} overflow='visible'>
         <Tooltip.Root openDelay={250} closeDelay={0}>
@@ -45,7 +45,7 @@ export const GapMarkers = ({ data, selectedId, onSelect, onHover }: GapMarkersPr
           </Tooltip.Trigger>
           <Portal>
             <Tooltip.Positioner>
-              <Tooltip.Content>{label}{group.ids.length === 1 ? selectedIndex >= 0 ? ' · Select again to clear' : ' · Select to inspect' : ''}</Tooltip.Content>
+              <Tooltip.Content>{label}{group.ids.length === 1 ? selectedIndex >= 0 ? ' · Select again to close details' : ' · Select to inspect' : ''}</Tooltip.Content>
             </Tooltip.Positioner>
           </Portal>
         </Tooltip.Root>

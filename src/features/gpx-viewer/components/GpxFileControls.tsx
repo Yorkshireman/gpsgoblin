@@ -60,7 +60,7 @@ export const GpxFileControls = ({
       </Flex>
       {filename ? (
         <Text fontSize='sm' color='fg.muted'>
-          Refreshing or clearing loses your work.
+          Refreshing closes the file and resets your choices.
         </Text>
       ) : null}
       {isLoading ? (

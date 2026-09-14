@@ -17,7 +17,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
     const suggestion = page.getByText(/Suggested range ·/);
     await expect(suggestion).toContainText('29:00 min/km');
-    await expect(page.getByText(/Some slower pace values are above this range/)).toBeVisible();
+    await expect(page.getByText(/Some pace readings are above the chart limit/)).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Pace range' })).toBeHidden();
     await page.screenshot({ path: testInfo.outputPath('initial-pace.png') });
     // Bring the chart workspace into view on short screens, as a reader would.
@@ -25,21 +25,21 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     const arrow = page.getByRole('button', { name: /Above range:/ }).first();
     if (viewport.width < 600) await arrow.tap(); else await arrow.click();
     const selected = page.getByLabel('Selected measurement', { exact: true });
-    await expect(selected).toContainText('Above visible maximum');
+    await expect(selected).toContainText('Above the chart limit');
     await expect(selected).toBeInViewport({ ratio: 1 });
     await expect(arrow).toBeInViewport({ ratio: 1 });
     await page.screenshot({ path: testInfo.outputPath('selected-overflow.png') });
     const selectedValue = await selected.textContent();
     await page.getByRole('button', { name: 'Show full range' }).click();
     await expect(page.getByRole('button', { name: /Above range:/ })).toHaveCount(0);
-    await expect(selected).not.toContainText('Above visible maximum');
+    await expect(selected).not.toContainText('Above the chart limit');
     await page.getByRole('button', { name: 'Use suggested range' }).click();
     await expect(selected).toHaveText(selectedValue ?? '');
     await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
     await expect(suggestion).toContainText('46:40 min/mi');
     await page.getByRole('button', { name: /Above range:/ }).first().focus();
     await page.keyboard.press('Enter');
-    await expect(selected).toContainText('Above visible maximum');
+    await expect(selected).toContainText('Above the chart limit');
     expect(await page.evaluate(() => { return document.documentElement.scrollWidth <= innerWidth; })).toBe(true);
     await page.getByText('Chart options', { exact: true }).click();
     const range = page.getByRole('combobox', { name: 'Pace range' });
@@ -68,7 +68,7 @@ test('permissioned exports receive different suggested ranges', async ({ page },
     await page.getByLabel('GPX file', { exact: true }).setInputFiles(file);
     await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
     await expect(page.getByText(/Suggested range ·/)).toContainText(index === 0 ? '54:00 min/km' : '32:00 min/km');
-    await expect(page.getByText(/Some slower pace values are above this range/)).toBeVisible();
+    await expect(page.getByText(/Some pace readings are above the chart limit/)).toBeVisible();
     if (index === 0) {
       const gaps = await page.getByRole('button', { name: /Recording gap|nearby recording gaps/ }).all();
       const arrows = await page.getByRole('button', { name: /Above range:/ }).all();

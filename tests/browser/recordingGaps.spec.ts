@@ -20,11 +20,11 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await expect(control).toBeHidden();
     await expect(control.locator('option')).toHaveCount(4);
     await page.screenshot({ path: testInfo.outputPath('loaded.png') });
-    const marker = page.getByRole('button', { name: '3 nearby recording gaps; select next gap' });
+    const marker = page.getByRole('button', { name: '3 nearby recording gaps; select to see the next one' });
     await expect(marker).toBeVisible();
     if (viewport.width >= 600) {
       await marker.hover();
-      await expect(page.getByRole('tooltip')).toContainText('3 nearby recording gaps; select next gap');
+      await expect(page.getByRole('tooltip')).toContainText('3 nearby recording gaps; select to see the next one');
       await page.screenshot({ path: testInfo.outputPath('gap-tooltip.png') });
       await page.keyboard.press('Escape');
       await expect(page.getByRole('tooltip')).toBeHidden();
@@ -32,13 +32,13 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     if (viewport.width < 600) await marker.tap();
     else await marker.click();
     const selection = page.getByLabel('Selected measurement', { exact: true });
-    await expect(selection).toContainText('No recorded points for 10 min');
+    await expect(selection).toContainText('No GPS readings for 10 min');
     await expect(control).toHaveValue('track-0-segment-0-sample-21');
     await expect(selection).toBeInViewport({ ratio: 1 });
     await expect(marker).toBeInViewport({ ratio: 1 });
     await expect(page.locator('.recharts-tooltip-wrapper')).not.toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('selected.png') });
-    const clear = page.getByRole('button', { name: 'Clear gap', exact: true });
+    const clear = page.getByRole('button', { name: 'Close gap details', exact: true });
     if (viewport.width < 600) await clear.tap();
     else { await clear.focus(); await page.keyboard.press('Enter'); }
     await expect(selection).toHaveCount(0);
@@ -54,11 +54,11 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.keyboard.press('Enter');
     await expect(control).toHaveValue('track-0-segment-0-sample-22');
     await control.selectOption({ index: 3 });
-    await expect(selection).toContainText('Movement unknown');
+    await expect(selection).toContainText('We can’t tell how you moved during this gap');
     await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
     await expect(selection).toContainText('ft apart');
     await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
-    await expect(selection).toContainText('No recorded points for 10 min');
+    await expect(selection).toContainText('No GPS readings for 10 min');
     const paceTip = page.getByText('Why does pace sometimes spike?', { exact: true });
     await paceTip.focus();
     await page.keyboard.press('Enter');
@@ -71,18 +71,18 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await smoothing.focus();
     await page.keyboard.press('Home');
     await expect(page.getByLabel('Measurement chart', { exact: true })).toHaveAttribute('aria-busy', 'false');
-    await expect(selection).toContainText('No recorded points for 10 min');
+    await expect(selection).toContainText('No GPS readings for 10 min');
     if (viewport.width < 600) {
       await page.getByRole('button', { name: 'View on map' }).tap();
       await expect(page.getByRole('dialog')).toBeVisible();
       await page.getByRole('button', { name: 'Back to chart' }).tap();
-      await expect(selection).toContainText('No recorded points for 10 min');
+      await expect(selection).toContainText('No GPS readings for 10 min');
     }
     expect(await page.evaluate(() => { return document.documentElement.scrollWidth <= innerWidth; })).toBe(true);
     await page.getByLabel('GPX file', { exact: true }).setInputFiles({ name: 'single-gap.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(recording(1)) });
     const singleMarker = page.getByRole('button', { name: 'Recording gap 1', exact: true });
     await singleMarker.click();
-    await expect(selection).toContainText('Movement unknown');
+    await expect(selection).toContainText('We can’t tell how you moved during this gap');
     if (viewport.width < 600) await singleMarker.tap();
     else { await singleMarker.focus(); await page.keyboard.press('Enter'); }
     await expect(selection).toHaveCount(0);
@@ -102,7 +102,7 @@ test('permissioned local recordings preserve gap distinction', async ({ page }, 
   await expect(control.locator('option')).toHaveCount(10);
   await page.getByText('9 recording gaps', { exact: true }).click();
   await control.selectOption({ index: 1 });
-  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('Movement unknown');
+  await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('We can’t tell how you moved during this gap');
   await page.screenshot({ path: testInfo.outputPath('private-gap-recording.png') });
   await page.getByLabel('GPX file', { exact: true }).setInputFiles(continuousFile);
   await expect(control).toHaveCount(0);

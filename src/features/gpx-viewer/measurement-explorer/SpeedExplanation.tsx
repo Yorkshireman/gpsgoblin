@@ -1,11 +1,6 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 
-type SpeedExplanationProps = Readonly<{
-  timedIntervalCount: number;
-  intervalCount: number;
-}>;
-
-export const SpeedExplanation = ({ timedIntervalCount, intervalCount }: SpeedExplanationProps) => {
+export const SpeedExplanation = ({ moving }: Readonly<{ moving: boolean }>) => {
   return (
     <Box as='details' fontSize='sm' color='fg.muted'>
       <Box as='summary' cursor='pointer' fontWeight='medium' color='fg'>
@@ -13,31 +8,29 @@ export const SpeedExplanation = ({ timedIntervalCount, intervalCount }: SpeedExp
       </Box>
       <Stack gap={2} pt={3}>
         <Text>
-          We calculate speed from the distance and time between recorded locations. Small GPS errors
-          can make this jump around, even when you move steadily.
+          Speed comes from the distance and time between GPS readings. Small GPS errors can make
+          it jump around, even when you move steadily.
         </Text>
         <Text>
-          The dashed line shows the average speed for the selected track or section, including
-          recorded stops and time in recording gaps. Sections without usable times are left out. Changing smoothing does not
-          change this average.
+          {moving
+            ? 'The average leaves out the stops you chose and any recording gaps. Stops you have not chosen still count.'
+            : 'The average includes stops and time in recording gaps. You can choose stops to leave out under Chart options.'}
+          {' '}Parts with missing or unreliable times cannot be included.
         </Text>
         <Text>
-          The smoothing slider averages speed over the number of seconds you choose. Higher values
-          make the overall pattern easier to see, but soften brief changes. Set it to 0 seconds to
-          see the unsmoothed measurements.
+          Smoothing averages nearby speed readings to make the line less jumpy. A longer setting
+          shows the overall pattern; a shorter one shows more detail. Set it to 0 to turn it off.
+          It does not change your overall average.
         </Text>
         <Text>
-          Unusually long intervals relative to nearby recording frequency are shown as recording gaps, not stops. We leave speed and pace blank across them and restart the average after gaps or missing or unusable times. At the start of each section, we
-          use the time available. Pace is the time it takes to cover one kilometre or mile, shown as
-          minutes:seconds.
+          Breaks in the line mean readings are missing or you chose to leave out a stop. We do
+          not guess your speed across a break. Your original file and the distance and duration
+          totals stay unchanged.
         </Text>
         <Text>
-          Distance and duration are calculated from the recording. Elevation and recorded times come
-          from your file. Totals saved by your device may differ; we don’t read those totals yet.
-          Your original file is unchanged.
-        </Text>
-        <Text>
-          {timedIntervalCount} of {intervalCount} pairs of recorded locations have usable times.
+          Distance is calculated from GPS positions, so it may differ from the total on your device.
+          Pace is the time it takes to cover a kilometre or mile. A higher pace number means you
+          were going more slowly.
         </Text>
       </Stack>
     </Box>

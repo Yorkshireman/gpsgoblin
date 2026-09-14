@@ -59,7 +59,7 @@ export const GpxDocumentResults = ({
   return (
     <Stack gap={4} width='full'>
       <Heading as='h2' srOnly>
-        File workspace
+        Your file
       </Heading>
       <Stack direction={{ base: 'column', md: 'row' }} gap={2}>
         <GpxItemSelector

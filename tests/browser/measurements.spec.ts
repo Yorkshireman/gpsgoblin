@@ -39,7 +39,7 @@ test('charts preserve gaps and select real map positions on the static viewer', 
     Number(await averageLine.getAttribute('x1'))
   );
   expect(await averageLine.getAttribute('y1')).toBe(await averageLine.getAttribute('y2'));
-  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('../..');
+  const speed = page.getByRole('region', { name: 'Measurement chart', exact: true });
   const elevationToggle = speed.getByRole('checkbox', { name: 'Show elevation' });
   await speed.getByText('Show elevation', { exact: true }).click();
   await expect(elevationToggle).toBeChecked();
@@ -132,12 +132,10 @@ test('charts preserve gaps and select real map positions on the static viewer', 
   await expect(page.getByText('11 September 2026 at 12:02:00 UTC')).toBeVisible();
   await page.getByText('11 September 2026 at 12:02:00 UTC').scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('recorded-time.png') });
-  await page.getByRole('combobox', { name: 'Item to inspect' }).selectOption('route-0');
+  await page.getByRole('combobox', { name: 'View' }).selectOption('route-0');
   await expect(page.getByRole('heading', { name: 'Elevation profile' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Pace', exact: true })).toHaveCount(0);
-  await expect(page.getByLabel('Chart selection tip', { exact: true })).toContainText(
-    'Select a point on the chart to see its details.'
-  );
+  await expect(page.getByLabel('Chart selection tip', { exact: true })).toHaveCount(0);
   await expect(page.getByText('No elevation measurements available.')).toBeVisible();
   expect(errors).toEqual([]);
 });

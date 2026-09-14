@@ -23,9 +23,15 @@ export const summariseMeasurements = (totals: MeasurementTotals) => {
     timedIntervalCount: totals.timedIntervalCount,
     intervalCount: totals.intervalCount,
     warnings: Array.from(totals.issueCounts, ([issue, count]) => {
-      return issue === 'invalid elevation'
-        ? `${count} point(s): invalid elevation. These values are unavailable in elevation results.`
-        : `${count} point(s): ${issue}. Affected intervals are excluded from speed calculations.`;
+      const points = `${count} GPS ${count === 1 ? 'reading' : 'readings'}`;
+      if (issue === 'invalid elevation') {
+        return `${points} had unreadable heights. These are left out of the elevation chart.`;
+      }
+      const reason = issue === 'missing timestamp' ? 'missing times'
+        : issue === 'unknown timezone' ? 'times without a time zone'
+          : issue === 'duplicate timestamp' ? 'repeated times'
+            : issue === 'backwards timestamp' ? 'times in the wrong order' : 'unreadable times';
+      return `${points} had ${reason}. Speed and pace cannot be calculated around these readings.`;
     })
   };
 };

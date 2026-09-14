@@ -27,7 +27,7 @@ export const GpxItemSelector = ({
 
   return (
     <Field.Root>
-      <Field.Label>Item to inspect</Field.Label>
+      <Field.Label>View</Field.Label>
       <NativeSelect.Root>
         <NativeSelect.Field
           value={selectedItem?.id ?? ''}
@@ -78,7 +78,6 @@ export const GpxItemSelector = ({
         </NativeSelect.Field>
         <NativeSelect.Indicator />
       </NativeSelect.Root>
-      <Field.HelperText>Choose which track, route or waypoint to display.</Field.HelperText>
     </Field.Root>
   );
 };

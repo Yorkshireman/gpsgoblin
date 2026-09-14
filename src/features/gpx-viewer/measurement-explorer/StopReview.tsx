@@ -8,6 +8,12 @@ type StopReviewProps = Readonly<{
   onSelect: (id: string | undefined, trigger?: HTMLElement) => void;
 }>;
 
+export const StopSearchResult = ({ evidence }: Readonly<{ evidence: StopEvidence }>) => {
+  return <Text fontSize='xs'>{evidence.eligibleSeconds > 0
+    ? 'No stops found to leave out. Some stops may have been missed.'
+    : 'Your position was not recorded often enough, or the times cannot be used. We cannot check for stops.'}</Text>;
+};
+
 export const StopReview = ({ evidence, selected, onSelect }: StopReviewProps) => {
   return <Box as='details' fontSize='sm'>
     <Box as='summary' cursor='pointer'>Review possible stops ({evidence.candidates.length})</Box>
@@ -15,14 +21,14 @@ export const StopReview = ({ evidence, selected, onSelect }: StopReviewProps) =>
       <NativeSelect.Field aria-label='Inspect possible stop' value={selected?.id ?? ''} onChange={event => {
         onSelect(evidence.candidates.find(candidate => { return candidate.id === event.target.value; })?.endSampleId, event.currentTarget);
       }}>
-        <option value=''>Choose an interval…</option>
+        <option value=''>Choose a possible stop…</option>
         {evidence.candidates.map((candidate, index) => {
           return <option key={candidate.id} value={candidate.id}>Possible stop {index + 1} · {formatDuration(candidate.seconds)}</option>;
         })}
       </NativeSelect.Field>
       <NativeSelect.Indicator />
-    </NativeSelect.Root> : <Text mt={2} fontSize='xs'>No possible stops found. This does not prove continuous movement.</Text>}
-    <Text mt={2} fontSize='xs'>Method: at least 60 seconds within a 10 m spatial extent, with observations at most 10 seconds apart. Dense observation coverage: {formatDuration(evidence.eligibleSeconds)}. Other intervals are not classified. Timer pauses and recording gaps do not prove a stop.</Text>
+    </NativeSelect.Root> : <StopSearchResult evidence={evidence} />}
+    {evidence.candidates.length > 0 ? <Text mt={2} fontSize='xs'>We look for places where your GPS position barely changed for at least a minute. Review each possible stop and choose whether to leave it out.</Text> : null}
   </Box>;
 };
 
@@ -41,14 +47,14 @@ export const SelectedStop = ({ candidate, points, labels, confirmed, excluded, p
   return <Stack as='section' aria-label='Selected possible stop' gap={1} p={2} rounded='md' bg='blue.subtle' color='blue.fg' fontSize='sm'>
     <Flex justify='space-between' align='center' gap={2}>
       <Text fontWeight='semibold'>Possible stop · {formatDuration(candidate.seconds)}</Text>
-      <Button variant='ghost' size='xs' minH='44px' onClick={onClear}>Clear stop</Button>
+      <Button variant='ghost' size='xs' minH='44px' onClick={onClear}>Back to chart</Button>
     </Flex>
-    <Text fontSize='xs'>{formatMeasurement(points[candidate.startIndex].distanceMetres / labels.metresPerDistance, labels.distance)}–{formatMeasurement(points[candidate.endIndex].distanceMetres / labels.metresPerDistance, labels.distance)} · {excluded ? 'Excluded' : 'Included'}</Text>
-    <Text fontSize='xs'>{candidate.uncertainty.join(' ')}</Text>
+    <Text fontSize='xs'>{formatMeasurement(points[candidate.startIndex].distanceMetres / labels.metresPerDistance, labels.distance)}–{formatMeasurement(points[candidate.endIndex].distanceMetres / labels.metresPerDistance, labels.distance)} · {excluded ? 'Left out of speed and pace' : 'Included in speed and pace'}</Text>
+    <Text fontSize='xs'>Slow movement or climbing can look like a stop. Only tick the box if you stopped.</Text>
     <Checkbox.Root checked={confirmed} disabled={pending} onCheckedChange={event => { onConfirm(event.checked === true); }} minH='44px' colorPalette='blue'>
       <Checkbox.HiddenInput />
       <Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>
-      <Checkbox.Label>I confirm this was a stop; exclude it</Checkbox.Label>
+      <Checkbox.Label>I stopped here — leave this time out</Checkbox.Label>
     </Checkbox.Root>
   </Stack>;
 };

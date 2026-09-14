@@ -12,7 +12,7 @@ export const MotionControls = ({ smoothingSeconds, setSmoothingSeconds, pending 
     <Field.Root gap={0}>
       <Field.Label>
         Smoothing · <span>{formatSmoothingDuration(smoothingSeconds)}</span>
-        {smoothingSeconds === 0 ? ' (unsmoothed)' : ''}
+        {smoothingSeconds === 0 ? ' (off)' : ''}
         {pending ? <Text as='span' role='status' fontSize='xs' color='fg.muted'>Updating…</Text> : null}
       </Field.Label>
       <Input
@@ -27,7 +27,7 @@ export const MotionControls = ({ smoothingSeconds, setSmoothingSeconds, pending 
         step={1}
         value={smoothingDurations.indexOf(smoothingSeconds)}
         aria-valuetext={
-          smoothingSeconds ? formatSmoothingDuration(smoothingSeconds) : '0 seconds (unsmoothed)'
+          smoothingSeconds ? formatSmoothingDuration(smoothingSeconds) : '0 seconds (off)'
         }
         onChange={event => {
           setSmoothingSeconds(smoothingDurations[Number(event.currentTarget.value)]);

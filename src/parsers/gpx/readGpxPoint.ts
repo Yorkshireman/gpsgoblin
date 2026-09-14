@@ -53,8 +53,8 @@ export const readGpxPoint = (
 };
 
 export const pointError = (issues: PointIssues, kind: PointKind) => {
-  if (issues.missingCoordinates) return `A ${kind} is missing its coordinates.`;
-  if (issues.invalidCoordinates) return `A ${kind} contains invalid coordinates.`;
-  if (issues.invalidElevation) return `A ${kind} contains an invalid elevation.`;
+  if (issues.missingCoordinates) return `A ${kind} is missing its map location. Download a new copy and try again.`;
+  if (issues.invalidCoordinates) return `A ${kind} has a map location that cannot be read. Download a new copy and try again.`;
+  if (issues.invalidElevation) return `A ${kind} has a height reading that cannot be read. Download a new copy and try again.`;
   return undefined;
 };

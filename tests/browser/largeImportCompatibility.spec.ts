@@ -38,11 +38,11 @@ test('all-day and multi-day recordings retain every sample and recover from fail
   await expect(page.getByRole('region', { name: 'Measurement chart', exact: true })).toHaveAttribute('aria-busy', 'false');
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('14:59 min/km');
   await picker.setInputFiles({ name: 'truncated.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from('<gpx version="1.1"><trk>') });
-  await expect(page.getByText('The file contains malformed XML.')).toBeVisible();
+  await expect(page.getByText('The file is damaged or incomplete. Download a new copy and try again.')).toBeVisible();
   await expect(position).toHaveAttribute('max', '172800');
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('3 January 2026 at 00:00:00 UTC');
   await page.getByRole('button', { name: 'Clear file' }).click();
-  await expect(page.getByText('Workspace cleared.')).toBeVisible();
+  await expect(page.getByText('File closed.')).toBeVisible();
   await picker.setInputFiles(recording(3));
   await expect(position).toHaveAttribute('max', '2');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

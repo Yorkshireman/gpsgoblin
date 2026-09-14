@@ -72,12 +72,12 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await picker.setInputFiles(file('replacement.gpx'));
     await expect(page.getByText('replacement.gpx', { exact: true }).first()).toBeVisible();
     await picker.setInputFiles(file('malformed.gpx', '<gpx>'));
-    await expect(page.getByText('The file contains malformed XML.')).toBeVisible();
+    await expect(page.getByText('The file is damaged or incomplete. Download a new copy and try again.')).toBeVisible();
     await expect(page.getByText('replacement.gpx', { exact: true }).first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('failed-replacement.png') });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.getByRole('button', { name: 'Clear file' }).click();
-    await expect(page.getByText('Workspace cleared.')).toBeInViewport();
+    await expect(page.getByText('File closed.')).toBeInViewport();
     await page.screenshot({ path: testInfo.outputPath('cleared.png') });
     await context.close();
   });
@@ -141,7 +141,7 @@ test('clearing a pending import prevents it from restoring data after a newer im
     await picker.setInputFiles(file('old.gpx'));
     await expect(page.getByRole('button', { name: 'Cancel import' })).toBeVisible();
     await page.getByRole('button', { name: 'Clear file' }).click();
-    await expect(page.getByText('Workspace cleared.')).toBeVisible();
+    await expect(page.getByText('File closed.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Choose GPX file' })).toBeFocused();
     await expect(page.getByText('Safe waypoint', { exact: true })).toHaveCount(0);
     await picker.setInputFiles(file('new.gpx'));
@@ -173,7 +173,7 @@ test('first-import progress and failure feedback fit the short phone viewport', 
     await page.unrouteAll({ behavior: 'wait' });
   }
   await page.getByLabel('GPX file', { exact: true }).setInputFiles(file('bad.gpx', '<gpx>'));
-  await expect(page.getByText('The file contains malformed XML.')).toBeInViewport({ ratio: 1 });
+  await expect(page.getByText('The file is damaged or incomplete. Download a new copy and try again.')).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: testInfo.outputPath('first-failure.png') });
   await context.close();
 });

@@ -111,17 +111,17 @@ describe('analyseMeasurements', () => {
         return point.elevationMetres;
       })
     ).toEqual([0, null, null]);
-    expect(result.warnings.join(' ')).toContain('invalid elevation');
+    expect(result.warnings.join(' ')).toContain('unreadable heights');
   });
 
   it.each([
-    ['2026-09-11T12:00:00', 'unknown timezone'],
-    ['2026-02-30T12:00:00Z', 'invalid timestamp'],
-    ['not a time', 'invalid timestamp'],
-    ['', 'invalid timestamp'],
-    [undefined, 'missing timestamp'],
-    ['2026-09-11T11:00:00Z', 'duplicate timestamp'],
-    ['2026-09-11T10:00:00Z', 'backwards timestamp']
+    ['2026-09-11T12:00:00', 'times without a time zone'],
+    ['2026-02-30T12:00:00Z', 'unreadable times'],
+    ['not a time', 'unreadable times'],
+    ['', 'unreadable times'],
+    [undefined, 'missing times'],
+    ['2026-09-11T11:00:00Z', 'repeated times'],
+    ['2026-09-11T10:00:00Z', 'times in the wrong order']
   ])('leaves an unusable interval null for %s and explains %s', (sourceTime, warning) => {
     const result = analyseMeasurements([
       {

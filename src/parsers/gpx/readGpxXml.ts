@@ -122,15 +122,15 @@ export const readGpxXml = (fileText: string): GpxParseResult => {
   });
   parser.write(fileText.trim()).close();
 
-  if (rootName !== 'gpx') return { ok: false, error: 'The file is not a GPX document.' };
-  if (version !== '1.1') return { ok: false, error: 'Only GPX 1.1 files are currently supported.' };
+  if (rootName !== 'gpx') return { ok: false, error: 'This is not a GPX file. Choose a file exported in GPX format.' };
+  if (version !== '1.1') return { ok: false, error: 'This viewer needs GPX version 1.1. Try exporting your file in that version.' };
   // Preserve error precedence independently of element order in the source.
   for (const kind of ['route point', 'track point', 'waypoint'] as const) {
     const error = pointError(issues[kind], kind);
     if (error) return { ok: false, error };
   }
   if (routes.length === 0 && tracks.length === 0 && waypoints.length === 0) {
-    return { ok: false, error: 'This GPX file does not contain a track to display.' };
+    return { ok: false, error: 'This GPX file does not contain a track to display. Choose another file.' };
   }
   const hasTrackPoints = tracks.some(track => {
     return track.segments.some(segment => {
@@ -141,7 +141,7 @@ export const readGpxXml = (fileText: string): GpxParseResult => {
     return route.points.length > 0;
   });
   if (!hasTrackPoints && !hasRoutePoints && waypoints.length === 0) {
-    return { ok: false, error: 'This GPX file does not contain any geographic points to display.' };
+    return { ok: false, error: 'This GPX file does not contain any map locations to display. Choose another file.' };
   }
   const metadata = readNames(metadataFields ?? {});
   return {

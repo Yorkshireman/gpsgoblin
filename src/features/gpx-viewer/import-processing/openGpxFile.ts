@@ -21,7 +21,7 @@ export const openGpxFile = (file: File, signal: AbortSignal): Promise<OpenGpxRes
     } catch {
       resolve({
         ok: false,
-        error: 'Background processing is unavailable. Try a current browser with workers enabled, then choose your GPX file again.'
+        error: 'This browser could not open the file. Update your browser or try a different one, then choose the file again.'
       });
       return;
     }

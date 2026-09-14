@@ -17,6 +17,20 @@ Completion criterion: the affected interactions have explicit feedback expectati
 
 ## Verify in the whole page
 
+### Review the words as well as the layout
+
+Read every affected label and message in its actual state, including empty results, missing data, loading, errors, tooltips and screen-reader labels. Assume an average person who knows what they want to do but has no knowledge of GPX internals, statistics or this codebase.
+
+- State what happened and its practical effect. When action is needed, name the actual control or next step. For example: “No stops found to leave out. Some stops may have been missed.”
+- Keep text only if it helps the person understand a result, make a choice or recover from a problem. Remove redundant notices and defensive qualifications that add no useful information. Moving jargon into a disclosure does not make it useful.
+- Use familiar words and concrete referents. Explain what is left out of an average instead of saying “eligible intervals” or “partial coverage”. Do not display internal error codes, detector thresholds or diagnostic counts merely because they are available. Keep calculation details in technical docs unless a user needs them to decide what to do.
+- Preserve meaningful limits in plain language. A possible stop is not a confirmed stop; missing GPS readings do not prove rest. Simplifying must not promise more certainty or functionality than the tool provides.
+- Keep labels consistent with their actions. Closing a review must not sound like deleting a stop. Accessible labels must be just as clear as visible text.
+
+Completion criterion: for every added or retained message, the reviewer can name the user question it answers and understand its answer without developer context. Check the combined text on screen for repetition and contradiction, not just individual strings. Automated text assertions do not establish comprehension. Record the surfaces reviewed and any unresolved wording; do not claim user testing unless people actually took part.
+
+### Check viewport and interaction feedback
+
 For layout or flow changes, use these browser **content viewport** sizes as the baseline:
 
 | Context | Width × height in CSS pixels |

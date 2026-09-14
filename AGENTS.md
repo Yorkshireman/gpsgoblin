@@ -78,6 +78,8 @@ Preserve the distinction between agreed requirements, recommended defaults and u
 
 Before planning, implementing or reviewing user-facing behaviour—including displayed data, copy, controls and layout—read [the UX workflow](docs/agents/ux.md). Apply it to the affected flow and report the viewport and interaction evidence before calling UI work complete. A passing build or screenshot of an isolated component does not establish usable desktop/mobile behaviour.
 
+Write all user-facing copy for an average person with no knowledge of GPX internals or our calculations. Every message must help them understand a result, choose an action or recover from a problem; remove it if it serves none of these purposes. Apply the copy review and completion criteria in the UX workflow to labels, help, warnings, errors and accessible text.
+
 ## Agent skills
 
 ### Issue tracker

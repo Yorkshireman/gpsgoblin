@@ -48,14 +48,14 @@ for (const viewport of [
     else await arrow.click();
     const selected = page.getByLabel('Selected measurement', { exact: true });
     await expect(selected).toContainText(/107:\d{2} min\/km/);
-    await expect(selected).toContainText('Above visible maximum');
+    await expect(selected).toContainText('Above the chart limit');
     await expect(page.locator('.recharts-tooltip-wrapper')).not.toBeVisible();
     await expect(selected).toBeInViewport({ ratio: 1 });
     await expect(arrow).toBeInViewport({ ratio: 1 });
     await page.screenshot({ path: testInfo.outputPath('custom-pace.png') });
     await arrow.focus();
     await arrow.press('Enter');
-    await expect(selected).toContainText('Above visible maximum');
+    await expect(selected).toContainText('Above the chart limit');
     await page.getByRole('slider', { name: 'Position on route' }).press('Home');
     await arrow.press('Space');
     await expect(selected).toContainText(/107:\d{2} min\/km/);
@@ -67,7 +67,7 @@ for (const viewport of [
     await expect(selected).toContainText(/17:\d{2} min\/km/);
     await expect(page.getByRole('button', { name: /Above range:/ })).toHaveCount(2);
     await maximum.fill('60');
-    await expect(selected).not.toContainText('Above visible maximum');
+    await expect(selected).not.toContainText('Above the chart limit');
     await arrow.click();
     await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
     const imperialMaximum = page.getByRole('spinbutton', { name: 'Maximum (min/mi)' });
@@ -81,7 +81,7 @@ for (const viewport of [
     await page.getByRole('combobox', { name: 'Display units' }).selectOption('metric');
     await range.selectOption('full');
     await expect(page.getByRole('button', { name: /Above range:/ })).toHaveCount(0);
-    await expect(selected).not.toContainText('Above visible maximum');
+    await expect(selected).not.toContainText('Above the chart limit');
     await expect(trace).toHaveAttribute('d', automaticPath ?? '');
     await expect(page.getByRole('slider', { name: 'Position on route' })).toHaveAttribute('max', '4');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

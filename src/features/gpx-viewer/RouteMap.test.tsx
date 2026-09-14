@@ -52,7 +52,7 @@ describe('RouteMap segment selection', () => {
     );
 
     expect(screen.getByText('No line to display')).toBeVisible();
-    expect(screen.getByText(/separate segments are not joined/)).toBeVisible();
+    expect(screen.getByText(/Each separate section needs at least two/)).toBeVisible();
     expect(initialiseRouteMap).not.toHaveBeenCalled();
   });
 
@@ -73,7 +73,7 @@ describe('RouteMap segment selection', () => {
         <RouteMap track={{ ...track, segments: [firstSegment, { id: 'empty', samples: [] }] }} />
       </ChakraProvider>
     );
-    expect(screen.getByText('Some segments have no line')).toBeVisible();
+    expect(screen.getByText('Some sections cannot be drawn')).toBeVisible();
     expect(initialiseRouteMap).toHaveBeenCalled();
   });
 
@@ -102,7 +102,7 @@ describe('RouteMap segment selection', () => {
       </ChakraProvider>
     );
     expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
-    expect(screen.getByText('Track segment 2 of 2')).toBeVisible();
+    expect(screen.getByText('Track section 2 of 2')).toBeVisible();
   });
 
   it('redraws only the selected segment and restores all segments with cleanup', () => {
@@ -139,7 +139,7 @@ describe('RouteMap segment selection', () => {
         </ChakraProvider>
       );
 
-      expect(screen.getByText('Track segment 2 of 2')).toBeVisible();
+      expect(screen.getByText('Track section 2 of 2')).toBeVisible();
       expect(initialiseRouteMap).toHaveBeenLastCalledWith(
         expect.objectContaining({ paths: [secondSegment] })
       );
@@ -151,7 +151,7 @@ describe('RouteMap segment selection', () => {
         </ChakraProvider>
       );
 
-      expect(screen.getByText('2 track segments')).toBeVisible();
+      expect(screen.getByText('2 track sections')).toBeVisible();
       expect(initialiseRouteMap).toHaveBeenLastCalledWith(
         expect.objectContaining({ paths: [firstSegment, secondSegment] })
       );
@@ -188,6 +188,6 @@ describe('RouteMap background notices', () => {
     );
     expect(screen.getByLabelText('Interactive route map')).toBeVisible();
     expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
-    expect(screen.getByText(/Map requests reveal the viewed area to OpenStreetMap/)).toBeVisible();
+    expect(screen.getByText(/OpenStreetMap receives the area you view to load the background map/)).toBeVisible();
   });
 });

@@ -53,9 +53,9 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
   const geometryMessage = waypoint
     ? undefined
     : !hasLine
-      ? 'There are not enough points to draw a line. Each route or track segment needs at least two points; separate segments are not joined.'
+      ? 'There are not enough GPS positions to draw this route. Each separate section needs at least two.'
       : hasShortSegments
-        ? 'Some track segments have fewer than two points and are not shown as lines. The other segments are still displayed.'
+        ? 'Some sections have only one GPS position, so we can’t draw a line for them. The rest of the route is shown.'
         : undefined;
 
   const itemName = track
@@ -72,11 +72,11 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
 
   const itemDescription =
     segment && selectedSegmentIndex !== undefined
-      ? `Track segment ${selectedSegmentIndex + 1} of ${pointOrSegmentCount}`
+      ? `Track section ${selectedSegmentIndex + 1} of ${pointOrSegmentCount}`
       : track
         ? pointOrSegmentCount === 1
-          ? '1 track segment'
-          : `${pointOrSegmentCount} track segments`
+          ? '1 track section'
+          : `${pointOrSegmentCount} track sections`
         : route
           ? pointOrSegmentCount === 1
             ? '1 route point'
@@ -117,7 +117,7 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
             <Alert.Indicator />
             <Alert.Content>
               <Alert.Title>
-                {hasLine ? 'Some segments have no line' : 'No line to display'}
+                {hasLine ? 'Some sections cannot be drawn' : 'No line to display'}
               </Alert.Title>
               <Alert.Description>{geometryMessage}</Alert.Description>
             </Alert.Content>

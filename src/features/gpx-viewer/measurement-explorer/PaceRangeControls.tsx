@@ -59,14 +59,14 @@ export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximu
               {invalid ? (
                 <Field.ErrorText>Enter a number greater than zero. Showing the full range.</Field.ErrorText>
               ) : draft === '' ? (
-                <Field.HelperText>Enter minutes to set the visible maximum.</Field.HelperText>
+                <Field.HelperText>Set the top of the chart. Use decimals: 7.5 means 7:30.</Field.HelperText>
               ) : null}
             </Field.Root>
           ) : null}
         </Grid>
         <Box as='details' mt={2}>
           <Box as='summary' cursor='pointer'>How suggested range works</Box>
-          <Text color='fg.muted' fontSize='xs' mt={1}>Suggested range focuses on the pace over most of your recorded distance. A short, slow section may sit above it. No measurements are removed.</Text>
+          <Text color='fg.muted' fontSize='xs' mt={1}>Suggested range makes the pace for most of your route easier to see. Select an arrow to see a reading above the chart limit.</Text>
         </Box>
       </Box>
       <Box as='details' fontSize='sm' color='fg.muted'>
@@ -79,14 +79,12 @@ export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximu
             A higher number means a slower pace.
           </Text>
           <Text>
-            When you stop or move very slowly, a lot of time can pass while you cover very little
-            distance. Small GPS position changes can register movement even while you stand still.
-            This can produce a very high pace value and a tall spike on the graph.
+            Stopping or moving slowly can create tall spikes because you cover very little distance
+            while time passes. GPS errors can also show small movements when you are standing still.
           </Text>
           <Text>
             Smoothing can soften brief changes, but a longer stop may still produce a large spike.
-            Open Chart options and choose <Text as='strong' fontWeight='semibold'>Custom maximum</Text> to adjust how much of the graph is visible. Values above your
-            maximum stay available through the arrow markers. Choose <Text as='strong' fontWeight='semibold'>Show full range</Text> to show the full
+            Open Chart options and choose <Text as='strong' fontWeight='semibold'>Custom maximum</Text> to adjust how much of the graph is visible. Select an arrow to see a reading above the chart limit. Choose <Text as='strong' fontWeight='semibold'>Show full range</Text> to show the full
             range again. Your measurements and totals stay the same.
           </Text>
         </Stack>
