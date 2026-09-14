@@ -13,7 +13,7 @@ a deployment, approval to merge, or closure of #6/#7.
 | --- | --- |
 | O2 basemap | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Actual-host requests still need verification. |
 | O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
-| O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. No universal file limit or physical-phone performance claim. Physical-device verification remains open. |
+| O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
 | O5 | Local header/CSP implementation and privacy checks below. **Owner contact channel deferred**; final privacy assessment, deployed headers and hosting-side services/logging inventory remain open. |
 | Actual hosts | Production canonical/indexing, path/query-preserving pages.dev redirects, and noindex on both hash and branch previews remain unverified. Local checks cannot close these gates. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
@@ -182,6 +182,68 @@ returns focus to View on map. These checks do not establish full WCAG conformanc
 screen-reader usability or contrast over every possible map image. Physical
 devices and assistive-technology assessment remain explicit limitations.
 
+### Owner-reported physical-device check — 14 September 2026
+
+Device: iPhone 16 Pro Max, using Brave. The owner tested the production export
+from commit `e83067e`, served by the Mac over the same Wi-Fi network using HTTP
+and the generated security headers. Brave repeatedly upgraded the address to
+HTTPS; the owner disabled Shields for the local preview address and confirmed
+that the file chooser then appeared. This is not verification of public HTTPS
+hosting or Brave with its default Shields settings.
+
+The owner confirmed each of these results in the conversation:
+
+| Interaction | Reported result |
+| --- | --- |
+| Open a GPX recording from the iPhone | File loaded; distance summary and chart appeared. |
+| Display the map | Map worked. |
+| Tap a chart point, then close its blue details box | Details closed and the point became unselected. |
+| Change to a different GPX recording | New summary and chart appeared; previous selection was cleared. |
+| Clear the file | Summary, chart and map disappeared; Choose GPX file was available again. |
+
+These are successful owner-reported basic workflow checks on a physical phone,
+not agent-observed screenshots or automated device tests. iOS/Brave versions,
+recording provenance, file sizes, point counts, exact viewport and timings were
+not recorded. No measured large-file performance, VoiceOver, keyboard access,
+failed/cancelled replacement recovery, default-Shields compatibility or broader
+physical-device support is inferred. Contact details remain indefinitely
+deferred and the actual-host and other unresolved release gates remain open.
+
+### Loaded-view rotation follow-up (14 September 2026)
+
+The owner subsequently reported excess page width after portrait → landscape →
+portrait on the loaded chart page in iPhone Brave; the empty chooser was unaffected.
+A synthetic recording with a long track name and a second selectable item reproduced
+hidden document overflow in Playwright WebKit. At a 440px viewport the document
+measured 2317px wide. A long filename alone or a single track without the View
+selector did not reproduce it. Constraining the selector's minimum width had no
+effect; clipping overflow inside the native select restored the document to 440px.
+The fix is confined to that select, preserving its full option labels and focus ring.
+
+`viewportRotation.spec.ts` failed before the fix with 1373px of excess width at
+956px, then passed in all six Chrome/Firefox/WebKit desktop/phone projects. It
+checks resizing through 956×440, 440×956, 1440×900, 1280×720, 390×844 and 375×667,
+preserved route position, and switching from track to waypoint and back. The
+original larger synthetic reproduction also passed in Chrome and mobile-emulated
+WebKit at 375, 390 and 440px, rotating through wider viewports and back.
+
+Whole-page viewport screenshots were inspected in WebKit at 1440×900, 1280×720,
+390×844 and 375×667, at the top of the loaded page with View focused. Its outline,
+arrow and label remained visible; long text stayed within the field. The chart
+and map share the desktop viewport; the short phone viewport requires scrolling
+to reach the bottom of the chart and map button. No copy changed. Automated map
+tiles were blocked for these checks. These automated checks are browser-emulation
+evidence, separate from the physical-device retest below.
+
+`pnpm build`, `pnpm tsc`, `pnpm lint` and `pnpm knip` passed. The local production
+preview was rebuilt and restarted at the existing LAN address for that retest.
+
+The owner then confirmed that the rotation bug was fixed on the iPhone 16 Pro Max
+in Brave after testing the updated local production preview. This records a
+successful owner-reported loaded-view portrait → landscape → portrait retest,
+not an agent-observed device session. It does not extend the coverage to other
+devices, browser versions, hosting environments or measured phone performance.
+
 ### Review and release decision
 
 Local standards/spec self-review covered the changed source, build scripts,
@@ -194,4 +256,5 @@ Reviewers inspected source and recorded evidence rather than rerunning browser
 checks. Typechecking, lint, Knip and all 176 Jest tests passed again before commit.
 The changes implement Stage 1 verification and scoped fixes. Contact details,
 privacy/hosting confirmation and actual-host checks remain open; this work does
-not close #6/#7 or declare a release ready. No files were deployed or pushed.
+not close #6/#7 or declare a release ready. The reviewed branch was subsequently
+pushed as draft PR #21; no public deployment or merge has been performed.
