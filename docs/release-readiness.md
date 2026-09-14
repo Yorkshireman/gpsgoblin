@@ -43,6 +43,55 @@ The Cloudflare application, version/branch previews, public-domain cutover,
 host-side logging/services assessment and remaining release gates are still open.
 Contact details stay indefinitely deferred.
 
+## Initial workers.dev deployment — 14 September 2026
+
+The owner authorised deployment of branch `feat/7-release-verification` at commit
+`5d13b06`. A fresh `pnpm build` and `pnpm knip` passed before `wrangler deploy`.
+The Worker did not previously exist. Cloudflare deployed version
+`9e4935bd-5bbc-417f-8be9-eda26e8302bf` at
+https://gpsgoblin.andrew-stelmach.workers.dev. No custom-domain route was configured
+and gpsgoblin.com was not changed.
+
+The hosted viewer returned HTTPS 200 with the generated CSP, nosniff, frame,
+referrer and permissions policies, and `X-Robots-Tag: noindex`. An unknown path
+returned 404. Eight desktop/mobile Chrome checks passed on the actual default
+workers.dev URL: hydration in both navigation orders, clean-path pages, browser
+CSP enforcement and synthetic import/inspection/replacement/clear with actual
+browser workers. Public map tile requests were blocked, exercising map fallback;
+this does not verify successful live OpenStreetMap tiles. These checks reused
+`hydration.spec.ts` and `releaseSecurity.spec.ts`, excluding the synthetic Host
+header and local asset-scan tests. Local output: `/private/tmp/gpsgoblin-live-tests.log`.
+
+Cloudflare also added NEL/Report-To network-error reporting headers. This is
+hosting-side behaviour, not application telemetry; its privacy assessment remains
+open. Version-specific and branch-alias preview URLs, GitHub build integration,
+custom-domain cutover and default-route disabling remain unverified. This testing
+deployment does not close #7 or establish public-release readiness. Contact details
+remain indefinitely deferred.
+
+### Owner-reported hosted Brave workflow — 14 September 2026
+
+The owner confirmed the following on the deployed workers.dev testing site in
+Brave with Shields enabled, following deployment of commit `5d13b06`:
+
+| Interaction | Reported result |
+| --- | --- |
+| Open the HTTPS testing URL with Shields enabled | Site loaded successfully. |
+| Load a GPX recording | Summary, chart and map background appeared correctly. |
+| Click a chart point | Details appeared and the map marked the corresponding location. |
+| Close the blue details box | Details disappeared and the selected-point marker cleared from the chart and map. |
+| Change GPX file to a different recording | Summary, chart and map updated to the new recording. |
+| Clear file | Summary, chart and map disappeared and the file chooser returned. |
+
+These are owner-reported step-by-step confirmations, separate from the eight
+agent-run hosted browser checks. The live map-background result adds evidence
+beyond automated tile-fallback checks. Device, exact Brave version, viewport,
+recording provenance, file sizes, point counts and timings were not recorded for
+this hosted run. No new iPhone, keyboard, assistive-technology, large-file or
+failure-recovery coverage is inferred. Actual-host checks of version/branch-alias
+previews, GitHub builds, custom-domain cutover and hosting privacy assessment
+remain outstanding. Contact details remain indefinitely deferred; #7 remains open.
+
 ## Security policy and build
 
 `pnpm build` generates the static export and then runs
