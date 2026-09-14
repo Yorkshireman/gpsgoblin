@@ -39,12 +39,10 @@ The GitHub integration has been deployed and verified on workers.dev; see
 | Non-production branch command | `pnpm exec wrangler versions upload` |
 | Build environment | `NODE_VERSION=24.20.0`, `PNPM_VERSION=12.3.4`, `WRANGLER_SEND_METRICS=false` |
 
-The configuration must be committed and pushed to the branch being built first.
-It currently lives on `feat/7-release-verification`; master does not yet contain
-it. That branch is currently the temporary production build branch for the
-workers.dev testing deployment. gpsgoblin.com is now attached; see the cutover evidence in release-readiness.md. Once reviewed work is merged, use master as the
-production build branch and enable non-production branch builds for previews.
-Do not treat the initial workers.dev deployment as public-release approval.
+The configuration is merged to master. Cloudflare uses master as the production
+build branch, with Builds for non-production branches enabled for previews.
+gpsgoblin.com is attached to the production Worker; see the cutover and final
+verification evidence in release-readiness.md.
 
 ## Host and release checks
 
@@ -134,5 +132,6 @@ the first captures the protocol suffix. This dashboard rule is separate from
 the apex custom domain recorded in wrangler.jsonc.
 
 HTTPS certificate validation and a nested-path/query redirect passed against
-Cloudflare's authoritative address. HTTP verification remains outstanding after
-empty responses from this environment. See release-readiness.md for evidence.
+Cloudflare's authoritative address. After the owner enabled Always Use HTTPS,
+plain HTTP apex and www requests also redirected to the canonical HTTPS origin
+while preserving the nested path and query. See release-readiness.md for evidence.

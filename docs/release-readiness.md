@@ -1,14 +1,15 @@
 # Stage 1 release verification — issue #7
 
-Status: **public apex deployed; release follow-up remains open**. The owner
+Status: **Stage 1 release verification complete**. The owner
 connected gpsgoblin.com and confirmed the complete viewer works on their phone.
 Do not request a repeat of that manual check. Contact details are optional for
-launch and indefinitely deferred. The www HTTPS redirect is verified; HTTP verification and the merge/master
-build-branch transition remain outstanding. Earlier entries record historical
+launch and indefinitely deferred. Apex and www HTTP/HTTPS routing are verified,
+and Cloudflare production builds now use master while other branches retain
+preview builds. Earlier entries record historical
 states and are superseded by the cutover evidence below.
 
-This record covers `feat/7-release-verification`, including the work in draft
-PR #20. Neither PR has been merged and #6/#7 remain open.
+This record covers the work merged through PRs #20 and #21. Issue #6 closed with
+PR #21; the final evidence below completes #7.
 
 ## Release gates
 
@@ -18,7 +19,7 @@ PR #20. Neither PR has been merged and #6/#7 remain open.
 | O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
 | O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
 | O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Contact optional and indefinitely deferred**. Public-host hydration/security/privacy checks passed with synthetic activity canaries; see cutover evidence below. |
-| Actual hosts | Public apex HTTPS, root/nested routes, canonical/indexing and privacy checks passed; the default workers.dev URL is disabled and preview noindex remains verified. WWW HTTPS redirects preserve path/query; HTTP remains unverified from this environment. PR merge/master production-branch transition is outstanding. |
+| Actual hosts | Public apex HTTPS, root/nested routes, canonical/indexing and privacy checks passed; the default workers.dev URL is disabled and preview noindex remains verified. Apex and www HTTP redirect to the canonical HTTPS origin while preserving path/query. PRs #20/#21 are merged and production builds use master; non-production branch previews remain enabled. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
 
 ## Workers hosting transition — 14 September 2026
@@ -558,3 +559,19 @@ blockers or later-stage scope creep; one stale current-status gate table was
 identified and reconciled with the cutover evidence. HTTP www verification and
 merge/master transition remain explicit. Reviewers did not rerun tests. Knip and
 diff whitespace checks passed for this documentation follow-up.
+
+### Release completion — 14 September 2026
+
+PR #20 was squash-merged as 935b6a6 and PR #21 as 844168e. Reconciliation of
+#20's squash commit preserved the reviewed #21 tree exactly; typechecking, all
+176 Jest tests and Knip passed before the final merge. The owner then changed
+Cloudflare's production build branch from feat/7-release-verification to master
+and left Builds for non-production branches enabled.
+
+The owner enabled Always Use HTTPS for the zone. Direct HTTP checks against
+Cloudflare's authoritative address then returned redirects for both the apex and
+www nested viewer URL. Both Location headers used https://gpsgoblin.com and
+preserved `/tools/gpx-file-viewer?redirect_check=final`; apex returned 308 and
+www returned 301. The previously verified www HTTPS request also returned 301
+to the same canonical path/query with normal certificate validation. This closes
+the remaining public-routing and production-branch follow-up for #7.
