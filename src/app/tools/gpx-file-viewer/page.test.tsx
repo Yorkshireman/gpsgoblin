@@ -44,6 +44,20 @@ jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
 }));
 
 describe('GPX file viewer', () => {
+  it('dismisses inspected point details and allows a point to be selected again', async () => {
+    const user = userEvent.setup();
+    await user.upload(screen.getByLabelText('GPX file'), createTestFile('singleTrack'));
+    const position = await screen.findByRole('slider', { name: 'Position on route' });
+    await user.click(screen.getByRole('button', { name: 'Start of route' }));
+    const details = screen.getByLabelText('Selected measurement');
+    await user.click(within(details).getByRole('button', { name: 'Close point details' }));
+    expect(screen.queryByLabelText('Selected measurement')).not.toBeInTheDocument();
+    expect(position).toHaveAttribute('aria-valuetext', 'No point selected');
+    expect(screen.getByRole('region', { name: 'Measurement chart' })).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: 'Start of route' }));
+    expect(screen.getByLabelText('Selected measurement')).toBeVisible();
+  });
+
   it('lets users cancel a pending replacement while keeping their loaded file', async () => {
     const user = userEvent.setup();
     await user.upload(screen.getByLabelText('GPX file'), createTestFile('singleTrack'));
@@ -197,7 +211,7 @@ describe('GPX file viewer', () => {
 
       await user.upload(screen.getByLabelText('GPX file'), file);
 
-      expect(screen.getByText('route.gpx')).toBeVisible();
+      expect(await screen.findByText('route.gpx')).toBeVisible();
     });
 
     it('clears the opened track and filename', async () => {
@@ -305,7 +319,7 @@ describe('GPX file viewer', () => {
       const selector = await screen.findByRole('combobox', {
         name: 'View'
       });
-      const map = screen.getByRole('region', { name: 'Route map' });
+      const map = await screen.findByRole('region', { name: 'Route map' });
       await user.click(within(map).getByText('Route description', { exact: true }));
       expect(within(map).getByText('<em>Recorded walk notes</em>')).toBeVisible();
       expect(map.querySelector('em')).toBeNull();

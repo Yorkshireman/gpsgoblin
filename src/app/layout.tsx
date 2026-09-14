@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { Provider } from '@/components/ui/provider';
+import { SiteFooter } from '@/components/SiteFooter';
+import { publicOrigin } from './siteMetadata';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(publicOrigin),
   title: 'GPSGoblin',
   referrer: 'strict-origin-when-cross-origin',
   description:
@@ -12,7 +15,7 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
     <html lang='en' suppressHydrationWarning>
       <body>
-        <Provider>{children}</Provider>
+        <Provider>{children}<SiteFooter /></Provider>
       </body>
     </html>
   );

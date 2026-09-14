@@ -1,14 +1,20 @@
 'use client';
 
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
+import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 
 type ProviderProps = {
   children: ReactNode;
 };
 
-export function Provider({ children }: ProviderProps) {
+export const Provider = ({ children }: ProviderProps) => {
+  // Chakra caches CSS property order. A shared server system can inherit the
+  // order from another request and generate a different hash during hydration.
+  const [system] = useState(() => {
+    return createSystem(defaultConfig);
+  });
   return (
     <NextThemesProvider
       attribute='class'
@@ -16,7 +22,7 @@ export function Provider({ children }: ProviderProps) {
       disableTransitionOnChange
       enableSystem
     >
-      <ChakraProvider value={defaultSystem}>{children}</ChakraProvider>
+      <ChakraProvider value={system}>{children}</ChakraProvider>
     </NextThemesProvider>
   );
-}
+};
