@@ -18,7 +18,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.goto('/tools/gpx-file-viewer.html');
     await page.getByLabel('GPX file', { exact: true }).setInputFiles({ name: 'moving-example.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(recording()) });
     await expect(page.getByRole('heading', { name: 'Speed', exact: true })).toBeVisible();
-    await expect(page.getByText('Includes stops')).toBeVisible();
+    await expect(page.getByText('Includes stops', { exact: true })).toBeVisible();
     await expect(page.getByText('Calculated distance', { exact: true })).toBeInViewport();
     await expect(page.getByText('Duration', { exact: true })).toBeInViewport();
     await page.screenshot({ path: testInfo.outputPath('loaded.png') });
@@ -26,24 +26,24 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     if (viewport.width < 600) await marker.tap();
     else { await marker.focus(); await page.keyboard.press('Enter'); }
     const selected = page.getByRole('region', { name: 'Selected possible stop' });
-    await expect(selected).toContainText('climbing cannot be ruled out');
-    await expect(selected).toContainText('Included');
-    const confirmation = page.getByRole('checkbox', { name: 'I confirm this was a stop; exclude it' });
-    if (viewport.width < 600) await page.getByText('I confirm this was a stop; exclude it', { exact: true }).tap();
+    await expect(selected).toContainText('climbing can look like a stop');
+    await expect(selected).toContainText('Included in speed and pace');
+    const confirmation = page.getByRole('checkbox', { name: 'I stopped here — leave this time out' });
+    if (viewport.width < 600) await page.getByText('I stopped here — leave this time out', { exact: true }).tap();
     else { await confirmation.focus(); await page.keyboard.press('Space'); }
     await expect(confirmation).toBeChecked();
     await expect(page.getByRole('heading', { name: 'Moving speed', exact: true })).toBeVisible();
-    await expect(selected).toContainText('Excluded');
-    await expect(page.getByLabel('Active calculation')).toContainText('Unknown recording gaps: 10 min');
-    await expect(page.getByLabel('Active calculation')).toContainText('Incomplete coverage');
+    await expect(selected).toContainText('Left out of speed and pace');
+    await expect(page.getByLabel('Active calculation')).toContainText('Recording gaps: 10 min left out');
+    await expect(page.getByLabel('Active calculation')).toContainText("Their time and distance don't count towards the average");
     await expect(page.getByRole('dialog').locator('.measurement-selection-area')).toBeInViewport({ ratio: 1 });
     await expect(page.getByRole('dialog').getByText('Distance (km)', { exact: true })).toBeInViewport({ ratio: 1 });
-    await expect(page.getByText('I confirm this was a stop; exclude it', { exact: true })).toBeInViewport({ ratio: 1 });
+    await expect(page.getByText('I stopped here — leave this time out', { exact: true })).toBeInViewport({ ratio: 1 });
     await page.screenshot({ path: testInfo.outputPath('excluded.png') });
-    await page.getByRole('button', { name: 'Clear stop', exact: true }).click();
+    await page.getByRole('button', { name: 'Back to chart', exact: true }).click();
     await expect(marker).toBeFocused();
     await page.getByText('Chart options', { exact: true }).click();
-    await page.getByRole('combobox', { name: 'Horizontal axis' }).selectOption('time');
+    await page.getByRole('combobox', { name: 'Show by' }).selectOption('time');
     await expect(page.getByText('Estimated moving time (min)', { exact: true })).toBeVisible();
     await page.getByText('Chart options', { exact: true }).click();
     await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
@@ -55,7 +55,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.getByText('Chart options', { exact: true }).click();
     await expect(page.getByRole('button', { name: /Above range:/ }).first()).toBeVisible();
     await page.getByRole('button', { name: /Above range:/ }).first().click();
-    await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('Above visible maximum');
+    await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('Above the chart limit');
     await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
     await expect(page.getByText('Estimated moving time (min)', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Show full range', exact: true }).click();
@@ -65,14 +65,14 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await expect(page.getByText('Elapsed time (min)', { exact: true })).toBeVisible();
     await page.getByText('Review possible stops (1)', { exact: true }).click();
     await page.getByLabel('Inspect possible stop', { exact: true }).selectOption({ index: 1 });
-    await page.getByText('I confirm this was a stop; exclude it', { exact: true }).click();
+    await page.getByText('I stopped here — leave this time out', { exact: true }).click();
     await expect(confirmation).not.toBeChecked();
-    await expect(selected).toContainText('Included');
-    await page.getByRole('button', { name: 'Clear stop', exact: true }).click();
+    await expect(selected).toContainText('Included in speed and pace');
+    await page.getByRole('button', { name: 'Back to chart', exact: true }).click();
     await page.getByText('Chart options', { exact: true }).click();
-    await page.getByRole('combobox', { name: 'Stop calculation' }).selectOption('exclude');
-    await expect(page.getByLabel('Active calculation')).toContainText('confirmed stops excluded: 0 s');
-    await page.getByRole('combobox', { name: 'Horizontal axis' }).selectOption('distance');
+    await page.getByRole('combobox', { name: 'Stops' }).selectOption('exclude');
+    await expect(page.getByLabel('Active calculation')).toContainText('stops left out: 0 s');
+    await page.getByRole('combobox', { name: 'Show by' }).selectOption('distance');
     await page.getByText('Chart options', { exact: true }).click();
     await expect(page.getByText('Distance (mi)', { exact: true })).toBeVisible();
     expect(await page.evaluate(() => { return document.documentElement.scrollWidth <= window.innerWidth; })).toBe(true);
@@ -88,11 +88,10 @@ test('sparse observations disclose unavailable stop assessment beside the filter
   await page.getByLabel('GPX file', { exact: true }).setInputFiles({ name: 'sparse.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(`<gpx version="1.1"><trk><trkseg>${points}</trkseg></trk></gpx>`) });
   await page.getByText('Chart options', { exact: true }).click();
   await page.getByText('Review possible stops (0)', { exact: true }).click();
-  await expect(page.getByText('No possible stops found. This does not prove continuous movement.', { exact: true })).toBeVisible();
-  await expect(page.getByText(/Dense observation coverage: 0 s/)).toBeVisible();
-  await page.getByLabel('Stop calculation', { exact: true }).selectOption('exclude');
+  await expect(page.getByText('Your position was not recorded often enough, or the times cannot be used. We cannot check for stops.', { exact: true })).toBeVisible();
+  await page.getByLabel('Stops', { exact: true }).selectOption('exclude');
   await page.getByText('Chart options', { exact: true }).click();
-  await expect(page.getByLabel('Active calculation')).toContainText('Stop-analysis coverage: 0 s; other intervals unclassified');
+  await expect(page.getByLabel('Active calculation')).toContainText('We cannot check for stops');
 });
 
 test('permissioned summit stop and dialog navigation preserve totals, source access and return focus', async ({ page }, testInfo) => {
@@ -107,8 +106,8 @@ test('permissioned summit stop and dialog navigation preserve totals, source acc
   await selector.selectOption({ index: 3 });
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('region', { name: 'Selected possible stop' })).toContainText('10 min 38 s');
-  await dialog.getByText('I confirm this was a stop; exclude it', { exact: true }).click();
-  await expect(page.getByLabel('Active calculation')).toContainText('confirmed stops excluded: 10 min 38 s');
+  await dialog.getByText('I stopped here — leave this time out', { exact: true }).click();
+  await expect(page.getByLabel('Active calculation')).toContainText('stops left out: 10 min 38 s');
   await page.screenshot({ path: testInfo.outputPath('private-summit-excluded.png') });
   // Another marker inside the modal must not replace the outside return target.
   const next = dialog.getByRole('button', { name: /Possible stop|nearby stop/ }).last();

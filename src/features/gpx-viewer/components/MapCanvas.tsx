@@ -47,7 +47,7 @@ export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvas
 
   const failure =
     status === 'unsupported'
-      ? 'This browser cannot display the map. Try another browser or enable graphics acceleration.'
+      ? 'This browser cannot display the map. Try updating your browser or using a different one.'
       : status === 'failed'
         ? 'The map could not be displayed. You can clear and reopen the file to try again.'
         : undefined;
@@ -91,7 +91,7 @@ export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvas
         </Text>
       ) : null}
       <Text fontSize='xs' color='fg.muted'>
-        Your file stays on your device. Map requests reveal the viewed area to OpenStreetMap.{' '}
+        Your file stays on your device. OpenStreetMap receives the area you view to load the background map.{' '}
         <Link href='https://osmfoundation.org/wiki/Privacy_Policy'>Map privacy</Link>
       </Text>
     </Stack>

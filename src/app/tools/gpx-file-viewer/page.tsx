@@ -5,14 +5,14 @@ import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
 export const metadata: Metadata = {
   title: 'GPX File Viewer — GPSGoblin',
   description:
-    'Inspect GPX routes, elevation and available timing, with chart-to-map selection and metric or imperial units. Your file stays on your device.',
+    'View your GPX route, elevation, speed and pace. Select a point on the chart to find it on the map. Your file stays on your device.',
   alternates: {
     canonical: 'https://gpsgoblin.com/tools/gpx-file-viewer'
   },
   openGraph: {
     title: 'GPX File Viewer — GPSGoblin',
     description:
-      'Inspect GPX routes, elevation and available timing, with chart-to-map selection and metric or imperial units. Your file stays on your device.',
+      'View your GPX route, elevation, speed and pace. Select a point on the chart to find it on the map. Your file stays on your device.',
     siteName: 'GPSGoblin',
     url: 'https://gpsgoblin.com/tools/gpx-file-viewer',
     type: 'website'
@@ -31,14 +31,12 @@ const GpxFileViewerPage = () => {
         <Box as='section' aria-labelledby='viewer-details-heading'>
           <Stack gap={3} maxW='prose'>
             <Heading as='h2' id='viewer-details-heading' size='2xl'>
-              What the viewer will show
+              What you can see
             </Heading>
             <Text color='fg.muted'>
-              Supported GPX tracks will be displayed without joining separate track segments.
-              Distance will be calculated from usable route geometry and clearly labelled with its
-              calculation basis. Elevation and interval speed or pace appear only where supported by
-              the data. Inspect a chart point on the map and choose metric or imperial display
-              units.
+              See your route on a map, check its distance and explore elevation, speed and pace
+              when your file contains the readings needed. Select a point on a chart to find it on
+              the map. Choose kilometres or miles under Display units. Your original file stays unchanged.
             </Text>
           </Stack>
         </Box>

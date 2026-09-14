@@ -90,8 +90,8 @@ describe('prepared measurements', () => {
       intervalCount: 2,
       timedIntervalCount: 1,
       warnings: [
-        '1 point(s): backwards timestamp. Affected intervals are excluded from speed calculations.',
-        '1 point(s): invalid elevation. These values are unavailable in elevation results.'
+        '1 GPS reading had times in the wrong order. Speed and pace cannot be calculated around these readings.',
+        '1 GPS reading had unreadable heights. These are left out of the elevation chart.'
       ]
     });
     expect(selected.summary.distanceMetres).toBeCloseTo(222.39016, 5);

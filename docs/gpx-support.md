@@ -296,7 +296,7 @@ the selected metric/imperial units.
 
 ## Optional confirmed-stop view (issue #13)
 
-Include stops is the default. Under Chart options, choose Exclude detected stops
+Include stops is the default. Under Chart options, choose Exclude chosen stops
 and independently choose Distance or Time. Spatially confined intervals are only
 possible stops: GPS drift, slow progress and climbing can look alike. Review each
 candidate through its Stop? chart marker or the accessible interval selector and
@@ -306,8 +306,7 @@ the complete calculation; original samples, file contents and totals never chang
 
 Candidate analysis requires at least 60 seconds within a 10 m spatial extent and
 observations no more than 10 seconds apart. Sparse or unusable timing is insufficient
-evidence, not proof of movement. Detection coverage is disclosed even when there
-are no candidates. Planned routes are ineligible. See the
+evidence, not proof of movement. When no stops can be found, the viewer explains the limitation in plain language. Detector thresholds and coverage counts stay in this technical guide. Planned routes are ineligible. See the
 [agreed policy, evidence and limitations](stop-detection-policy.md#agreed-viewer-implementation).
 
 The filtered time axis and average use eligible recorded intervals, removing

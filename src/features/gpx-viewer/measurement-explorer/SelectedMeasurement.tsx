@@ -36,13 +36,13 @@ export const SelectedMeasurement = ({
       rounded='l3' bg='blue.subtle' color='blue.fg' fontSize='sm'>
       <Flex align='center' justify='space-between' gap={2} minH='36px'>
         <Text fontWeight='semibold'>Recording gap at {formatMeasurement(selected.distanceMetres / labels.metresPerDistance, labels.distance)}</Text>
-        <IconButton aria-label='Clear gap' title='Clear gap' variant='ghost' colorPalette='blue' size='sm' minW='44px' minH='44px' my={-1} onClick={onClear}>
+        <IconButton aria-label='Close gap details' title='Close gap details' variant='ghost' colorPalette='blue' size='sm' minW='44px' minH='44px' my={-1} onClick={onClear}>
           <svg aria-hidden='true' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' strokeWidth='1.5'><path d='m4 4 8 8M12 4l-8 8' /></svg>
         </IconButton>
       </Flex>
-      <Text>No recorded points for {formatDuration(selected.recordingGap.seconds)}; endpoints{' '}
+      <Text>No GPS readings for {formatDuration(selected.recordingGap.seconds)}. The last and next positions are{' '}
         {formatMeasurement(selected.recordingGap.distanceMetres / (labels.elevation === 'ft' ? 0.3048 : 1), labels.elevation)} apart.</Text>
-      <Text fontSize='xs'>Movement unknown; map at recorded endpoint.</Text>
+      <Text fontSize='xs'>We can’t tell how you moved during this gap. The map shows where recording resumed.</Text>
     </Stack>;
   }
   return (
@@ -99,15 +99,15 @@ export const SelectedMeasurement = ({
               </Box>
             </Grid>
             {axisMaximum !== undefined && selectedMotion !== null && selectedMotion > axisMaximum ? (
-              <Text fontSize='xs'>Above visible maximum ({formatChartMeasurement(axisMaximum, motionUnit)}).</Text>
+              <Text fontSize='xs'>Above the chart limit ({formatChartMeasurement(axisMaximum, motionUnit)}).</Text>
             ) : null}
             <Text fontSize='xs'>
               Recorded time: <span>{formatRecordedTime(selected.sample.sourceTime)}</span>
             </Text>
-            {selected.timeIssue ? <Text fontSize='xs'>{selected.timeIssue}</Text> : null}
+            {selected.timeIssue ? <Text fontSize='xs'>This GPS reading has no reliable time, so speed and pace cannot be calculated here.</Text> : null}
             <Box as='details' fontSize='xs'>
               <Box as='summary' cursor='pointer' fontWeight='medium'>
-                Source details
+                GPS details
               </Box>
               <Stack gap={1} pt={2}>
                 <Text>

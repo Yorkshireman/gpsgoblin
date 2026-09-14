@@ -107,7 +107,7 @@ export const GpxFilePicker = () => {
     setFilename(undefined);
     setSelectedItem(undefined);
     setError(undefined);
-    setNotice('Workspace cleared.');
+    setNotice('File closed.');
     return;
   };
 
@@ -155,14 +155,14 @@ export const GpxFilePicker = () => {
             Open a GPX file
           </Heading>
           <Text>
-            Inspect routes, elevation and available timing. Your file stays on your device; this
+            See your route, elevation, speed and pace. Your file stays on your device; this
             tool does not upload it.
           </Text>
           <Text color='fg.muted' fontSize='sm'>
             {GPX_IMPORT_DESCRIPTION}
           </Text>
           <Text color='fg.muted' fontSize='sm'>
-            Refreshing or clearing the workspace loses your work.
+            Refreshing this page closes the file and resets your choices.
           </Text>
         </Stack>
       ) : null}
@@ -187,10 +187,7 @@ export const GpxFilePicker = () => {
           <Alert.Content>
             <Alert.Title>Unable to open GPX file</Alert.Title>
             <Alert.Description>{error}</Alert.Description>
-            <Text fontSize='sm'>
-              {document ? 'Your previous file is still open. ' : ''}
-              Choose another GPX 1.1 file or export it again from the source app.
-            </Text>
+            {document ? <Text fontSize='sm'>Your previous file is still open.</Text> : null}
           </Alert.Content>
         </Alert.Root>
       ) : null}

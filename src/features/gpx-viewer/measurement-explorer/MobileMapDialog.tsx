@@ -20,7 +20,7 @@ export const MobileMapDialog = ({ mapView, selected }: MobileMapDialogProps) => 
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Dialog.Title>Selected location</Dialog.Title>
+              <Dialog.Title>{selected ? 'Selected location' : 'Route map'}</Dialog.Title>
             </Dialog.Header>
             <Dialog.Body>
               {mapView}

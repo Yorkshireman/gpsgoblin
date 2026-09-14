@@ -10,7 +10,7 @@ import { RecordingGapControl } from './RecordingGapControl';
 import { CalculationBasis } from './CalculationBasis';
 import { StopDialog } from './StopDialog';
 import { StopOptions } from './StopOptions';
-import { StopReview, SelectedStop } from './StopReview';
+import { StopReview, SelectedStop, StopSearchResult } from './StopReview';
 import { SelectedMeasurement } from './SelectedMeasurement';
 import { MeasurementSummary } from './MeasurementSummary';
 import { MobileMapDialog } from './MobileMapDialog';
@@ -74,8 +74,8 @@ export const MeasurementExplorer = ({
   };
   if (!prepared.snapshot) {
     return <Stack gap={2} role='status'>
-      <Text>{prepared.error ?? 'Preparing measurements…'}</Text>
-      {prepared.error ? <Button onClick={prepared.retry} alignSelf='start'>Retry measurements</Button> : null}
+      <Text>{prepared.error ?? 'Preparing your charts…'}</Text>
+      {prepared.error ? <Button onClick={prepared.retry} alignSelf='start'>Try again</Button> : null}
     </Stack>;
   }
   const { analysis, data, hasMotion, hasElevation, basis } = prepared.snapshot;
@@ -125,9 +125,10 @@ export const MeasurementExplorer = ({
 
   const activeBasis = <Stack gap={1} fontSize='xs' aria-label='Active calculation'>
             <CalculationBasis mode={motion} excludedSeconds={basis.excludedSeconds} onInclude={() => { setStopMode('include'); }} />
-            <Text>{basis.partialCoverage ? 'Incomplete coverage: estimate over recorded intervals only.' : 'Estimate over recorded intervals.'} Unconfirmed intervals stay included.</Text>
-            {!analysis.stops.candidates.length ? <Text>No possible stops found. Stop-analysis coverage: {formatDuration(analysis.stops.eligibleSeconds)}; other intervals unclassified.</Text> : null}
-            {basis.gapSeconds > 0 ? <Text>Unknown recording gaps: {formatDuration(basis.gapSeconds)} (distance and time excluded separately).</Text> : null}
+            {analysis.stops.candidates.length > 0 && !selectedStop ? <Text>A stop is left out only when you tick its box.</Text> : null}
+            {basis.partialCoverage ? <Text>Some of the trip is missing from this average.</Text> : null}
+            {!analysis.stops.candidates.length ? <StopSearchResult evidence={analysis.stops} /> : null}
+            {basis.gapSeconds > 0 ? <Text>Recording gaps: {formatDuration(basis.gapSeconds)} left out. Their time and distance don&apos;t count towards the average.</Text> : null}
           </Stack>;
   const motionChart = <MeasurementChart
                     data={plotData}
@@ -178,7 +179,7 @@ export const MeasurementExplorer = ({
           {prepared.error ? (
             <Text role='status' fontSize='xs'>{prepared.error}</Text>
           ) : null}
-          {prepared.error ? <Button size='sm' onClick={prepared.retry}>Retry measurements</Button> : null}
+          {prepared.error ? <Button size='sm' onClick={prepared.retry}>Try again</Button> : null}
           {!selectedStop && chart !== 'elevation' && isMoving ? activeBasis : null}
           {activeChart === 'pace' && hasTimedMotion ? (
             <PaceRangeControls mode={paceRange} onModeChange={mode => {
@@ -207,7 +208,7 @@ export const MeasurementExplorer = ({
               setConfirmedStopIds(ids => { return confirmed ? [...ids.filter(id => { return id !== selectedStop.id; }), selectedStop.id] : ids.filter(id => { return id !== selectedStop.id; }); });
               if (confirmed) setStopMode('exclude');
             }} />
-            {prepared.error ? <Text role='status' fontSize='xs'>{prepared.error}<Button size='xs' onClick={prepared.retry}>Retry measurements</Button></Text> : null}
+            {prepared.error ? <Text role='status' fontSize='xs'>{prepared.error}<Button size='xs' onClick={prepared.retry}>Try again</Button></Text> : null}
             {isMoving ? activeBasis : null}
             {motionChart}
           </StopDialog> : selected ? <SelectedMeasurement
@@ -251,8 +252,8 @@ export const MeasurementExplorer = ({
                 </Stack>
               ) : (
                 <Text>
-                  {isMoving ? 'No eligible moving measurements remain. Include stops or restore an interval.' : motion === 'pace' && analysis.timedIntervalCount
-                    ? 'Pace is unavailable while stopped.'
+                  {isMoving ? 'Nothing is left to show with these stops excluded. Choose Include stops to see the chart again.' : motion === 'pace' && analysis.timedIntervalCount
+                    ? "Pace can’t be calculated when no distance is covered."
                     : "Speed and pace need recorded times. This section doesn't have enough usable times."}
                 </Text>
               )}
@@ -278,14 +279,10 @@ export const MeasurementExplorer = ({
       {!hasElevation ? <Text fontSize='sm'>No elevation measurements available.</Text> : null}
       {hasElevation || hasMotion ? (
         <Text aria-label={!selected ? 'Chart selection tip' : undefined} fontSize='sm' color='fg.muted'>
-          Select a point on the chart to see its location on the map. Gaps show where measurements
-          are missing.
+          Select a point on the chart to see its location on the map. Breaks in the line show missing readings or stops you chose to leave out.
         </Text>
       ) : null}
-      <SpeedExplanation
-        timedIntervalCount={analysis.timedIntervalCount}
-        intervalCount={analysis.intervalCount}
-      />
+      <SpeedExplanation moving={isMoving} />
     </Stack>
   );
 };

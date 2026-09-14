@@ -20,7 +20,7 @@ test('dense recordings keep elevation visible without a dot on every measurement
     )
   });
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
-  const elevation = page.getByRole('heading', { name: 'Elevation profile' }).locator('../..');
+  const elevation = page.getByRole('region', { name: 'Measurement chart', exact: true });
   await expect(elevation.locator('.recharts-line-curve')).toBeVisible();
   await elevation.scrollIntoViewIfNeeded();
   await elevation.screenshot({
@@ -52,7 +52,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles(filename);
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
-  const elevation = page.getByRole('heading', { name: 'Elevation profile' }).locator('../..');
+  const elevation = page.getByRole('region', { name: 'Measurement chart', exact: true });
   await expect(elevation.locator('.recharts-line-curve')).toBeVisible();
   expect(await elevation.locator('circle').count()).toBeLessThanOrEqual(1);
 
@@ -61,7 +61,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
     path: testInfo.outputPath('local-elevation.png')
   });
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('speed');
-  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('../..');
+  const speed = page.getByRole('region', { name: 'Measurement chart', exact: true });
   const elevationToggle = speed.getByRole('checkbox', { name: 'Show elevation' });
   await expect(elevationToggle).not.toBeChecked();
   await expect(speed.locator('.elevation-background')).toHaveCount(0);
@@ -102,7 +102,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   await expect(smoothing).toHaveAttribute('aria-valuetext', '9 minutes 30 seconds');
   await smoothing.press('End');
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
-  const pace = page.getByRole('heading', { name: 'Pace', exact: true }).locator('../..');
+  const pace = page.getByRole('region', { name: 'Measurement chart', exact: true });
   await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('0:00');
   await pace.screenshot({ path: testInfo.outputPath('local-pace.png') });
   const unitBounds = await pace.getByText('min/km', { exact: true }).boundingBox();
@@ -114,7 +114,7 @@ test('optional local recording verification', async ({ page }, testInfo) => {
     true
   );
   await smoothing.press('Home');
-  await expect(page.getByRole('button', { name: /pace range/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Show full range', exact: true }).click();
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
   const area = elevation.locator('.measurement-selection-area');
   const bounds = await area.boundingBox();
@@ -145,7 +145,7 @@ test('pace plots actual values above 30 with explicit minutes per distance', asy
     buffer: Buffer.from(`<gpx version="1.1"><trk><trkseg>${points}</trkseg></trk></gpx>`)
   });
   await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
-  await expect(page.getByRole('button', { name: /pace range/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Show full range', exact: true }).click();
   await expect(page.getByText(/Paces slower than/)).toHaveCount(0);
   const smoothing = page.getByRole('slider', { name: 'Smoothing' });
   await smoothing.press('Home');

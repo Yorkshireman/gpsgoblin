@@ -75,7 +75,7 @@ describe('parseGpx', () => {
 
       expect(result).toEqual({
         ok: false,
-        error: `A ${kind} is missing its coordinates.`
+        error: `A ${kind} is missing its map location. Download a new copy and try again.`
       });
     });
   });
@@ -154,7 +154,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'The file contains malformed XML.'
+      error: 'The file is damaged or incomplete. Download a new copy and try again.'
     });
   });
 
@@ -163,7 +163,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'The file is not a GPX document.'
+      error: 'This is not a GPX file. Choose a file exported in GPX format.'
     });
   });
 
@@ -214,7 +214,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point is missing its coordinates.'
+      error: 'A track point is missing its map location. Download a new copy and try again.'
     });
   });
 
@@ -235,7 +235,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point contains invalid coordinates.'
+      error: 'A track point has a map location that cannot be read. Download a new copy and try again.'
     });
   });
 
@@ -256,7 +256,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point contains invalid coordinates.'
+      error: 'A track point has a map location that cannot be read. Download a new copy and try again.'
     });
   });
 
@@ -271,7 +271,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'Only GPX 1.1 files are currently supported.'
+      error: 'This viewer needs GPX version 1.1. Try exporting your file in that version.'
     });
   });
 
@@ -287,7 +287,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'GPX files containing a DOCTYPE declaration are not supported.'
+      error: 'This GPX file uses an unsupported format. Download a new GPX copy from the app that created it.'
     });
   });
 
@@ -335,7 +335,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point contains an invalid elevation.'
+      error: 'A track point has a height reading that cannot be read. Download a new copy and try again.'
     });
   });
 
@@ -434,7 +434,7 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A waypoint is missing its coordinates.'
+      error: 'A waypoint is missing its map location. Download a new copy and try again.'
     });
   });
 
@@ -452,7 +452,7 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A waypoint contains invalid coordinates.',
+      error: 'A waypoint has a map location that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -472,7 +472,7 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A waypoint contains an invalid elevation.',
+      error: 'A waypoint has a height reading that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -545,7 +545,7 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A route point is missing its coordinates.',
+      error: 'A route point is missing its map location. Download a new copy and try again.',
       ok: false
     });
   });
@@ -565,7 +565,7 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A route point contains invalid coordinates.',
+      error: 'A route point has a map location that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -587,7 +587,7 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A route point contains an invalid elevation.',
+      error: 'A route point has a height reading that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -667,5 +667,5 @@ it('preserves large point collections across tracks, routes and waypoints', () =
 
 it('rejects a route with no geographic points as missing data', () => {
   const result = parseGpx('<gpx version="1.1"><rte><name>Empty route</name></rte></gpx>');
-  expect(result).toEqual({ ok: false, error: 'This GPX file does not contain any geographic points to display.' });
+  expect(result).toEqual({ ok: false, error: 'This GPX file does not contain any map locations to display. Choose another file.' });
 });

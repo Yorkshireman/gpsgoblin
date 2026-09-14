@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'GPSGoblin',
   referrer: 'strict-origin-when-cross-origin',
   description:
-    'Open GPX files locally to inspect routes, elevation and available timing with metric or imperial units.'
+    'View your GPX route, elevation, speed and pace. Your file stays on your device.'
 };
 
 const RootLayout = ({ children }: LayoutProps<'/'>) => {

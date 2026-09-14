@@ -29,7 +29,7 @@ it('reads the sanitised bikerouter exporter fixture while preserving its source 
 });
 
 it('explicitly rejects the sanitised GPSBabel GPX 1.0 recording fixture', () => {
-  expect(parseGpx(readFileSync('tests/fixtures/gpx/gpsbabel-gpx10.gpx', 'utf8'))).toEqual({ ok: false, error: 'Only GPX 1.1 files are currently supported.' });
+  expect(parseGpx(readFileSync('tests/fixtures/gpx/gpsbabel-gpx10.gpx', 'utf8'))).toEqual({ ok: false, error: 'This viewer needs GPX version 1.1. Try exporting your file in that version.' });
 });
 
 it.each([
@@ -47,7 +47,7 @@ it.each(['a & b', '\u0000', '&#0;', '&#xD800;', '<![CDATA[bad\u0000]]>'])('rejec
   const result = parseGpx(`<gpx version="1.1"><wpt lat="0" lon="0"><name>${value}</name></wpt></gpx>`);
   expect(result.ok).toBe(false);
   if (result.ok) throw new Error('Expected malformed XML to be rejected');
-  expect(result.error).toBe('The file contains malformed XML.');
+  expect(result.error).toBe('The file is damaged or incomplete. Download a new copy and try again.');
 });
 
 it('imports every point in the permissioned, sanitised Strava recording', () => {
@@ -98,7 +98,7 @@ it('preserves supported fields and segment boundaries around deep, repeated exte
 
 it('validates XML in ignored extensions and after supported geographic content', () => {
   const contents = `<gpx version="1.1"><wpt lat="0" lon="0"/><extensions>${'<entry/>'.repeat(10000)}<entry>&undefined;</entry></extensions></gpx>`;
-  expect(parseGpx(contents)).toEqual({ ok: false, error: 'The file contains malformed XML.' });
+  expect(parseGpx(contents)).toEqual({ ok: false, error: 'The file is damaged or incomplete. Download a new copy and try again.' });
 });
 
 it('keeps the first optional field even when it is empty and preserves XML text normalization', () => {
@@ -113,5 +113,5 @@ it('keeps the first optional field even when it is empty and preserves XML text 
 
 it('reports missing coordinates before invalid values independently of source order', () => {
   const contents = '<gpx version="1.1"><wpt lat="0"/><trk><trkseg><trkpt lat="0"/></trkseg></trk><rte><rtept lat="invalid" lon="0"/><rtept lat="0" lon="0"><ele>invalid</ele></rtept><rtept lat="0"/></rte></gpx>';
-  expect(parseGpx(contents)).toEqual({ ok: false, error: 'A route point is missing its coordinates.' });
+  expect(parseGpx(contents)).toEqual({ ok: false, error: 'A route point is missing its map location. Download a new copy and try again.' });
 });

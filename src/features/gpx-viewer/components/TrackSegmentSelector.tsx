@@ -19,7 +19,7 @@ export const TrackSegmentSelector = ({
 
   return (
     <Field.Root>
-      <Field.Label>Track segment</Field.Label>
+      <Field.Label>Track section</Field.Label>
       <NativeSelect.Root>
         <NativeSelect.Field
           value={selectedSegmentId ?? ''}
@@ -27,11 +27,11 @@ export const TrackSegmentSelector = ({
             onSegmentChange(event.currentTarget.value || undefined);
           }}
         >
-          <option value=''>All segments</option>
+          <option value=''>Whole track</option>
           {track.segments.map((segment, index) => {
             return (
               <option key={segment.id} value={segment.id}>
-                Segment {index + 1}
+                Section {index + 1}
               </option>
             );
           })}
@@ -39,7 +39,7 @@ export const TrackSegmentSelector = ({
         <NativeSelect.Indicator />
       </NativeSelect.Root>
       <Field.HelperText>
-        Inspect one segment or the whole track. Gaps between segments are not included in distance.
+        The file splits this track into sections. Distance does not include the gaps between them.
       </Field.HelperText>
     </Field.Root>
   );

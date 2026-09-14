@@ -1,0 +1,26 @@
+# Plain-language copy review — #16
+
+Reviewed the application copy on 14 September 2026 against the owner's requirement that an average person can understand it and that every message must be useful. This is an editorial and browser review, not a comprehension study with users. The continuing requirements live in [the UX workflow](agents/ux.md#review-the-words-as-well-as-the-layout) and product specification section 4.1.
+
+## Surfaces reviewed
+
+| Surface | Result |
+| --- | --- |
+| Home and viewer introduction, page metadata | Replaced the placeholder greeting with the viewer's purpose and a link. Replaced geometry, calculation-basis and chart-to-map jargon with what the person can see and do. |
+| File picker, loading, cancellation, clearing and import failures | Retained clear file controls and local-file privacy statement. Explained that refreshing closes the file and resets choices. Removed worker/XML/DOCTYPE terminology from errors and repeated recovery advice; preserved format distinctions and the previous-file notice. |
+| Summary, file details, tracks, routes and waypoints | Kept useful distance/duration labels, source metadata and missing-measurement explanations. Renamed track segments to sections and the item selector to View. User-supplied names and descriptions are unchanged. |
+| Stop options, empty results and review | Replaced coverage counts and detector thresholds with an explanation of what can be found and what to do. Stops are chosen explicitly. Back to chart closes the review; the checkbox leaves a stop out. A short warning explains that slow movement or climbing can resemble a stop. |
+| Moving calculation and gaps | Separate durations identify stop time and recording gaps left out. Plain-language text explains partial averages, missing readings and the time/distance excluded across gaps. Kept this explanation visible with options closed. |
+| Chart choices, pace ranges, smoothing, selected readings and tooltips | Kept familiar chart labels and units. Simplified range help and missing-time messages. Removed diagnostic pair counts; calculation help now describes the selected stop mode accurately. |
+| Map, mobile dialog and accessibility text | Explained gaps and absent map lines in terms of GPS positions. Clarified the third-party background-map request, retained privacy link, and replaced ambiguous close labels. The unselected map dialog now says Route map. |
+| Technical guide and agent instructions | Kept detector parameters and detailed interval semantics in technical docs. Added an explicit usefulness/comprehension check to AGENTS.md, the UX workflow and product requirements. Updated the documented Exclude chosen stops label. |
+
+Clear existing copy was retained where it already answers a user question. Algorithms, default calculation choices, source recordings and totals are unchanged. Read-only Standards and Spec reviews have no remaining findings after correcting ambiguous stop-selection language, partial-average warnings and repeated import recovery instructions.
+
+## Verification
+
+Whole-page Chrome checks cover 1440×900, 1280×720, 390×844 and 375×667, including initial/imported screens, changed options, selected stops/gaps, import failures and keyboard/touch controls. The original permissioned GPX files were used locally. Viewport screenshots stay outside the repository. At scroll position zero the complete totals and moving-calculation explanation remain visible; the full main-page chart needs scrolling on short phones. The stop review keeps its checkbox, changed graph and complete distance axis together at all four sizes.
+
+Browser checks use desktop Chrome with touch emulation where applicable; they do not establish physical-device or cross-browser coverage. Text assertions verify that the correct state is shown, not that people understand it. Unit tests and the static build verify that copy edits preserve the application behaviour.
+
+`pnpm test --runInBand` passed 174 tests in 14 suites; `pnpm tsc`, `pnpm lint`, `pnpm knip` (no findings), `pnpm build` and `git diff --check` passed. The selected browser run passed 38 cases, with one optional local-recording profile skipped; separate checks used both original permissioned files. The suite covered moving measurements, recording gaps, workspace, pace ranges, chart selection, worker updates, dense measurements and import recovery. The hostile-input network test was excluded because it hard-codes a different server port; parser hostile-input unit tests passed. Three older chart tests were updated to select the named chart region, explicitly choose Full range when testing uncapped pace, and avoid expecting a selection tip when there is no chart.

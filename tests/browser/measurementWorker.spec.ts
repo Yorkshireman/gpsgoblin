@@ -55,9 +55,9 @@ test('worker settings preserve the previous view and apply only the latest reque
   });
   // Cancel an initial view by changing scope, then return before its reply.
   // The replacement request still needs static columns because none were received.
-  await expect(page.getByText('Preparing measurements…')).toBeVisible();
-  await page.getByRole('combobox', { name: 'Item to inspect' }).selectOption('track-1');
-  await page.getByRole('combobox', { name: 'Item to inspect' }).selectOption('track-0');
+  await expect(page.getByText('Preparing your charts…')).toBeVisible();
+  await page.getByRole('combobox', { name: 'View' }).selectOption('track-1');
+  await page.getByRole('combobox', { name: 'View' }).selectOption('track-0');
   expect(await page.evaluate(() => window.measurementTransport.requests)).toBe(1);
   await page.evaluate(() => { window.measurementTransport.release?.(); });
   await page.getByRole('slider', { name: 'Position on route' }).press('End');

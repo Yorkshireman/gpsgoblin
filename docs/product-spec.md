@@ -112,6 +112,8 @@ Write user-facing privacy copy in everyday language that explains what happens t
 
 Errors should distinguish unsupported format, unsupported file subtype, corrupt structure, missing required data and configured resource limits. Explain what the user can still do; never turn an absent metric into a generic invalid-file error.
 
+All user-facing copy must be understandable to an average person without knowledge of GPX internals or our calculations. Keep a message only when it helps them understand a result, make a choice or recover from a problem. Explain meaningful uncertainty and missing data through their practical effects; remove jargon, diagnostic counts and unnecessary caveats rather than displaying internal analysis. Review labels, help, errors, warnings and accessible text in context using the [UX workflow](agents/ux.md), including whether the combined messages are useful and consistent.
+
 Recommended default: retain imported data only in memory during the open application session. Persisting activity contents in browser storage is not required for V1. Explain that refreshing or clearing the workspace loses local work. Non-sensitive display preferences may be persisted subject to the selected storage/consent approach.
 
 ### 4.2 View organisation
@@ -245,7 +247,7 @@ This first improvement leaves source data, calculated distance, elapsed duration
 
 #### Moving-only viewer — agreed follow-up, deferred
 
-After gap presentation, provide independent **Include stops / Exclude detected stops** and **Distance / Time** choices for speed and pace. Include stops remains the default. With detected stops excluded, the time axis uses estimated moving time; distance remains available for inspecting moving measurements by route position. Preserve the separate pace-range viewport control.
+After gap presentation, provide independent **Include stops / Exclude chosen stops** and **Distance / Time** choices for speed and pace. Include stops remains the default. With detected stops excluded, the time axis uses estimated moving time; distance remains available for inspecting moving measurements by route position. Preserve the separate pace-range viewport control.
 
 Keep the initial graph understandable without opening settings. Place advanced stop-exclusion and axis controls in a plainly named disclosure near the chart, such as **Chart options**, rather than exposing every choice initially. Keep gap markers and essential summary information visible in the default view. When a filtered view is active, show its calculation basis beside the graph with the options closed. Exact disclosure wording and grouping remain UI design choices to verify through the UX workflow.
 
