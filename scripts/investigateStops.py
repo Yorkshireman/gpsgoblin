@@ -219,6 +219,52 @@ def synthetic_cases():
             for name, points in cases.items()}
 
 
+def validation_matrix():
+    """Known movement labels expose false exclusions if candidates were automatic.
+
+    These observations are invented local metre coordinates, not private data.
+    Sweep duration and extent together through candidate/core/screening stages.
+    No production eligibility, timestamp parser or UI is exercised here.
+    """
+    schedules = {
+        'oneSecond': list(range(601)),
+        'fiveSeconds': list(range(0, 601, 5)),
+        'irregularDense': [t for t in range(601) if t % 7 in (0, 1, 4) or t == 600],
+    }
+    scenarios = {
+        'stationaryJitter': (False, lambda t: (math.sin(t / 8), math.cos(t / 11), 100.0)),
+        'walking': (True, lambda t: (t, 0, 100.0)),
+        'slowProgress': (True, lambda t: (.05 * t, 0, 100.0)),
+        'verySlowProgress': (True, lambda t: (.005 * t, 0, 100.0)),
+        'verticalClimbRecordedRise': (True, lambda t: (math.sin(t / 8), math.cos(t / 11), 100 + .1 * t)),
+        'verticalClimbFlatElevation': (True, lambda t: (math.sin(t / 8), math.cos(t / 11), 100.0)),
+        'smallCircle': (True, lambda t: (3 * math.sin(t / 3), 3 * math.cos(t / 3), 100.0)),
+    }
+    results = []
+    for schedule, timestamps in schedules.items():
+        for name, (moving, position) in scenarios.items():
+            points = [(t, *position(t)) for t in timestamps]
+            for duration in (30, 60, 120):
+                for diameter in (5, 10, 20):
+                    windows = compact_windows(points, duration, diameter)
+                    cores = confined_cores(points, windows, duration, diameter)
+                    seconds = screen_candidates(points, cores, diameter)['survivingCandidates']['candidateSeconds']
+                    results.append({'case': name, 'schedule': schedule,
+                                    'windowSeconds': duration, 'boxDiagonalMetres': diameter,
+                                    'candidateSeconds': seconds,
+                                    'falseExcludedSecondsIfAutomatic': seconds if moving else 0})
+    # Identical recorded observations cannot distinguish these opposite labels.
+    for schedule in schedules:
+        for duration in (30, 60, 120):
+            for diameter in (5, 10, 20):
+                matched = [row['candidateSeconds'] for row in results
+                           if row['schedule'] == schedule and row['windowSeconds'] == duration
+                           and row['boxDiagonalMetres'] == diameter
+                           and row['case'] in ('stationaryJitter', 'verticalClimbFlatElevation')]
+                assert len(matched) == 2 and matched[0] == matched[1] and matched[0] > 0
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--gpx')
@@ -227,7 +273,7 @@ def main():
               'syntheticRule': {'windowSeconds': 60, 'boxDiagonalMetres': 10, 'maxObservationGapSeconds': 10},
               'screeningRule': {'wholeIntervalBoxDiagonalMetres': 10, 'elevationMedianBinSeconds': 10, 'maximumMedianElevationSpanMetres': 5,
                                 'progressThirdsMinimumShiftMetres': 2, 'progressThirdsMinimumCosine': .8},
-              'synthetic': synthetic_cases()}
+              'synthetic': synthetic_cases(), 'validationMatrix': validation_matrix()}
     if options.gpx:
         points, distances, fields = read_recording(options.gpx)
         timestamps = [p[0] for p in points]

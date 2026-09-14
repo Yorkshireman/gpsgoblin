@@ -1,6 +1,43 @@
 # Stop-detection policy investigation
 
-Research for [#13](https://github.com/Yorkshireman/gpsgoblin/issues/13), 12 September 2026. Related: [#11](https://github.com/Yorkshireman/gpsgoblin/issues/11), calculated Moving time. **Status: proposal for review; no product behaviour, defaults or specification decisions changed.**
+Research for [#13](https://github.com/Yorkshireman/gpsgoblin/issues/13), begun 12 September 2026 and extended 14 September 2026. Related: [#11](https://github.com/Yorkshireman/gpsgoblin/issues/11), calculated Moving time. **Status: policy proposal awaiting agreement; viewer sequencing approved on 14 September, with no application behaviour or default changed.** The latest validation and decision proposal below supersede earlier sequencing statements in this investigation.
+
+## 14 September validation and decision proposal
+
+The owner authorised validation and bringing the #13 viewer feature forward, using one feature branch and PR through eventual squash merge. The comparison/replay engine remains deferred. The ticket still requires agreement on detection policy before product implementation.
+
+Re-ran the existing synthetic harness and extended it with a reproducible 189-trial matrix: seven labelled scenarios, three schedules (1 s, 5 s and a dense irregular schedule), three minimum durations (30/60/120 s), and three spatial extents (5/10/20 m). Each trial applies compact-window detection, bounded-core refinement and movement/elevation screening. The invented 600-second observations contain no private data. Candidate duration is the number of seconds that would be falsely excluded for a known moving scenario if surviving candidates were excluded automatically.
+
+| Known scenario | Trials with surviving candidates / 27 | Surviving candidate duration range |
+| --- | ---: | ---: |
+| Stationary with jitter | 27 | 599–600 s |
+| Walking at 1 m/s | 0 | 0 s |
+| Slow progress at 0.05 m/s | 6 | 0–100 s |
+| Very slow progress at 0.005 m/s | 27 | 599–600 s |
+| Vertical climb with recorded elevation rise | 0 | 0 s |
+| Vertical climb with flat recorded elevation | 27 | 599–600 s |
+| Movement in a 3 m radius circle | 18 | 0–600 s |
+
+These are deliberately selected counterexamples, not population error rates. At some irregular window boundaries the accepted core begins one second late; even synthetic candidate duration should not be described as exact stopped time. The slow-progress result extends the earlier single-operating-point result: changing duration/extent can defeat its directional safeguard. No tested parameter combination separates stationary jitter from the flat-elevation climb or very slow progress across these schedules. This does not prove that every possible estimated detector is unusable.
+
+The earlier permissioned summit evidence remains relevant, but no original private recording was re-read in this extension. Its 600-second confirmed event is not independent ground truth for the full 638-second candidate or other events. Broader labelled hiking/climbing recordings, boundary accuracy, timestamp eligibility, browser performance and production integration remain unvalidated.
+
+### Proposed policy for agreement
+
+- **Default:** retain Include stops. The current evidence fails the moving-only-default gate; no spec change to that default is recommended.
+- **Candidate detection:** use the existing 60 s minimum / 10 m bounding-box diagonal as an explicitly provisional candidate-finding setting. Preserve the longest confined core, full-resolution source endpoints and uncertain edges. Do not treat confinement or flat elevation as proof of rest. Keep the sensitivity matrix as evidence of limitations.
+- **Observation eligibility:** for this initial candidate finder, require valid coordinates and strictly increasing, timezone-qualified timestamps in one recorded track segment, with no adjacent observation interval over 10 s. Break runs at invalid/missing/duplicate/backwards timestamps, segment boundaries and recording gaps, preserving the timestamp high-water mark as in the existing measurement analysis. Planned routes are ineligible. The 10 s density guard means insufficient evidence for stop analysis, not an import limit or a new recording-gap classification. Sparse data remains viewable. Validate this policy through the application's timestamp/measurement seam before shipping; the diagnostic reader does not provide those guarantees.
+- **Evidence and overrides:** vertical change, directional progress, missing elevation and doubtful observations retain a candidate for review. With the current evidence, remaining confinement candidates also require user confirmation before exclusion. Label them as possible stops, disclose duration and uncertainty, and allow every exclusion to be restored. Do not automatically bulk-exclude the unconfirmed flat-elevation candidates that fail the cases above. This is a proposed initial interpretation of Exclude detected stops that needs owner agreement; it offers less automation than the eventual preference.
+- **Derived calculation:** confirmed source intervals form the exclusion set. Unknown recording gaps are disclosed separately and removed from both eligible distance and duration in the moving view. Invalid timing and segment boundaries remain breaks. Mask excluded intervals and reset smoothing; never change original values or complete totals. Incomplete coverage must be labelled as an estimate over eligible recorded intervals, not a known whole-activity moving total. #11 can consume the same interval meanings without adding its summary UI to this ticket.
+- **Verification seams to agree for TDD:** the existing public `analysis/measurements` entry point for interval evidence; `analysis/prepared-measurements` for exclusions, smoothing, axis projection and averages; the viewer's user controls and chart selection for integration. No new production tests or interface design have been committed before this agreement.
+
+An initial feature requiring confirmation of possible stops is the conservative recommendation. If automated exclusions are required in the first iteration, obtain representative labelled recordings and agree an acceptable false-excluded-duration tolerance before implementing that behaviour. Do not tune thresholds merely to remove the summit spike.
+
+### Source verification and commands
+
+Rechecked the [GPX 1.1 schema](https://www.topografix.com/GPX/1/1/), [Strava elevation documentation](https://support.strava.com/en-us/articles/15401909-elevation) and [archived GPS.gov accuracy explanation](https://archive.gps.gov/systems/gps/performance/accuracy/). They support optional elevation/quality evidence, the possibility of elevation derived from horizontal position, and receiver/environment-dependent errors. They do not identify the private recording's elevation provenance or validate numeric thresholds. The identical-input counterexample is an inference from those possibilities, not a measured real-world false-positive rate.
+
+`python3 scripts/investigateStops.py` runs the original synthetic assertions plus the new matrix and observational-equivalence assertions; it passed. Aggregate output was kept locally in `/tmp/gpsgoblin-stop-synthetic-13.json`. `pnpm tsc`, `pnpm lint` and `pnpm knip` passed, with no Knip findings. `pnpm test --runInBand` passed all 169 tests in 13 suites; `git diff --check` passed. No application or UI changed; the static build and browser checks were not rerun. Production detector accuracy, mobile interaction and large-file responsiveness are not established by this research.
 
 ## Recommendation
 

@@ -26,6 +26,12 @@ Complete the requested work without requiring the user to approve each routine i
 
 Authorisation applies only to that prefixed request. Each subsequent user message without the prefix returns to discussion mode; pause further mutations before answering it. Keep the outstanding task context so work can resume when the user sends another prefixed request.
 
+## Ticket branches and pull requests
+
+For authorised ticket work, use a descriptive branch containing the ticket number and aim for one PR per ticket, targeting `master`. Keep implementation, validation and review on that branch; do not commit ticket work directly to `master`.
+
+Carry the ticket through implementation, required checks and review. Use a draft PR while requirements or verification remain outstanding. Once the ticket's acceptance criteria are satisfied and merge is authorised, squash-merge its PR to `master`. Give the squash commit a descriptive title that states the resulting change and references the ticket number, for example `Add moving-only pace views (#13)`; include `Closes #13` in the PR description to close the ticket when merged. Do not close a ticket for partial work or before its PR is merged. Verify the merge and issue closure before reporting completion. Follow the current request's authorisation and the `/agent` rule throughout; a workflow preference alone does not authorise publishing or merging.
+
 ## Guide the user one step at a time
 
 Whenever the user must perform a sequence of actions, give only the current actionable step. Include its purpose, the exact action and how the user can recognise completion. Then wait for the user to confirm completion or provide evidence that it is complete before giving the next step.

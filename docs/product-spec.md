@@ -253,7 +253,7 @@ Use conservative stop detection that retains ambiguous slow movement, including 
 
 Keep elapsed duration visible and add clearly labelled **Estimated moving time** and **Average moving speed**, with coverage and uncertainty explained. The chart's average reference must match its selected calculation basis. Derived moving values do not overwrite original or complete-recording totals.
 
-This follow-up does not make stop detection a Stage 1 dependency or approve bringing Stage 5/O9 forward. Detection policy, eligibility and release timing remain open before implementation. The viewer choices do not change the comparison-specific exclusion rules in section 11.
+The owner approved bringing the #13 viewer feature forward on 14 September 2026, beginning with detection validation and an agreed policy before implementation. This does not make stop detection a Stage 1 dependency or bring the comparison/replay engine forward. Detection policy and eligibility remain open; O9 is not resolved by this sequencing approval. The viewer choices do not change the comparison-specific exclusion rules in section 11.
 
 ### 7.3 FIT and TCX viewers
 
