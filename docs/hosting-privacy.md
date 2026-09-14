@@ -67,4 +67,4 @@ visitor product analytics, and no build or account setting changed here.
 - The source review and observed headers establish the need for ordinary-hosting and network-error-reporting disclosure. They do not certify all Cloudflare account/zone settings or establish a universal retention period.
 - At custom-domain cutover, inspect NEL, cookies, injected scripts and outbound requests on the actual host; verify the intended Web Analytics and logging settings. The current workers.dev evidence cannot stand in for that check.
 - If a fixed retention promise or guaranteed NEL removal is required, obtain service/account-specific evidence before making that promise. The reviewed documentation is insufficient for either claim on workers.dev.
-- Contact details remain indefinitely deferred under the owner's existing decision. This assessment does not resolve or waive that separate public-release requirement.
+- Contact details remain indefinitely deferred and optional for later. The owner removed them as a launch requirement on 14 September 2026; they no longer block public release. Other privacy and host-verification requirements remain unchanged.

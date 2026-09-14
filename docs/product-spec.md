@@ -1,7 +1,7 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.9
+**Version:** 0.10
 **Date:** 14 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
@@ -583,7 +583,7 @@ Provide absolute canonical URLs and a sitemap of published routes using `https:/
 
 Keep the tool above lengthy copy. Do not impose an SEO word count or populate a blog to delay release. Publish focused guides later when they address a real user/search need.
 
-The GPSGoblin homepage should explain the collection using the agreed descriptive tagline and list available tools. Recommended supporting pages: about/contact, privacy, relevant cookie/consent information and limitations/terms that reflect the actual service. Use a simple contact method; support-ticket infrastructure is not required.
+The GPSGoblin homepage should explain the collection using the agreed descriptive tagline and list available tools. Recommended supporting pages: about/contact, privacy, relevant cookie/consent information and limitations/terms that reflect the actual service. A contact method is optional for launch. If added later, use a simple owner-approved channel; support-ticket infrastructure is not required.
 
 Production metadata must never contain local activity data. Generated downloads and user-specific results are not public SEO pages.
 
@@ -712,7 +712,7 @@ O1 and O2 are retained below as resolved decisions for traceability. The remaini
 | O2  | Resolved: OSM public raster tiles; terms, request sample, privacy, disable switch and fallback recorded in [basemap assessment](basemap.md)                                                                | First public map-enabled release                                                                        |
 | O3  | GPX/TCX/FIT parser choices, licence checks and published format/extension coverage                                                                           | Each affected format release                                                                            |
 | O4  | Large-file performance, workarounds and browser support matrix; any hard limits require owner agreement                                                                                              | Each affected tool release                                                                              |
-| O5  | Privacy wording, contact details, security headers and third-party inventory                                                                                 | First public release; update before new suppliers                                                       |
+| O5  | Privacy wording, security headers and third-party inventory                                                                                 | First public release; update before new suppliers                                                       |
 | O6  | Analytics supplier, consent/legal assessment and event implementation                                                                                        | Before product telemetry is enabled                                                                     |
 | O7  | AdSense approval, ad placement, CMP and advertising privacy verification                                                                                     | Before advertisements are enabled                                                                       |
 | O8  | Matching algorithm, correspondence/coverage thresholds, offsets and ambiguity rules                                                                          | Stage 5 release                                                                                         |
@@ -720,7 +720,7 @@ O1 and O2 are retained below as resolved decisions for traceability. The remaini
 | O10 | Efficiency formulas, effort-selection rules, grade adjustment and interpretation validation                                                                  | Stage 6 release                                                                                         |
 | O11 | Whether simple GPX Merge remains inexpensive enough                                                                                                          | Stage 3 scope checkpoint                                                                                |
 
-Owner decision (14 September 2026): contact details are indefinitely deferred, with no deadline or commitment to revisit them. Do not treat contact setup as an active task or prompt for it during unrelated work. This records the deferral; it does not resolve or waive O5's existing contact requirement for public release.
+Owner decision (14 September 2026): contact details are indefinitely deferred, with no deadline or commitment to revisit them. Do not treat contact setup as an active task or prompt for it during unrelated work. The owner subsequently approved removing contact details as a launch requirement. Contact details are optional for later and do not block O5, Stage 1 release or discovery work. Other privacy, hosting and public-domain requirements remain unchanged.
 
 Only the affected milestone is blocked by an unresolved item. For example, O10 must not delay the GPX viewer. O1 is settled; the domain, redirect and indexing checks in Sections 19–20 remain release requirements.
 

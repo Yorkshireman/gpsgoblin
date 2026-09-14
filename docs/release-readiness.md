@@ -2,7 +2,10 @@
 
 Status: **not ready for public release**. Contact details are indefinitely deferred
 by the owner, with no deadline or commitment to revisit them. Contact setup is
-not an active task; the existing release criterion remains unresolved.
+not an active task or a launch requirement, following the owner's subsequent
+approval on 14 September 2026. Public-domain verification and release approval
+remain outstanding. Earlier chronological entries describe the gates at that time;
+this decision supersedes their references to contact details blocking release.
 This record covers the release candidate on `feat/7-release-verification`, based
 on `320130a` (draft PR #20), including the workers.dev testing deployments below.
 No merge, public-domain cutover or closure of #6/#7 is recorded.
@@ -14,7 +17,7 @@ No merge, public-domain cutover or closure of #6/#7 is recorded.
 | O2 basemap | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Six real tile requests on workers.dev passed with the expected origin-only referrer; repeat on the public domain at cutover. |
 | O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
 | O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
-| O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Owner contact channel deferred**; public-domain settings and checks remain open. |
+| O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Contact optional and indefinitely deferred**; public-domain settings and checks remain open. |
 | Actual hosts | Default workers.dev, version preview and branch-alias HTTPS/CSP/noindex checks passed; see hosted evidence below. Public-domain canonical/indexing, custom-domain routing/default-route disabling and final hosting privacy assessment remain open. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
 
@@ -158,8 +161,7 @@ Cloudflare policy link accepted keyboard focus with its correct destination.
 This copy-only change did not receive a new physical-device test.
 
 The technical assessment is recorded; account/zone-specific services and the
-future custom domain still need verification. Public-release approval, contact
-requirements and domain cutover remain unresolved; contact details remain
+future custom domain still need verification. Public-release approval and domain cutover remain unresolved; contact details are optional and remain
 indefinitely deferred. No account setting, deployment or domain was changed.
 
 ## Latest hosted verification — 14 September 2026
@@ -187,7 +189,7 @@ observation, not proof that every client can access the testing host.
 
 Current decision boundary: the testing deployment and branch-preview workflow
 are verified. Account/zone-specific hosting settings and the public-domain
-checks remain distinct from these results. The contact requirement remains
+checks remain distinct from these results. Contact details are optional and
 indefinitely deferred. No public-release readiness, merge or domain change is
 implied. The draft PR remains open and mergeable; its older description needs
 refreshing when PR publication/editing is next authorised.
@@ -202,7 +204,7 @@ viewed account. It is UI evidence, not an API inventory or proof that Cloudflare
 performs no network logging. See [hosting privacy](hosting-privacy.md).
 
 The requested testing-host dashboard check is complete; no repeat setup action
-is needed. Future custom-domain checks, deferred contact requirements and release
+is needed. Future custom-domain checks and release
 approval remain separate. No service was enabled and no domain setting changed.
 
 ## Security policy and build
@@ -482,7 +484,7 @@ breaches or actionable maintainability findings. Spec: no commit-blocking
 findings; the release requirements listed above remain explicitly outstanding.
 Reviewers inspected source and recorded evidence rather than rerunning browser
 checks. Typechecking, lint, Knip and all 176 Jest tests passed again before commit.
-The changes implement Stage 1 verification and scoped fixes. Contact details,
-privacy/hosting confirmation and actual-host checks remain open; this work does
+The changes implement Stage 1 verification and scoped fixes. At that review,
+contact details, privacy/hosting confirmation and actual-host checks remained open; this work does
 not close #6/#7 or declare a release ready. The reviewed branch was subsequently
 pushed as draft PR #21; no public deployment or merge has been performed.

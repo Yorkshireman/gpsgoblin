@@ -11,11 +11,12 @@ No structured data, product analytics, advertisements or consent platform is add
 **Contact details are indefinitely deferred by the owner (14 September 2026).**
 There is no deadline or commitment to provide them; the owner may choose to
 revisit this much later, or not at all. Do not prompt for contact setup during
-unrelated work. This deferral does not resolve the existing release criterion.
+unrelated work. The owner subsequently removed contact details as a launch requirement; they are optional for later.
 No email,
 owner identity or contact channel is invented. There is no placeholder contact
-page. The contact acceptance criterion and O5 remain open; this implementation
-must not be described as completing #6 or authorising public release.
+page. The former contact acceptance criterion is superseded by this owner decision.
+Other applicable acceptance criteria and public-domain checks still apply; this
+decision alone does not close #6 or authorise public release.
 
 `src/app/siteMetadata.ts` fixes the public origin to `https://gpsgoblin.com`.
 All four pages use that origin for canonical and Open Graph metadata; sitemap
