@@ -8,7 +8,11 @@ precedes supporting instructions, supported data, result meanings and limitation
 `/privacy` and `/limitations` contain supporting information, linked in the footer.
 No structured data, product analytics, advertisements or consent platform is added.
 
-**Contact details are deferred by the owner (14 September 2026).** No email,
+**Contact details are indefinitely deferred by the owner (14 September 2026).**
+There is no deadline or commitment to provide them; the owner may choose to
+revisit this much later, or not at all. Do not prompt for contact setup during
+unrelated work. This deferral does not resolve the existing release criterion.
+No email,
 owner identity or contact channel is invented. There is no placeholder contact
 page. The contact acceptance criterion and O5 remain open; this implementation
 must not be described as completing #6 or authorising public release.
@@ -38,6 +42,10 @@ current behaviour, not a conclusion that future integrations need no consent.
 Contact identity/channel, final privacy assessment, security headers/CSP and
 hosting-side inventory remain O5 release work. No arbitrary retention promises
 or owner details have been added.
+
+Issue #7 subsequently adds build-generated headers/CSP and enforced local browser
+checks; see the [release verification record](release-readiness.md). Deployed
+verification and the deferred contact details still prevent closing O5.
 
 ## Compatibility claims
 

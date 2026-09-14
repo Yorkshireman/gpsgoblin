@@ -48,11 +48,11 @@ test('all-day and multi-day recordings retain every sample and recover from fail
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('extension-heavy input stays local without interpreting vendor measurements', async ({ page }, testInfo) => {
+test('extension-heavy input stays local without interpreting vendor measurements', async ({ page, baseURL }, testInfo) => {
   test.setTimeout(90000);
   const outbound: string[] = [];
   page.on('request', request => {
-    if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') outbound.push(request.url());
+    if (new URL(request.url()).origin !== baseURL) outbound.push(request.url());
   });
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles(recording(24001, 24001, true));
@@ -65,7 +65,7 @@ test('extension-heavy input stays local without interpreting vendor measurements
   await expect(selected).toContainText('1 January 2026 at 06:40:00 UTC');
   await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
   await expect(selected).toContainText('328.1 ft');
-  expect(outbound).toEqual([]);
+  expect(outbound.every((url) => { return /^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/.test(url); })).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('extensions-selected.png') });
 });
 

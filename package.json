@@ -9,6 +9,7 @@
     "knip": "knip",
     "lint": "eslint",
     "prebuild": "node ./scripts/copyMapLibreWorker.mjs",
+    "postbuild": "node ./scripts/writeSecurityHeaders.mjs",
     "predev": "node ./scripts/copyMapLibreWorker.mjs",
     "start": "next start",
     "test": "jest",
@@ -31,6 +32,7 @@
     "saxes": "6.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",

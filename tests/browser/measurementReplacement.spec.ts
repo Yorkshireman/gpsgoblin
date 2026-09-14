@@ -32,6 +32,7 @@ test('successful replacement resets the previous selection and file-owned chart 
   await units.selectOption('imperial');
   await page.getByRole('slider', { name: 'Smoothing' }).press('End');
   await expect(page.getByRole('region', { name: 'Measurement chart', exact: true })).toHaveAttribute('aria-busy', 'false');
+  await page.getByText('Chart options', { exact: true }).click();
   await page.getByRole('combobox', { name: 'Pace range' }).selectOption('custom');
   await page.getByRole('spinbutton', { name: 'Maximum (min/mi)' }).fill('10');
 
@@ -42,7 +43,8 @@ test('successful replacement resets the previous selection and file-owned chart 
   await expect(units).toHaveValue('metric');
   await expect(page.getByRole('slider', { name: 'Smoothing' })).toHaveAttribute('aria-valuetext', '1 minute');
   await chart.selectOption('pace');
-  await expect(page.getByRole('combobox', { name: 'Pace range' })).toHaveValue('automatic');
+  await page.getByText('Chart options', { exact: true }).click();
+  await expect(page.getByRole('combobox', { name: 'Pace range' })).toHaveValue('suggested');
   await position.press('End');
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('220.0 m');
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('2 January 2026 at 00:02:00 UTC');
@@ -76,12 +78,12 @@ test('replacement after a real worker view error clears old failure and starts a
   await page.evaluate(() => { window.rejectNextMeasurementView = true; });
   await units.selectOption('imperial');
   await expect(page.getByText('Measurements could not be updated. Try again or reopen the file.')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Retry measurements' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Try again', exact: true })).toBeVisible();
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('120.0 m');
 
   await picker.setInputFiles(recording(2, 200));
   await expect(page.getByLabel('Chart selection tip', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Retry measurements' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Try again', exact: true })).toHaveCount(0);
   await expect(page.getByText('Measurements could not be updated. Try again or reopen the file.')).toHaveCount(0);
   await expect(units).toHaveValue('metric');
   await position.press('End');

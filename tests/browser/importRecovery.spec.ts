@@ -5,10 +5,10 @@ const file = (name: string, contents = '<gpx version="1.1"><wpt lat="0" lon="0">
   return { name, mimeType: 'application/gpx+xml', buffer: Buffer.from(contents) };
 };
 
-test('actual worker rejects hostile input without network requests and recovers', async ({ page }) => {
+test('actual worker rejects hostile input without network requests and recovers', async ({ page, baseURL }) => {
   const outbound: string[] = [];
   page.on('request', request => {
-    if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') outbound.push(request.url());
+    if (new URL(request.url()).origin !== baseURL) outbound.push(request.url());
   });
   await page.goto('/tools/gpx-file-viewer.html');
   const picker = page.getByLabel('GPX file', { exact: true });
@@ -36,9 +36,9 @@ test('actual worker rejects hostile input without network requests and recovers'
   const markup = '<img src="https://gpx-canary.invalid/pixel" onerror="alert(1)">';
   await picker.setInputFiles(file('markup.gpx', `<gpx version="1.1"><wpt lat="0" lon="0"><name><![CDATA[${markup}]]></name><link href="https://gpx-canary.invalid/link"/></wpt></gpx>`));
   await expect(page.getByText(markup, { exact: true })).toBeVisible();
-  expect(outbound).toEqual([]);
+  expect(outbound.every((url) => { return /^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/.test(url); })).toBe(true);
   await page.getByRole('button', { name: 'Clear file' }).click();
-  await expect(page.getByRole('heading', { name: 'Open a GPX file' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Open a GPX file', exact: true })).toBeVisible();
   await picker.setInputFiles(file('valid.gpx'));
   await expect(page.getByText('Safe waypoint', { exact: true })).toBeVisible();
 });

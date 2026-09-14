@@ -190,12 +190,18 @@ export const initialiseRouteMap = ({
         });
 
         loadedMap.addLayer({
+          id: 'route-casing',
+          type: 'line',
+          source: 'route',
+          paint: { 'line-color': '#ffffff', 'line-width': 7 }
+        });
+        loadedMap.addLayer({
           id: 'route',
           type: 'line',
           source: 'route',
           paint: {
             'line-color': routeColor,
-            'line-opacity': 0.9,
+            'line-opacity': 1,
             'line-width': 4
           }
         });
@@ -217,7 +223,7 @@ export const initialiseRouteMap = ({
 
         if (!failed) {
           onStatusChange?.('ready');
-          basemap = addBasemap(loadedMap, 'route', onBasemapStatusChange);
+          basemap = addBasemap(loadedMap, 'route-casing', onBasemapStatusChange);
         }
       } catch {
         reportFailure();

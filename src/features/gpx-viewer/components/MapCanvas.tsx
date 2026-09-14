@@ -56,6 +56,7 @@ export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvas
     <Stack gap={2}>
       <Box position='relative'>
         <Box
+          role='group'
           aria-label='Interactive route map'
           bg='bg.muted'
           borderWidth='1px'

@@ -172,7 +172,7 @@ describe('initialiseRouteMap', () => {
         attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
       }));
       expect(mockMap.addLayer).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'basemap', type: 'raster' }), 'route'
+        expect.objectContaining({ id: 'basemap', type: 'raster' }), 'route-casing'
       );
       expect(MapLibreMap).toHaveBeenCalledWith(expect.objectContaining({
         attributionControl: { compact: false }
@@ -340,13 +340,17 @@ describe('initialiseRouteMap', () => {
         ]
       }
     });
+    expect(mockMap.addLayer).toHaveBeenCalledWith({
+      id: 'route-casing', type: 'line', source: 'route',
+      paint: { 'line-color': '#ffffff', 'line-width': 7 }
+    });
     expect(mockMap.addLayer).toHaveBeenCalledWith(
       expect.objectContaining({
         source: 'route',
         type: 'line',
         paint: {
           'line-color': '#22c55e',
-          'line-opacity': 0.9,
+          'line-opacity': 1,
           'line-width': 4
         }
       })

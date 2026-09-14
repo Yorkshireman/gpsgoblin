@@ -720,6 +720,8 @@ O1 and O2 are retained below as resolved decisions for traceability. The remaini
 | O10 | Efficiency formulas, effort-selection rules, grade adjustment and interpretation validation                                                                  | Stage 6 release                                                                                         |
 | O11 | Whether simple GPX Merge remains inexpensive enough                                                                                                          | Stage 3 scope checkpoint                                                                                |
 
+Owner decision (14 September 2026): contact details are indefinitely deferred, with no deadline or commitment to revisit them. Do not treat contact setup as an active task or prompt for it during unrelated work. This records the deferral; it does not resolve or waive O5's existing contact requirement for public release.
+
 Only the affected milestone is blocked by an unresolved item. For example, O10 must not delay the GPX viewer. O1 is settled; the domain, redirect and indexing checks in Sections 19–20 remain release requirements.
 
 If a candidate cannot meet the no-unapproved-spend constraint, report the conflict. Do not quietly change the constraint or substitute another supplier.

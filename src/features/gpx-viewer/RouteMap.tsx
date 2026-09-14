@@ -22,7 +22,8 @@ type RouteMapProps = (
   Readonly<{ selectedPoint?: GeographicSample }>;
 
 export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: RouteMapProps) => {
-  const [routeColor] = useToken('colors', 'green.500');
+  // A dark route on a white casing stays distinct over light and dark map tiles.
+  const [routeColor] = useToken('colors', 'green.700');
 
   const paths = useMemo(() => {
     return track

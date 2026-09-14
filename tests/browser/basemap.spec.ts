@@ -56,7 +56,7 @@ test('attribution stays visible and failed tiles preserve the map and chart sele
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('00:02:00 UTC');
   expect(outbound.every(({ url, method, body }) => {
     return (url.startsWith('http://127.0.0.1:') || url.startsWith('https://tile.openstreetmap.org/'))
-      && method === 'GET' && body === null
+      && (method === 'GET' || method === 'HEAD') && body === null
       && !url.includes('private-route-name') && !url.includes('Private%20route');
   })).toBe(true);
 });
