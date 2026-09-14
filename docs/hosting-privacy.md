@@ -1,6 +1,6 @@
 # Cloudflare hosting privacy assessment
 
-Assessed: 14 September 2026. Primary sources accessed on that date. Scope: Stage 1 Workers Static Assets hosting and the existing workers.dev testing deployment. This is technical evidence for [product-spec.md](product-spec.md) sections 13, 18 and O5/O6, not a legal or public-release approval.
+Assessed: 14 September 2026. Primary sources accessed on that date. Scope: Stage 1 Workers Static Assets hosting, workers.dev verification deployments and the public gpsgoblin.com deployment. This is technical evidence for [product-spec.md](product-spec.md) sections 13, 18 and O5/O6, not legal advice or a general certification of Cloudflare account settings.
 
 ## What the host can receive
 
@@ -44,8 +44,21 @@ Analytics being inactive for GPSGoblin. No hostname was entered and no analytics
 service was enabled. No further dashboard action is needed for this check.
 
 These observations do not disable or negate Cloudflare's ordinary network
-processing or the separately observed NEL headers. They also do not establish
-settings for the future public-domain deployment.
+processing or the separately observed NEL headers. Public-domain checks below
+cover returned pages and browser-observed requests, not every account setting.
+
+## Public-domain verification — 14 September 2026
+
+The issue #7 cutover checks loaded the public root, viewer, privacy and limitations
+pages and ran eight hosted Chrome desktop/mobile hydration and security checks on
+`https://gpsgoblin.com`. Synthetic activity canaries did not appear in outbound
+requests. Sampled public pages contained no Web Analytics beacon; NEL remained
+present and is disclosed. The automated map checks blocked external tiles, while
+successful public-domain map use is owner-reported from the physical-phone check.
+
+This reuses the recorded cutover evidence; it is not a second manual test. It does
+not turn sampled browser traffic into proof of every Cloudflare account/zone
+setting, every browser-managed NEL report or a fixed retention period.
 
 ## Evidence boundaries and remaining verification
 
@@ -65,6 +78,6 @@ metrics opt-out does not disable Next.js telemetry. Neither is represented as
 visitor product analytics, and no build or account setting changed here.
 
 - The source review and observed headers establish the need for ordinary-hosting and network-error-reporting disclosure. They do not certify all Cloudflare account/zone settings or establish a universal retention period.
-- At custom-domain cutover, inspect NEL, cookies, injected scripts and outbound requests on the actual host; verify the intended Web Analytics and logging settings. The current workers.dev evidence cannot stand in for that check.
-- If a fixed retention promise or guaranteed NEL removal is required, obtain service/account-specific evidence before making that promise. The reviewed documentation is insufficient for either claim on workers.dev.
+- The public-host cutover checks inspected NEL, injected scripts and outbound activity canaries. The earlier workers.dev cookie sample and owner-provided dashboard evidence remain bounded evidence, not an account-wide certification.
+- If a fixed retention promise or guaranteed NEL removal is required, obtain service/account-specific evidence before making that promise. The reviewed documentation is insufficient for either claim.
 - Contact details remain indefinitely deferred and optional for later. The owner removed them as a launch requirement on 14 September 2026; they no longer block public release. Other privacy and host-verification requirements remain unchanged.

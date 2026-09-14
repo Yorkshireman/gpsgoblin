@@ -11,6 +11,9 @@ states and are superseded by the cutover evidence below.
 This record covers the work merged through PRs #20 and #21. Issue #6 closed with
 PR #21; the final evidence below completes #7.
 
+Issue #8 performs the final acceptance audit and release bookkeeping against this
+record. It does not ask for the owner-reported checks below to be repeated.
+
 ## Release gates
 
 | Gate | Evidence and remaining boundary |
@@ -21,6 +24,52 @@ PR #21; the final evidence below completes #7.
 | O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Contact optional and indefinitely deferred**. Public-host hydration/security/privacy checks passed with synthetic activity canaries; see cutover evidence below. |
 | Actual hosts | Public apex HTTPS, root/nested routes, canonical/indexing and privacy checks passed; the default workers.dev URL is disabled and preview noindex remains verified. Apex and www HTTP redirect to the canonical HTTPS origin while preserving path/query. PRs #20/#21 are merged and production builds use master; non-production branch previews remain enabled. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
+
+## Issue #8 acceptance audit — 14 September 2026
+
+Issue #8 was written for an earlier Cloudflare Pages plan. Before deployment, the
+owner approved Workers Static Assets instead; the product specification and
+[Workers hosting guide](workers-hosting.md) now define that architecture. The
+ticket's Pages pipeline maps to the Workers static-export pipeline. Its pages.dev
+redirect criterion is not applicable because no Pages project or pages.dev
+deployment ever existed.
+
+| Issue #8 criterion | Result and evidence |
+| --- | --- |
+| Reproducible static-export pipeline | Satisfied for Workers Static Assets. Node 24.20.0, pnpm 12.3.4 and Wrangler 4.131.1 are recorded. The hosting guide now gives the frozen-lockfile install, typecheck, lint, Jest, build, Workers-emulator browser checks, Knip and Wrangler dry-run sequence. Cloudflare's GitHub build settings are recorded there. |
+| Rollback and reviewable candidate | Satisfied. PRs #20/#21 supplied the reviewed release candidate. Cloudflare retains known-good versions, including the tested pre-cutover version `4342ec3a-9cac-4a0b-b833-874d5773ad49`; application and DNS/placeholder rollback paths are distinct and documented in the hosting guide. No rollback was performed as a test. |
+| Publication authorization | Satisfied. Issue #7 records the owner's explicit deployment authorization, Free-plan selection, DNS changes, custom-domain attachment and final production-build-branch change. Issue creation alone was not treated as authorization. |
+| Production deployment and real-file workflow | Satisfied. The apex cutover deployed version `d32d4f69-5a85-40da-8991-105d1ce8c7f3`; the owner confirmed the public viewer's summary, chart and map on their phone. Earlier owner-reported phone and desktop import/inspect/replace/clear checks remain valid with their stated browser/version, recording, performance and observation limitations. |
+| Branding, metadata and indexing | Satisfied. Public root, viewer, privacy and limitations returned 200; canonical/Open Graph metadata, sitemap entries and the robots sitemap reference use `https://gpsgoblin.com`; production had no noindex. GPSGoblin branding was covered by the released candidate and discovery review. |
+| pages.dev redirects | Not applicable under the approved architecture. No Pages project or pages.dev deployment exists. The actual alternate public hostname, `www.gpsgoblin.com`, redirects to the canonical HTTPS apex with nested path and query preserved; apex HTTP upgrades with a 308 and www uses a 301. |
+| Preview noindex | Satisfied. The immutable version preview and branch alias returned 200 with `X-Robots-Tag: noindex`; the default production workers.dev route returned 404 after cutover. Preview usability, direct nested routes and hosted browser workflows were verified independently of production. |
+| Evidence, limitations and Stage 1 scope | Satisfied by this record and its linked hosting/privacy/support documents. O2, GPX-relevant O3, O4 and O5 passed within their recorded boundaries. Later formats and Stages 2–6 remain outside this release; no broader device, assistive-technology, retention, telemetry or performance claim is inferred. |
+
+The deployed artifact is `out/`, not the repository root or `.next/`. The verified
+build produced six HTML files and generated seven inline-script hashes. Issue #8's
+completion build remeasured the artifact and checked that it contains no `.next`
+or cache directory; size remains diagnostic rather than a fixed limit. The
+candidate branch and PR retain the completion audit, while the merged production
+commit and its Cloudflare check identify the deployed release.
+
+Completion verification on Node 24.20.0 and pnpm 12.3.4 passed:
+
+| Command | Issue #8 result |
+| --- | --- |
+| `pnpm install --frozen-lockfile` | Passed; lockfile current, 828 packages restored from the pnpm store |
+| `pnpm tsc --incremental false` | Passed |
+| `pnpm lint` | Passed |
+| `pnpm test --runInBand --silent` | 176 passed in 15 suites |
+| `pnpm build` | Passed; six HTML files and seven inline-script hashes generated |
+| `pnpm test:browser:hosting --workers=2` | 12 passed across desktop/mobile Chrome projects against the local Workers emulator |
+| `pnpm knip` | Passed with no findings |
+| `WRANGLER_SEND_METRICS=false pnpm deploy:check` | Passed; Wrangler 4.131.1 read 76 asset entries, found no bindings and performed no upload |
+| `git diff --check` | Passed |
+
+The rebuilt `out/` measured 9.3 MB with 64 files. It contained `_headers`, no
+`.next` or cache directory, and remained ignored by Git. These checks add fresh
+build/configuration evidence only; there was no user-facing change requiring new
+viewport, touch, keyboard or physical-device coverage.
 
 ## Workers hosting transition — 14 September 2026
 
