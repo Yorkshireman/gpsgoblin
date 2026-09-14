@@ -138,6 +138,30 @@ No custom-domain change, release approval or issue closure occurred. Remaining
 public-domain and hosting-privacy gates and indefinitely deferred contact details
 are unchanged.
 
+## Hosting privacy assessment — 14 September 2026
+
+[Hosting privacy evidence](hosting-privacy.md) records primary-source findings,
+live workers.dev response headers and a fresh Chrome privacy-page load. Ordinary
+host request processing, browser-managed network-error reports, optional Web
+Analytics and build-tool telemetry are distinguished. No analytics script or
+cookie was observed in the sampled page load; this does not certify account-wide
+settings. Public privacy copy now discloses Cloudflare connection-failure reports
+without claiming a fixed retention period or that no information leaves the device.
+
+Validation: `pnpm build`, `pnpm lint`, `pnpm tsc`, `pnpm knip` and
+`PLAYWRIGHT_PORT=4191 pnpm exec playwright test tests/browser/releaseSecurity.spec.ts --workers=2`
+passed (eight browser checks). The default test port was occupied; the suite ran
+on an isolated alternate port. Chrome screenshots of the privacy page were
+reviewed at 1440 × 900 and 390 × 844, including the hosting section after scrolling
+on the phone (scrollY 814). Copy wrapped without horizontal overflow, and the
+Cloudflare policy link accepted keyboard focus with its correct destination.
+This copy-only change did not receive a new physical-device test.
+
+The technical assessment is recorded; account/zone-specific services and the
+future custom domain still need verification. Public-release approval, contact
+requirements and domain cutover remain unresolved; contact details remain
+indefinitely deferred. No account setting, deployment or domain was changed.
+
 ## Security policy and build
 
 `pnpm build` generates the static export and then runs
