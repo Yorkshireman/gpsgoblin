@@ -244,6 +244,27 @@ successful owner-reported loaded-view portrait → landscape → portrait retest
 not an agent-observed device session. It does not extend the coverage to other
 devices, browser versions, hosting environments or measured phone performance.
 
+### Owner-reported desktop Brave check — 14 September 2026
+
+The owner tested the updated local production preview on their Mac in Brave,
+following the rotation fix recorded in `c69a83f`. They confirmed each step in
+the conversation:
+
+| Interaction | Reported result |
+| --- | --- |
+| Load a GPX recording | Summary, chart and map appeared correctly. |
+| Click a chart point | Point details appeared and the map marked the corresponding location. |
+| Close the blue details box | Details disappeared and the selected-point marker cleared from the chart and map. |
+| Change GPX file to a different recording | Summary, chart and map updated to the new recording. |
+| Clear file | Summary, chart and map disappeared and the file chooser returned. |
+
+This is successful owner-reported basic workflow evidence, not an agent-observed
+browser session. The exact Brave version, viewport, recording provenance, file
+sizes, point counts and timings were not recorded. No desktop Brave keyboard,
+assistive-technology, large-file performance, failure-recovery or public-host
+verification is inferred. Contact details remain indefinitely deferred; the
+remaining release gates are unchanged and #7 remains open.
+
 ### Review and release decision
 
 Local standards/spec self-review covered the changed source, build scripts,
