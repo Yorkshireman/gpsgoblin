@@ -8,9 +8,9 @@ export const MeasurementChart = (props: MeasurementChartProps) => {
   return (
     <Stack gap={2} minW={0}>
       <Flex align='center' justify='space-between' gap={2} wrap='wrap'>
-        <Heading as='h3' size='lg'>
+        <Flex align='baseline' gap={2}><Heading as='h3' size='lg'>
           {title}
-        </Heading>
+        </Heading>{props.basisLabel ? <Text fontSize='xs'>{props.basisLabel}</Text> : null}</Flex>
         {elevationOverlay ? (
           <Switch.Root
             checked={elevationOverlay.enabled}

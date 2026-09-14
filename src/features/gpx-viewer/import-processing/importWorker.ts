@@ -14,7 +14,7 @@ self.addEventListener('message', async (event: MessageEvent<ImportRequest>) => {
       const view = measurements.prepareView(settings);
       const response: ImportResponse = { type: 'view', requestId, ok: true, view };
       self.postMessage(response, { transfer: view.analysis
-        ? [view.analysis.metrics.buffer, view.display.buffer] : [view.display.buffer] });
+        ? [view.analysis.metrics.buffer, view.display.buffer, view.timeSeconds.buffer] : [view.display.buffer, view.timeSeconds.buffer] });
     } catch {
       const response: ImportResponse = { type: 'view', requestId: event.data.requestId, ok: false,
         error: 'Measurements could not be updated. Try again or reopen the file.' };

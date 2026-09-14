@@ -1,3 +1,4 @@
+import { chartPosition } from './chartPosition';
 import type { ChartMeasurement } from '../../measurementDisplay';
 
 const metrics = ['motion', 'elevation'] as const;
@@ -8,8 +9,8 @@ const metrics = ['motion', 'elevation'] as const;
 export const downsampleChart = (data: ChartMeasurement[], width: number) => {
   if (width <= 0) return [];
   if (data.length <= width) return data;
-  const start = data[0].distance;
-  const span = data[data.length - 1].distance - start;
+  const start = chartPosition(data[0]);
+  const span = chartPosition(data[data.length - 1]) - start;
   const retained = new Set<number>();
   const minima = { motion: -1, elevation: -1 };
   const maxima = { motion: -1, elevation: -1 };
@@ -30,7 +31,7 @@ export const downsampleChart = (data: ChartMeasurement[], width: number) => {
   for (let index = 0; index < data.length; index += 1) {
     const point = data[index];
     const previous = data[index - 1];
-    if (point.recordingGap) retained.add(index);
+    if (point.recordingGap || point.possibleStop || point.stopBoundary) retained.add(index);
     const beginsFragment = previous && (
       point.sampleId === null || previous.sampleId === null ||
       point.zeroSpeed !== previous.zeroSpeed ||
@@ -38,7 +39,7 @@ export const downsampleChart = (data: ChartMeasurement[], width: number) => {
         return (point[metric] === null) !== (previous[metric] === null);
       })
     );
-    const nextBucket = span > 0 ? Math.floor(((point.distance - start) / span) * width) : 0;
+    const nextBucket = span > 0 ? Math.floor(((chartPosition(point) - start) / span) * width) : 0;
     // Separate fragments must not erase each other's peaks within one pixel.
     if (nextBucket !== bucket || beginsFragment) {
       if (bucket >= 0) flush();

@@ -1,3 +1,4 @@
+import { chartPosition } from './chartPosition';
 import { DefaultZIndexes, ZIndexLayer, usePlotArea, useXAxisScale, useYAxisScale } from 'recharts';
 import type { ChartMeasurement } from '../../measurementDisplay';
 
@@ -51,7 +52,7 @@ export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSel
             let high = data.length;
             while (low < high) {
               const middle = Math.floor((low + high) / 2);
-              if ((xScale(data[middle].distance) ?? Infinity) < target) low = middle + 1;
+              if ((xScale(chartPosition(data[middle])) ?? Infinity) < target) low = middle + 1;
               else high = middle;
             }
             return low;
@@ -59,16 +60,16 @@ export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSel
           // Cumulative distances are non-decreasing. Include the neighbours and
           // all distance ties so sparse lines and stationary runs stay selectable.
           let first = Math.max(0, lowerBound(x - radius / scaleX) - 1);
-          while (first > 0 && data[first - 1].distance === data[first].distance) first -= 1;
+          while (first > 0 && chartPosition(data[first - 1]) === chartPosition(data[first])) first -= 1;
           const last = lowerBound(x + radius / scaleX);
           let end = last;
-          while (end < data.length && data[end].distance === data[last].distance) end += 1;
+          while (end < data.length && chartPosition(data[end]) === chartPosition(data[last])) end += 1;
           let hit: ChartMeasurement | undefined;
           let hitDistance = radius ** 2;
           for (let index = first; index < end; index += 1) {
             const point = data[index];
             if (axisMaximum !== undefined && point[metric] !== null && point[metric] > axisMaximum) continue;
-            const pointX = xScale(point.distance);
+            const pointX = xScale(chartPosition(point));
             if (pointX === undefined) {
               continue;
             }

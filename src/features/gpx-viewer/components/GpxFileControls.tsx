@@ -1,8 +1,6 @@
 import { Alert, Button, FileUpload, Flex, Spinner, Text } from '@chakra-ui/react';
 import { useRef } from 'react';
 
-import { GPX_IMPORT_DESCRIPTION } from '@/parsers/gpx';
-
 type GpxFileControlsProps = Readonly<{
   canClear: boolean;
   showDropzone: boolean;
@@ -62,7 +60,7 @@ export const GpxFileControls = ({
       </Flex>
       {filename ? (
         <Text fontSize='sm' color='fg.muted'>
-          {GPX_IMPORT_DESCRIPTION} Refreshing or clearing loses your work.
+          Refreshing or clearing loses your work.
         </Text>
       ) : null}
       {isLoading ? (

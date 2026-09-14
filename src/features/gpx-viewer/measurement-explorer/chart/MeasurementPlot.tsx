@@ -1,3 +1,4 @@
+import { chartPosition } from './chartPosition';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Chart, useChart } from '@chakra-ui/charts';
 import { Box, Stack, Text } from '@chakra-ui/react';
@@ -32,6 +33,8 @@ export const MeasurementPlot = ({
   elevationOverlay,
   unit,
   distanceUnit,
+  axisLabel,
+  onStopSelect,
   selectedId,
   onSelect
 }: MeasurementChartProps) => {
@@ -87,7 +90,7 @@ export const MeasurementPlot = ({
             responsive
             style={{ width: '100%', height: '100%' }}
             data={chart.data}
-            margin={{ top: metric === 'motion' && displayData.some(point => { return point.recordingGap; }) ? 56 : 12, right: 8, bottom: 28, left: 0 }}
+            margin={{ top: metric === 'motion' && displayData.some(point => { return point.recordingGap || point.possibleStop; }) ? 56 : 12, right: 8, bottom: 28, left: 0 }}
             accessibilityLayer
           >
             <CartesianGrid
@@ -97,13 +100,13 @@ export const MeasurementPlot = ({
             />
             <XAxis
               type='number'
-              dataKey='distance'
+              dataKey={chartPosition}
               domain={['dataMin', 'dataMax']}
               tickFormatter={value => {
                 return Number(Number(value).toFixed(1)).toString();
               }}
               label={{
-                value: `Distance (${distanceUnit})`,
+                value: axisLabel ?? `Distance (${distanceUnit})`,
                 position: 'bottom',
                 offset: 10
               }}
@@ -196,14 +199,14 @@ export const MeasurementPlot = ({
                 stroke={chart.color('fg.muted')}
                 strokeWidth={2}
                 strokeDasharray='6 4'
-                ifOverflow='extendDomain'
+                ifOverflow={axisMaximum === undefined ? 'extendDomain' : 'hidden'}
               />
             ) : null}
             {isolated.map(point => {
               return (
                 <ReferenceDot
                   key={point.sampleId}
-                  x={point.distance}
+                  x={chartPosition(point)}
                   y={point[metric] ?? undefined}
                   r={3}
                   fill={chart.color('green.solid')}
@@ -213,7 +216,7 @@ export const MeasurementPlot = ({
             })}
             {selected && selected[metric] !== null && (axisMaximum === undefined || selected[metric] <= axisMaximum) ? (
               <ReferenceDot
-                x={selected.distance}
+                x={chartPosition(selected)}
                 y={selected[metric]}
                 r={6}
                 fill={chart.color('green.solid')}
@@ -223,10 +226,11 @@ export const MeasurementPlot = ({
             <ChartSelection data={data} metric={metric} axisMaximum={axisMaximum} onSelect={onSelect} />
             {metric === 'motion' ? <GapMarkers data={displayData} selectedId={selectedId}
               onHover={() => { setHideTooltipAfterOverflow(true); setHoveredOverflowId(undefined); }}
-              onSelect={id => {
+              onSelect={(id, trigger) => {
                 setHideTooltipAfterOverflow(true);
                 setHoveredOverflowId(undefined);
-                onSelect(id);
+                if (onStopSelect && data.some(point => { return point.sampleId === id && point.possibleStop; })) onStopSelect(id, trigger);
+                else onSelect(id);
               }} /> : null}
             {axisMaximum !== undefined ? (
               <OverflowMarkers data={displayData} maximum={axisMaximum} unit={unit}

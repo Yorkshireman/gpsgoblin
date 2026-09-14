@@ -273,8 +273,8 @@ not receive this recording-gap classification. See the
 
 Gap speed/pace is unavailable even at zero smoothing; smoothing restarts with the
 next usable interval. Source points, raw interval calculations, distance, elapsed
-duration and overall average remain unchanged. The average label explicitly includes
-gaps. No moving time or stop exclusion is introduced.
+duration and overall complete-recording average remain unchanged. The default average label explicitly includes
+gaps. The optional confirmed-stop view below uses a separate eligible calculation.
 
 Visible 44-pixel Gap buttons sit above the trace. Nearby markers are grouped to
 avoid overlapping touch targets; repeated activation cycles through their source
@@ -293,3 +293,31 @@ It explains minutes per distance, stops/slow movement and small GPS position cha
 in plain language, and describes smoothing, Custom maximum, overflow arrows and
 Show full range without changing the underlying measurements or totals. The distance word follows
 the selected metric/imperial units.
+
+## Optional confirmed-stop view (issue #13)
+
+Include stops is the default. Under Chart options, choose Exclude detected stops
+and independently choose Distance or Time. Spatially confined intervals are only
+possible stops: GPS drift, slow progress and climbing can look alike. Review each
+candidate through its Stop? chart marker or the accessible interval selector and
+confirm it before exclusion. Every unconfirmed interval stays included. The review
+dialog keeps confirmation and its changed graph together. Include stops restores
+the complete calculation; original samples, file contents and totals never change.
+
+Candidate analysis requires at least 60 seconds within a 10 m spatial extent and
+observations no more than 10 seconds apart. Sparse or unusable timing is insufficient
+evidence, not proof of movement. Detection coverage is disclosed even when there
+are no candidates. Planned routes are ineligible. See the
+[agreed policy, evidence and limitations](stop-detection-policy.md#agreed-viewer-implementation).
+
+The filtered time axis and average use eligible recorded intervals, removing
+confirmed stop intervals and unknown recording gaps from both distance and duration.
+Gap duration is disclosed separately. Missing coverage stays explicit; the graph
+does not establish the whole activity's true moving time. Exclusions reset smoothing
+and remain visible breaks on either axis. Unit and pace-range changes do not change
+the exclusion decisions. The separate Moving time summary is deferred to #11.
+
+Owner-provided GPX recordings used for local validation live in the git-ignored
+`private-recordings/` directory. Do not commit their contents or screenshots. Supply
+them through the existing `GPSGOBLIN_GAP_FILE` and `GPSGOBLIN_CONTINUOUS_FILE` browser
+test environment variables; public fixtures remain synthetic or sanitised.

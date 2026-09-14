@@ -1,3 +1,4 @@
+import { chartPosition } from './chartPosition';
 import { useMemo } from 'react';
 import { IconButton } from '@chakra-ui/react';
 import { DefaultZIndexes, ZIndexLayer, useXAxisScale, useYAxisScale, usePlotArea } from 'recharts';
@@ -40,7 +41,7 @@ export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, o
     const result: ChartMeasurement[] = [];
     for (const peak of peaks) {
       const previous = result.at(-1);
-      if (previous && Math.abs((xScale(peak.distance) ?? 0) - (xScale(previous.distance) ?? 0)) < 32) {
+      if (previous && Math.abs((xScale(chartPosition(peak)) ?? 0) - (xScale(chartPosition(previous)) ?? 0)) < 32) {
         if ((peak.motion ?? 0) > (previous.motion ?? 0)) result[result.length - 1] = peak;
       } else {
         result.push(peak);
@@ -48,7 +49,7 @@ export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, o
     }
     if (selected?.motion != null && selected.motion > maximum) {
       return [...result.filter(point => {
-        return Math.abs((xScale(point.distance) ?? 0) - (xScale(selected.distance) ?? 0)) >= 32;
+        return Math.abs((xScale(chartPosition(point)) ?? 0) - (xScale(chartPosition(selected)) ?? 0)) >= 32;
       }), selected];
     }
     return result;
@@ -58,7 +59,7 @@ export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, o
   return (
     <ZIndexLayer zIndex={DefaultZIndexes.label + 2}>
       {markers.map(point => {
-        const scaled = xScale(point.distance);
+        const scaled = xScale(chartPosition(point));
         if (scaled === undefined || !point.sampleId || point.motion === null) return null;
         const x = Math.max(area.x + 14, Math.min(area.x + area.width - 14, scaled));
         const label = `Above range: ${formatChartMeasurement(point.motion, unit)} at ${point.distance.toFixed(2)} ${distanceUnit}`;
