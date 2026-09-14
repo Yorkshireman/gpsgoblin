@@ -84,6 +84,6 @@ test('worker settings preserve the previous view and apply only the latest reque
   await page.getByRole('combobox', { name: 'Display units' }).selectOption('metric');
   await page.getByRole('button', { name: 'Clear file' }).click();
   await page.evaluate(() => { window.measurementTransport.release?.(); });
-  await expect(page.getByRole('heading', { name: 'Open a GPX file' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Open a GPX file', exact: true })).toBeVisible();
   await expect(page.getByRole('slider', { name: 'Position on route' })).toHaveCount(0);
 });

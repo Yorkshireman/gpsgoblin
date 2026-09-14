@@ -17,6 +17,7 @@ const PrivacyPage = () => {
       <Link href='https://osmfoundation.org/wiki/Privacy_Policy' minH='44px'>OpenStreetMap Foundation privacy policy</Link>
       <Heading as='h2' size='xl'>Website hosting</Heading>
       <Text>Cloudflare serves the website and receives ordinary web requests, including your IP address and the page or asset requested. These requests do not contain your imported activity file. Cloudflare controls its own handling of connection information.</Text>
+      <Text>Cloudflare also asks browsers that support it to report website connection failures. These reports can include the requested web address, the referring page and details about the failed connection. GPSGoblin does not put your filename or activity contents in these web addresses.</Text>
       <Link href='https://www.cloudflare.com/privacypolicy/' minH='44px'>Cloudflare privacy policy</Link>
       <Heading as='h2' size='xl'>Cookies, storage and consent</Heading>
       <Text>GPSGoblin does not set advertising or analytics cookies, run product analytics, show advertisements or use session recording. There is no advertising or analytics consent choice to make in this version.</Text>

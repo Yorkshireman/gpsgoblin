@@ -48,3 +48,7 @@ __pycache__/
 
 # Owner-provided recordings for local validation only
 /private-recordings/
+
+# Local Cloudflare tooling
+/.wrangler/
+.dev.vars*

@@ -15,7 +15,7 @@ const Home = () => {
         <Stack gap={3} borderWidth='1px' rounded='lg' p={{ base: 5, md: 8 }} mt={3} align='start'>
           <Heading as='h2' size='xl'>GPX File Viewer</Heading>
           <Text maxW='prose'>View tracks, routes and waypoints on a map. Check distance and explore elevation, speed and pace when your file has the readings needed.</Text>
-          <Button asChild colorPalette='teal'><NextLink href='/tools/gpx-file-viewer'>Open GPX File Viewer</NextLink></Button>
+          <Button asChild colorPalette='teal' variant='surface'><NextLink href='/tools/gpx-file-viewer'>Open GPX File Viewer</NextLink></Button>
           <Text fontSize='sm' color='fg.muted'>Supports GPX 1.1. Free to use; your original file stays unchanged.</Text>
         </Stack>
       </Stack>

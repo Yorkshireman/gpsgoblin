@@ -41,6 +41,9 @@ for (const viewport of [
     const top = Number(await page.locator('.measurement-selection-area').getAttribute('y'));
     expect(Math.min(...ys)).toBeLessThan(top);
     expect(await trace.evaluate(element => Boolean(element.closest('[clip-path]')))).toBe(true);
+    // Finish configuring before inspecting: expanded options use normal page
+    // scrolling and need not fit alongside the graph on a short phone.
+    await page.getByText('Chart options', { exact: true }).click();
     await page.getByRole('region', { name: 'Measurement chart', exact: true }).evaluate(element => {
       element.scrollIntoView({ block: 'start' });
     });
@@ -59,6 +62,7 @@ for (const viewport of [
     await page.getByRole('slider', { name: 'Position on route' }).press('Home');
     await arrow.press('Space');
     await expect(selected).toContainText(/107:\d{2} min\/km/);
+    await page.getByText('Chart options', { exact: true }).click();
     await maximum.fill('15');
     const position = page.getByRole('slider', { name: 'Position on route' });
     await position.press('Home');

@@ -38,8 +38,8 @@ const GpxFileViewerPage = () => {
             <Heading as='h2' size='xl'>Privacy and limitations</Heading>
             <Text>Your file is not uploaded. Online map backgrounds request the area you are viewing from OpenStreetMap. Refreshing or leaving this tool closes your file and resets your choices.</Text>
             <Text>This viewer does not edit, repair, convert or download a changed file. Extra device fields such as heart rate, cadence and power are not displayed.</Text>
-            <Link asChild minH='44px'><NextLink href='/limitations'>Tested support and limitations</NextLink></Link>
-            <Link asChild minH='44px'><NextLink href='/privacy'>How your file and map requests are handled</NextLink></Link>
+            <Link asChild minH='44px' colorPalette='green' variant='underline' textDecorationColor='currentColor' _hover={{ textDecorationThickness: '2px' }}><NextLink href='/limitations'>Tested support and limitations</NextLink></Link>
+            <Link asChild minH='44px' colorPalette='green' variant='underline' textDecorationColor='currentColor' _hover={{ textDecorationThickness: '2px' }}><NextLink href='/privacy'>How your file and map requests are handled</NextLink></Link>
           </Stack>
         </Box>
       </Stack>

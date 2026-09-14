@@ -17,7 +17,7 @@ export const MeasurementSummary = ({ analysis, labels, plannedRoute }: Measureme
           <Stat.ValueText fontSize={{ base: 'xl', md: '2xl' }}>
             {formatMeasurement(analysis.distanceMetres / labels.metresPerDistance, labels.distance)}
           </Stat.ValueText>
-          <Stat.HelpText fontSize='xs'>
+          <Stat.HelpText as='dd' fontSize='xs'>
             {!plannedRoute
               ? 'Based on the recorded GPS points'
               : 'Based on straight lines between route points'}
@@ -28,7 +28,7 @@ export const MeasurementSummary = ({ analysis, labels, plannedRoute }: Measureme
           <Stat.ValueText fontSize={{ base: 'xl', md: '2xl' }}>
             {formatDuration(analysis.elapsedDurationSeconds)}
           </Stat.ValueText>
-          <Stat.HelpText fontSize='xs'>
+          <Stat.HelpText as='dd' fontSize='xs'>
             {analysis.elapsedDurationSeconds === null
               ? 'Needs valid start and finish times'
               : 'From start to finish, including pauses and gaps'}

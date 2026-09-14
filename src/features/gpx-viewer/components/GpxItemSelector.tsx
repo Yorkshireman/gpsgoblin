@@ -30,6 +30,8 @@ export const GpxItemSelector = ({
       <Field.Label>View</Field.Label>
       <NativeSelect.Root>
         <NativeSelect.Field
+          // WebKit otherwise includes long option text in the page's scroll width.
+          overflow="clip"
           value={selectedItem?.id ?? ''}
           onChange={event => {
             const id = event.currentTarget.value;
