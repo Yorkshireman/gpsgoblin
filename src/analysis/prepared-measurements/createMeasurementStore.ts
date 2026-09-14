@@ -1,4 +1,5 @@
-import { analyseMeasurements, averageSpeeds, readTimestamp, summariseMeasurements } from '@/analysis/measurements';
+import { analyseMeasurements, findRecordingGaps, averageSpeeds, readTimestamp, summariseMeasurements } from '@/analysis/measurements';
+import { suggestPaceMaximum } from './suggestPaceMaximum';
 import type { ImportedGpxDocument, TrackSegment } from '@/domain/activityDocument';
 import type { MeasurementSummary, MeasurementViewRequest, PackedMeasurementView, PackedMeasurementAnalysis } from './measurementView';
 
@@ -11,12 +12,13 @@ type SegmentRange = Readonly<{
 
 type PreparedEntity = Readonly<{
   metrics: Float64Array;
+  recordingGaps: ReadonlySet<number>;
   summary: MeasurementSummary;
   segments: readonly SegmentRange[];
   timeIssues: PackedMeasurementAnalysis['timeIssues'];
 }>;
 
-const prepareEntity = (segments: readonly TrackSegment[]): PreparedEntity => {
+const prepareEntity = (segments: readonly TrackSegment[], recorded = true): PreparedEntity => {
   const { points, ...summary } = analyseMeasurements(segments);
   const metrics = new Float64Array(points.length * 4);
   const timeIssues: { index: number; issue: string }[] = [];
@@ -64,13 +66,13 @@ const prepareEntity = (segments: readonly TrackSegment[]): PreparedEntity => {
     start = end;
     return range;
   });
-  return { metrics, summary, segments: ranges, timeIssues };
+  return { metrics, summary, segments: ranges, timeIssues, recordingGaps: new Set(recorded ? findRecordingGaps(points) : []) };
 };
 
 const prepareEntities = (document: ImportedGpxDocument) => {
   const entities = new Map<string, PreparedEntity>();
   for (const track of document.tracks) entities.set(track.id, prepareEntity(track.segments));
-  for (const route of document.routes) entities.set(route.id, prepareEntity([{ id: route.id, samples: route.points }]));
+  for (const route of document.routes) entities.set(route.id, prepareEntity([{ id: route.id, samples: route.points }], false));
   return entities;
 };
 
@@ -83,7 +85,7 @@ const speedIntervals = (entity: PreparedEntity, start: number, end: number) => {
         next: () => {
           if (index >= end) return { done: true as const, value: undefined };
           while (entity.segments[segmentIndex].end <= index) segmentIndex += 1;
-          const speed = entity.metrics[index * 4 + 2];
+          const speed = entity.recordingGaps.has(index) ? NaN : entity.metrics[index * 4 + 2];
           const seconds = entity.metrics[index * 4 + 3];
           const value = {
             segmentId: entity.segments[segmentIndex].id,
@@ -125,7 +127,9 @@ export const createMeasurementStore = (document: ImportedGpxDocument) => {
           ? speed * 3600 / metresPerDistance
           : speed > 0 ? metresPerDistance / speed / 60 : NaN;
       }
-      if (request.includeAnalysis === false) return { display };
+      const suggestedPaceMaximum = request.motion === 'pace' ? suggestPaceMaximum(display, entity.metrics, start, metresPerDistance) : undefined;
+      const presentation = request.motion === 'pace' ? { display, suggestedPaceMaximum } : { display };
+      if (request.includeAnalysis === false) return presentation;
       const metrics = entity.metrics.slice(start * 4, end * 4);
       if (distanceOffset) {
         for (let index = 0; index < end - start; index += 1) metrics[index * 4] -= distanceOffset;
@@ -134,13 +138,14 @@ export const createMeasurementStore = (document: ImportedGpxDocument) => {
         analysis: {
           summary: segment?.summary ?? entity.summary,
           metrics,
+          recordingGaps: Array.from(entity.recordingGaps).filter(index => { return index >= start && index < end; }).map(index => { return index - start; }),
           timeIssues: entity.timeIssues.filter(item => {
             return item.index >= start && item.index < end;
           }).map(item => {
             return { index: item.index - start, issue: item.issue };
           })
         },
-        display
+        ...presentation
       };
     }
   };

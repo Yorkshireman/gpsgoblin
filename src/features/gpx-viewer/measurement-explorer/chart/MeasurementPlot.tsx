@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import { formatChartValue, formatChartMeasurement } from '../../measurementDisplay';
 import { ChartSelection } from './ChartSelection';
+import { GapMarkers } from './GapMarkers';
 import { OverflowMarkers } from './OverflowMarkers';
 import { downsampleChart } from './downsampleChart';
 import type { MeasurementChartProps } from './chartTypes';
@@ -86,7 +87,7 @@ export const MeasurementPlot = ({
             responsive
             style={{ width: '100%', height: '100%' }}
             data={chart.data}
-            margin={{ top: 12, right: 8, bottom: 28, left: 0 }}
+            margin={{ top: metric === 'motion' && displayData.some(point => { return point.recordingGap; }) ? 56 : 12, right: 8, bottom: 28, left: 0 }}
             accessibilityLayer
           >
             <CartesianGrid
@@ -220,6 +221,13 @@ export const MeasurementPlot = ({
               />
             ) : null}
             <ChartSelection data={data} metric={metric} axisMaximum={axisMaximum} onSelect={onSelect} />
+            {metric === 'motion' ? <GapMarkers data={displayData} selectedId={selectedId}
+              onHover={() => { setHideTooltipAfterOverflow(true); setHoveredOverflowId(undefined); }}
+              onSelect={id => {
+                setHideTooltipAfterOverflow(true);
+                setHoveredOverflowId(undefined);
+                onSelect(id);
+              }} /> : null}
             {axisMaximum !== undefined ? (
               <OverflowMarkers data={displayData} maximum={axisMaximum} unit={unit}
                 distanceUnit={distanceUnit} selected={selected}

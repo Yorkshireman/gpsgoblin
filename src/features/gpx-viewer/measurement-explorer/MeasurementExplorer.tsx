@@ -6,6 +6,7 @@ import { RouteMap } from '../RouteMap';
 import { displayUnits } from '../measurementDisplay';
 import type { DisplayUnits, MotionDisplay } from '../measurementDisplay';
 import { MeasurementChart } from './chart';
+import { RecordingGapControl } from './RecordingGapControl';
 import { SelectedMeasurement } from './SelectedMeasurement';
 import { MeasurementSummary } from './MeasurementSummary';
 import { MobileMapDialog } from './MobileMapDialog';
@@ -35,8 +36,9 @@ export const MeasurementExplorer = ({
   const [activeChart, setActiveChart] = useState<'speed' | 'pace' | 'elevation'>('speed');
   const requestedMotion: MotionDisplay = activeChart === 'pace' ? 'pace' : 'speed';
   const [showElevation, setShowElevation] = useState(false);
-  const [customPaceRange, setCustomPaceRange] = useState(false);
+  const [paceRange, setPaceRange] = useState<'suggested' | 'full' | 'custom'>('suggested');
   const [paceMaximumPerKm, setPaceMaximumPerKm] = useState<number>();
+  const [hasChosenCustomMaximum, setHasChosenCustomMaximum] = useState(false);
   const [smoothingSeconds, setSmoothingSeconds] = useState(SPEED_AVERAGE_SECONDS);
   const segments = useMemo(() => {
     return track ? (segment ? [segment] : track.segments) : [{ id: route.id, samples: route.points }];
@@ -48,8 +50,8 @@ export const MeasurementExplorer = ({
   const prepared = useMeasurementView(measurements, segments, settings);
   const [selection, setSelection] = useState<{ segments: typeof segments; id: string }>();
   const selectedId = selection?.segments === segments ? selection.id : undefined;
-  const setSelectedId = (id: string) => {
-    setSelection({ segments, id });
+  const setSelectedId = (id: string | undefined) => {
+    setSelection(id === undefined ? undefined : { segments, id });
     return;
   };
   if (!prepared.snapshot) {
@@ -79,7 +81,7 @@ export const MeasurementExplorer = ({
         ? 'speed'
         : activeChart === 'elevation' ? 'elevation' : motion;
   const paceMaximum = paceMaximumPerKm === undefined ? undefined : paceMaximumPerKm * (labels.metresPerDistance / 1000);
-  const axisMaximum = chart === 'pace' && customPaceRange ? paceMaximum : undefined;
+  const axisMaximum = chart === 'pace' ? paceRange === 'suggested' ? prepared.snapshot.suggestedPaceMaximum : paceRange === 'custom' ? paceMaximum : undefined : undefined;
   const mapView = (
     <>
       {' '}
@@ -119,12 +121,21 @@ export const MeasurementExplorer = ({
           ) : null}
           {prepared.error ? <Button size='sm' onClick={prepared.retry}>Retry measurements</Button> : null}
           {activeChart === 'pace' && hasTimedMotion ? (
-            <PaceRangeControls key={labels.pace} custom={customPaceRange} onCustomChange={setCustomPaceRange}
+            <PaceRangeControls mode={paceRange} onModeChange={mode => {
+              if (mode === 'custom' && !hasChosenCustomMaximum) {
+                const suggested = prepared.snapshot?.suggestedPaceMaximum;
+                setPaceMaximumPerKm(suggested === undefined ? undefined : suggested / (labels.metresPerDistance / 1000));
+                setHasChosenCustomMaximum(true);
+              }
+              setPaceRange(mode);
+            }} suggestedMaximum={prepared.snapshot.suggestedPaceMaximum}
               maximum={paceMaximum} unit={labels.pace} onMaximumChange={value => {
                 setPaceMaximumPerKm(value === undefined ? undefined : value / (labels.metresPerDistance / 1000));
               }} />
           ) : null}
+          {chart !== 'elevation' ? <RecordingGapControl points={analysis.points} selectedId={selectedId} onSelect={setSelectedId} /> : null}
           <SelectedMeasurement
+            onClear={() => { setSelectedId(undefined); }}
             selected={selected}
             labels={labels}
             selectedMotion={selectedMotion}
@@ -174,7 +185,7 @@ export const MeasurementExplorer = ({
                             value:
                               (analysis.averageSpeedMetresPerSecond * 3600) /
                               labels.metresPerDistance,
-                            label: 'Average speed'
+                            label: analysis.points.some(point => { return Boolean(point.recordingGap); }) ? 'Average speed (including gaps)' : 'Average speed'
                           }
                         : undefined
                     }

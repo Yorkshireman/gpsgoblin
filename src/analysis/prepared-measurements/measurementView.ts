@@ -17,10 +17,12 @@ export type PackedMeasurementAnalysis = Readonly<{
   // Four columns per original sample: distance m, elevation m, speed m/s, interval s.
   // NaN means unavailable. Each returned buffer belongs to this result and can be transferred.
   metrics: Float64Array;
+  recordingGaps?: readonly number[];
   timeIssues: readonly Readonly<{ index: number; issue: string }>[];
 }>;
 
 export type PackedMeasurementView = Readonly<{
+  suggestedPaceMaximum?: number;
   analysis?: PackedMeasurementAnalysis;
   // Three columns per original sample: displayed distance, elevation and motion.
   // Segment gaps are inserted by the presentation adapter, never added to source samples.

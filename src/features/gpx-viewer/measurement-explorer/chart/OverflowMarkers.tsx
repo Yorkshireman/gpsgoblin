@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { IconButton } from '@chakra-ui/react';
-import { DefaultZIndexes, ZIndexLayer, useXAxisScale, useYAxisScale } from 'recharts';
+import { DefaultZIndexes, ZIndexLayer, useXAxisScale, useYAxisScale, usePlotArea } from 'recharts';
 import { formatChartMeasurement } from '../../measurementDisplay';
 import type { ChartMeasurement } from '../../measurementDisplay';
 
@@ -16,6 +16,7 @@ type OverflowMarkersProps = Readonly<{
 
 export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, onSelect, onHover }: OverflowMarkersProps) => {
   const xScale = useXAxisScale();
+  const area = usePlotArea();
   const yScale = useYAxisScale();
   const peaks = useMemo(() => {
     const result: ChartMeasurement[] = [];
@@ -53,18 +54,20 @@ export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, o
     return result;
   }, [peaks, selected, maximum, xScale]);
   const y = yScale?.(maximum);
-  if (!xScale || y === undefined) return null;
+  if (!area || !xScale || y === undefined) return null;
   return (
     <ZIndexLayer zIndex={DefaultZIndexes.label + 2}>
       {markers.map(point => {
-        const x = xScale(point.distance);
-        if (x === undefined || !point.sampleId || point.motion === null) return null;
+        const scaled = xScale(point.distance);
+        if (scaled === undefined || !point.sampleId || point.motion === null) return null;
+        const x = Math.max(area.x + 14, Math.min(area.x + area.width - 14, scaled));
         const label = `Above range: ${formatChartMeasurement(point.motion, unit)} at ${point.distance.toFixed(2)} ${distanceUnit}`;
         return (
           <foreignObject key={point.sampleId} x={x - 14} y={Math.max(0, y - 10)} width={28} height={28} overflow='visible'>
             <IconButton type='button' aria-label={label} title={label} size='2xs' width='28px' height='28px'
-              colorPalette='green' variant={point.sampleId === selected?.sampleId ? 'solid' : 'outline'}
-              bg={point.sampleId === selected?.sampleId ? 'green.solid' : 'bg.panel'} rounded='full'
+              colorPalette='green' variant='outline' color='green.fg'
+              borderWidth={point.sampleId === selected?.sampleId ? '2px' : '1px'}
+              bg={point.sampleId === selected?.sampleId ? 'green.subtle' : 'bg.panel'} rounded='full'
               onPointerEnter={() => {
                 onHover(point.sampleId ?? undefined);
               }}

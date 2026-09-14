@@ -41,8 +41,9 @@ Duplicate/backwards timestamps are flagged without sorting or repairing the sour
 After a backwards timestamp, timing resumes only with adjacent valid points beyond
 the latest accepted time in that segment. Missing or invalid timestamps break
 adjacency. The UI reports the number of timed intervals and data-quality warnings.
-No arbitrary time-gap threshold is used: absent an explicit segment break or bad
-timestamp, an interval represents the entire time between the adjacent points.
+Raw intervals and complete-recording totals retain the entire time between adjacent
+valid points. For recorded tracks, chart presentation separately identifies observation
+gaps using the local timing policy below; these are not detected stops.
 
 Speed converts to km/h or mph. Pace is minutes per kilometre or mile, displayed as
 minutes:seconds. Unsmoothed stationary intervals retain zero speed and unavailable pace, not an
@@ -64,9 +65,9 @@ results remain available when WebGL fails.
 Speed and pace default to a labelled 1-minute trailing average. A smoothing slider
 directly below the chart offers 0–10 minutes, with five-second steps up to two
 minutes and thirty-second steps thereafter. The selected duration appears in its label
-in minutes and seconds. Zero shows the original calculated interval speeds. Averaging is time-weighted
+in minutes and seconds. Zero shows calculated interval speeds, with recording gaps still masked. Averaging is time-weighted
 (distance divided by time), including zero speed, and restarts after unusable time
-or a segment boundary. The start of a section uses the time available. A window
+or a segment boundary, and after an identified recording gap. The start of a section uses the time available. A window
 boundary inside an interval uses a proportional share of that interval, assuming
 its calculated average speed is constant during the interval. Averaging can soften
 brief changes and delay stop/start transitions by up to the window length; the
@@ -78,14 +79,20 @@ change. Elevation is not averaged.
 
 Pace uses minutes:seconds throughout, including values over an hour. Selected
 values and tooltips explicitly show min/km or min/mi, matching the axis unit.
-The pace axis defaults to Automatic, covering the highest displayed value with
-three CSS pixels of top padding. A Pace range control beside the chart settings
-allows a user to choose Custom maximum and enter minutes per kilometre or mile.
-Empty or invalid input leaves the automatic range active; invalid non-positive
-values show an explanation. The maximum converts when units change and can be
-removed by switching back to Automatic.
+The pace axis defaults to a Suggested range, calculated in the worker from the
+95th percentile of displayed pace weighted by eligible source-interval distance,
+plus 25% headroom, rounded up in min/km before unit conversion. See the
+[policy, evidence and limitations](pace-range-policy.md). The suggestion adapts to
+smoothing and selected entity/segment, independently of screen width. The full
+recording, including recorded stops, remains the underlying data view.
 
-The custom maximum only changes the visible axis range. Original line coordinates
+Show full range is directly available; Chart options contains Suggested, Full range
+and Custom maximum controls. Empty or invalid custom input uses the full range and
+invalid values show an explanation. Unit changes preserve the chosen maximum's
+meaning and leave the options disclosure open. Slower values above the axis are
+explicitly identified; Use suggested range restores the suggested view.
+
+Suggested and custom maximums change only the visible axis range. Original line coordinates
 are clipped outside that viewport, not flattened onto the ceiling. Upward arrow
 buttons mark the highest original sample in nearby overflow sections of the
 width-adapted drawing. Indicators within 32 screen pixels are grouped to keep
@@ -102,7 +109,7 @@ enormous pace. This uses the actual interval values, not a small-speed threshold
 
 The Speed chart also shows a dashed overall average-speed line with its value in
 the legend. It uses distance divided by duration over the same usable timed
-intervals, including recorded stops, for the selected track or segment. Untimed
+intervals, including recorded stops and time in recording gaps, for the selected track or segment. Untimed
 distance and gaps between segments are excluded. This reference does not change
 with smoothing and converts with the selected display units.
 
@@ -252,3 +259,37 @@ product-spec release gates remain open.
 
 Primary references: [GPX 1.1 schema](https://www.topografix.com/GPX/1/1/),
 [Recharts Line](https://recharts.github.io/en-US/api/Line/).
+
+## Recording gaps (issue #14)
+
+The default complete-recording chart marks an interval as a recording gap only when
+it is strictly longer than both 120 seconds and ten times a local reference interval.
+For each candidate, use up to 20 neighbouring eligible intervals on each side,
+exclude the candidate, and take the larger side median. Each nonempty side needs
+at least five intervals; an exact run edge can use the other side alone. Otherwise
+abstain. Segment boundaries and unusable timestamps break runs. Planned routes do
+not receive this recording-gap classification. See the
+[investigation and limitations](recording-gap-investigation.md).
+
+Gap speed/pace is unavailable even at zero smoothing; smoothing restarts with the
+next usable interval. Source points, raw interval calculations, distance, elapsed
+duration and overall average remain unchanged. The average label explicitly includes
+gaps. No moving time or stop exclusion is introduced.
+
+Visible 44-pixel Gap buttons sit above the trace. Nearby markers are grouped to
+avoid overlapping touch targets; repeated activation cycles through their source
+endpoints in order. Expand the recording-gap count to access every gap through the Inspect recording gap selector. Chart markers use a small break symbol with a 44-pixel touch target. Close the selected gap details to clear selection; individual markers also toggle off when selected again.
+Both controls update the existing nearby selection panel with duration and endpoint
+distance. The map points to the recorded ending sample, never an invented position
+inside the gap. The selected gap persists across units, speed/pace, smoothing and
+mobile map viewing. Downsampling retains every gap endpoint.
+
+A brief legitimate change to sparse sampling can still resemble a gap; dense
+stationary recording is intentionally unaffected. These thresholds are a conservative
+presentation policy, not proof of recorder failure, rest, or absence of movement.
+
+The pace-range controls include a collapsed “Why does pace sometimes spike?” tip.
+It explains minutes per distance, stops/slow movement and small GPS position changes
+in plain language, and describes smoothing, Custom maximum, overflow arrows and
+Show full range without changing the underlying measurements or totals. The distance word follows
+the selected metric/imperial units.

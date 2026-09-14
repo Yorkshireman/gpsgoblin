@@ -6,7 +6,7 @@ Research for [#13](https://github.com/Yorkshireman/gpsgoblin/issues/13), 12 Sept
 
 Evaluate stop candidates using sustained spatial confinement, observation continuity, evidence of horizontal progress and elevation change. Use elevation to protect possible climbing: sustained ascent **or descent**, or uncertain vertical behaviour, should keep an interval included unless the user chooses otherwise. Flat elevation alone must not certify a stop.
 
-Build the first viewer iteration as an **opt-in exclusion mode with per-interval overrides**. Keep **Exclude identified stops + Automatic range** as the eventual default proposal, pending broader labelled validation. The experiments below show useful detection, but also false-positive cases that prevent calling the default validated. There is no universal threshold established by this investigation.
+Build the first viewer iteration as an **opt-in exclusion mode with per-interval overrides**. The 14 September agreement supersedes this investigation's earlier eventual-default proposal: **Include stops remains the default**, with advanced options disclosed near the chart. Implement recording-gap presentation first; stop detection and moving-only views remain deferred. See [product specification section 7.2](product-spec.md#72-gpx-viewer) and the [recording-gap investigation](recording-gap-investigation.md). The experiments below show useful detection, but also false-positive cases. There is no universal threshold established by this investigation.
 
 ## Evidence from the permissioned recording
 

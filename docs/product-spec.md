@@ -1,7 +1,7 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.7
+**Version:** 0.9
 **Date:** 14 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
@@ -237,7 +237,7 @@ Do not describe a planned route as a completed workout or sparse route waypoints
 
 #### Recording gaps in speed and pace — agreed first improvement
 
-Keep the complete recording as the default view. Identify recording gaps conservatively: an interval must be both unusually long relative to the recording's normal sampling frequency and above a minimum duration. Numerical thresholds, the sampling-frequency estimator and behaviour for sparse or insufficient data remain validation decisions; do not silently classify ordinary sparse sampling as a gap or a gap as a stop.
+Keep the complete recording as the default view. Identify recording gaps conservatively: an interval must be both unusually long relative to the recording's normal sampling frequency and above a minimum duration. The first implementation uses the conservative local timing policy documented in [GPX support](gpx-support.md#recording-gaps-issue-14), with its evidence and limitations in the [investigation](recording-gap-investigation.md). Broader calibration remains open; do not treat a gap as proof of a stop.
 
 Show identified gaps as interruptions with no plotted speed or pace across the interval. Restart smoothing after each gap using subsequent eligible intervals. Preserve a visible, selectable gap marker even when endpoints are close together on the distance axis. Provide keyboard and touch access to nearby details stating the interval duration and endpoint distance, for example “No recorded points for 18 min 13 s; endpoints 10 m apart.” Do not imply a known position or speed inside the gap.
 
@@ -535,7 +535,7 @@ Downsample display datasets independently from full-resolution analysis. Preserv
 
 Use numeric continuous axes and consistent units. Do not connect null values or smooth a line in a way that implies supported measurements through an unknown interval.
 
-The pace axis defaults to Automatic, showing the full displayed range. Users may explicitly choose a custom axis maximum in the current pace units. This changes only the viewport: clip the line beyond that range without flattening its values, identify overflow visibly, and keep the actual measurements selectable with an above-range explanation. Convert the chosen maximum when display units change. This control does not detect stops, exclude time or change source data or calculations.
+The pace axis defaults to a Suggested range using the distance-weighted policy in [pace-range policy](pace-range-policy.md). Keep a direct Show full range action visible and place Suggested / Full range / Custom maximum settings under Chart options. State when slower values exceed the visible range; a short genuine slow section may be clipped and must remain inspectable. Users may explicitly choose a custom axis maximum in the current pace units. This changes only the viewport: clip the line beyond that range without flattening its values, identify overflow visibly, and keep the actual measurements selectable with an above-range explanation. Convert the chosen maximum when display units change. This control does not detect stops, exclude time or change source data or calculations.
 
 Benchmark before committing to display point limits. Replacing the renderer later must not require changing canonical data or analysis formulas.
 

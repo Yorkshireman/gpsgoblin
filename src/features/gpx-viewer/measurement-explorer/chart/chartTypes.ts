@@ -15,5 +15,5 @@ export type MeasurementChartProps = Readonly<{
   unit: string;
   distanceUnit: string;
   selectedId?: string;
-  onSelect: (id: string) => void;
+  onSelect: (id: string | undefined) => void;
 }>;

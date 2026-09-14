@@ -1,7 +1,8 @@
-import { Box, Flex, Grid, Icon, Stack, Text } from '@chakra-ui/react';
+import { Box, Flex, Grid, Icon, IconButton, Stack, Text } from '@chakra-ui/react';
 import type { MeasurementPoint } from '@/analysis/measurements';
 import {
   displayUnits,
+  formatDuration,
   formatMeasurement,
   formatChartMeasurement,
   formatRecordedTime,
@@ -11,6 +12,7 @@ import type { MotionDisplay } from '../measurementDisplay';
 
 type SelectedMeasurementProps = Readonly<{
   selected: MeasurementPoint | undefined;
+  onClear: () => void;
   labels: ReturnType<typeof displayUnits>;
   selectedMotion: number | null;
   axisMaximum?: number;
@@ -21,6 +23,7 @@ type SelectedMeasurementProps = Readonly<{
 
 export const SelectedMeasurement = ({
   selected,
+  onClear,
   labels,
   selectedMotion,
   axisMaximum,
@@ -28,6 +31,20 @@ export const SelectedMeasurement = ({
   motionUnit,
   smoothingSeconds
 }: SelectedMeasurementProps) => {
+  if (selected?.recordingGap) {
+    return <Stack as='section' aria-label='Selected measurement' role='status' gap={1} p={2}
+      rounded='l3' bg='blue.subtle' color='blue.fg' fontSize='sm'>
+      <Flex align='center' justify='space-between' gap={2} minH='36px'>
+        <Text fontWeight='semibold'>Recording gap at {formatMeasurement(selected.distanceMetres / labels.metresPerDistance, labels.distance)}</Text>
+        <IconButton aria-label='Clear gap' title='Clear gap' variant='ghost' colorPalette='blue' size='sm' minW='44px' minH='44px' my={-1} onClick={onClear}>
+          <svg aria-hidden='true' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' strokeWidth='1.5'><path d='m4 4 8 8M12 4l-8 8' /></svg>
+        </IconButton>
+      </Flex>
+      <Text>No recorded points for {formatDuration(selected.recordingGap.seconds)}; endpoints{' '}
+        {formatMeasurement(selected.recordingGap.distanceMetres / (labels.elevation === 'ft' ? 0.3048 : 1), labels.elevation)} apart.</Text>
+      <Text fontSize='xs'>Movement unknown; map at recorded endpoint.</Text>
+    </Stack>;
+  }
   return (
     <Flex
       as='section'
@@ -54,7 +71,7 @@ export const SelectedMeasurement = ({
         {selected ? (
           <Stack gap={3}>
             <Text fontWeight='semibold'>
-              At{' '}
+              {selected.recordingGap ? 'Recording resumes at ' : 'At '}
               {formatMeasurement(
                 selected.distanceMetres / labels.metresPerDistance,
                 labels.distance

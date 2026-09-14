@@ -133,3 +133,53 @@ describe('prepared measurements', () => {
     expect(() => store.prepareView({ entityId: 'route', segmentId: 'missing', units: 'metric', motion: 'speed', smoothingSeconds: 60 })).toThrow('selected segment');
   });
 });
+
+it('masks gaps only for recorded display, preserves totals and resets smoothing in every view', () => {
+  let seconds = 0;
+  const samples = [0, ...Array(20).fill(10), 600, ...Array(20).fill(10)].map((duration, index) => {
+    seconds += duration;
+    return { id: `sample-${index}`, latitudeDegrees: 0, longitudeDegrees: index / 10000,
+      sourceTime: new Date(Date.UTC(2026, 0, 1) + seconds * 1000).toISOString() };
+  });
+  const store = createMeasurementStore({ format: 'gpx', version: '1.1', originalContents: '', waypoints: [],
+    tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }],
+    routes: [{ id: 'route', points: samples }] });
+  const request: MeasurementViewRequest = { entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 60 };
+  const view = completeView(store, request);
+  expect(view.recordingGaps).toEqual([21]);
+  expect(view.metrics[21 * 4 + 2]).toBeGreaterThan(0);
+  expect(view.display[21 * 3 + 2]).toBeNaN();
+  expect(view.display[22 * 3 + 2]).toBeCloseTo(view.metrics[22 * 4 + 2] * 3.6);
+  expect(view.summary.elapsedDurationSeconds).toBe(1000);
+  expect(view.summary.timedDurationSeconds).toBe(1000);
+  for (const smoothingSeconds of [0, 600]) {
+    const changed = completeView(store, { ...request, segmentId: 'segment', units: 'imperial', motion: 'pace', smoothingSeconds });
+    expect(changed.recordingGaps).toEqual([21]);
+    expect(changed.display[21 * 3 + 2]).toBeNaN();
+    expect(changed.display[22 * 3 + 2]).toBeCloseTo(1609.344 / view.metrics[22 * 4 + 2] / 60);
+    expect(changed.summary).toEqual(view.summary);
+  }
+  const planned = completeView(store, { ...request, entityId: 'route' });
+  expect(planned.recordingGaps).toEqual([]);
+  expect(planned.display[21 * 3 + 2]).toBeGreaterThan(0);
+  expect(planned.summary).toEqual(view.summary);
+  const update = store.prepareView({ ...request, includeAnalysis: false, smoothingSeconds: 0 });
+  expect(update.analysis).toBeUndefined();
+  expect(update.display[21 * 3 + 2]).toBeNaN();
+});
+
+it('returns the suggested pace range with settings-only responses and converts it without changing summaries', () => {
+  const samples = Array.from({ length: 101 }, (_, index) => {
+    return { id: `point-${index}`, latitudeDegrees: 0, longitudeDegrees: index / 10000,
+      sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 10_000).toISOString() };
+  });
+  const store = createMeasurementStore({ format: 'gpx', version: '1.1', originalContents: '', routes: [], waypoints: [],
+    tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }] });
+  const request: MeasurementViewRequest = { entityId: 'track', motion: 'pace', units: 'metric', smoothingSeconds: 60 };
+  const metric = store.prepareView(request);
+  expect(metric.suggestedPaceMaximum).toBe(19);
+  const imperial = store.prepareView({ ...request, units: 'imperial', includeAnalysis: false });
+  expect(imperial.suggestedPaceMaximum).toBeCloseTo(19 * 1.609344);
+  expect(imperial.analysis).toBeUndefined();
+  expect(store.prepareView({ ...request, motion: 'speed' }).analysis?.summary).toEqual(metric.analysis?.summary);
+});

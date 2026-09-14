@@ -18,7 +18,7 @@ export const SpeedExplanation = ({ timedIntervalCount, intervalCount }: SpeedExp
         </Text>
         <Text>
           The dashed line shows the average speed for the selected track or section, including
-          recorded stops. Sections without usable times are left out. Changing smoothing does not
+          recorded stops and time in recording gaps. Sections without usable times are left out. Changing smoothing does not
           change this average.
         </Text>
         <Text>
@@ -27,7 +27,7 @@ export const SpeedExplanation = ({ timedIntervalCount, intervalCount }: SpeedExp
           see the unsmoothed measurements.
         </Text>
         <Text>
-          We restart the average after missing or unusable times. At the start of each section, we
+          Unusually long intervals relative to nearby recording frequency are shown as recording gaps, not stops. We leave speed and pace blank across them and restart the average after gaps or missing or unusable times. At the start of each section, we
           use the time available. Pace is the time it takes to cover one kilometre or mile, shown as
           minutes:seconds.
         </Text>

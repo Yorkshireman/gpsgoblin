@@ -30,6 +30,7 @@ export const downsampleChart = (data: ChartMeasurement[], width: number) => {
   for (let index = 0; index < data.length; index += 1) {
     const point = data[index];
     const previous = data[index - 1];
+    if (point.recordingGap) retained.add(index);
     const beginsFragment = previous && (
       point.sampleId === null || previous.sampleId === null ||
       point.zeroSpeed !== previous.zeroSpeed ||

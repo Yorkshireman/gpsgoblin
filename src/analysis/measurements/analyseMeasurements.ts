@@ -11,6 +11,7 @@ export type MeasurementPoint = Readonly<{
   speedMetresPerSecond: number | null;
   intervalSeconds: number | null;
   timeIssue?: string;
+  recordingGap?: Readonly<{ seconds: number; distanceMetres: number; startSampleId: string }>;
 }>;
 
 export type MeasurementAnalysis = Readonly<{

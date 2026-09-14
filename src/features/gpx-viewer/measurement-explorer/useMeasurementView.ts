@@ -22,6 +22,13 @@ const unpackAnalysis = (packed: PackedMeasurementAnalysis, segments: readonly Tr
         intervalSeconds: nullable(packed.metrics[index * 4 + 3]), timeIssue: issues.get(index) });
     }
   }
+  for (const index of packed.recordingGaps ?? []) {
+    const point = points[index];
+    const previous = points[index - 1];
+    if (point && previous && point.intervalSeconds !== null) points[index] = { ...point, recordingGap: {
+      seconds: point.intervalSeconds, distanceMetres: point.distanceMetres - previous.distanceMetres, startSampleId: previous.sample.id
+    } };
+  }
   return { ...packed.summary, points };
 };
 
@@ -40,7 +47,7 @@ const unpackDisplay = (packed: PackedMeasurementView, points: readonly Measureme
     hasMotion ||= motion !== null;
     hasElevation ||= elevation !== null;
     data.push({ sampleId: point.sample.id, distance, motion, elevation,
-      zeroSpeed: point.speedMetresPerSecond === 0 });
+      recordingGap: Boolean(point.recordingGap), zeroSpeed: !point.recordingGap && point.speedMetresPerSecond === 0 });
   }
   return { data, hasMotion, hasElevation };
 };
@@ -51,7 +58,7 @@ export const useMeasurementView = (session: MeasurementSession, segments: readon
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{
     scope: typeof scope; settings: MeasurementViewRequest; analysis: Analysis;
-    data: ChartMeasurement[]; hasMotion: boolean; hasElevation: boolean;
+    data: ChartMeasurement[]; hasMotion: boolean; hasElevation: boolean; suggestedPaceMaximum?: number;
   }>();
   const [failure, setFailure] = useState<{ scope: typeof scope; settings: MeasurementViewRequest; message: string }>();
   useEffect(() => {
@@ -67,7 +74,7 @@ export const useMeasurementView = (session: MeasurementSession, segments: readon
         analysis = unpackAnalysis(packed.analysis, segments);
       }
       receivedAnalysis.current = { scope, analysis };
-      setResult({ scope, settings, analysis, ...unpackDisplay(packed, analysis.points) });
+      setResult({ scope, settings, analysis, suggestedPaceMaximum: packed.suggestedPaceMaximum, ...unpackDisplay(packed, analysis.points) });
     }).catch(error => {
       if (controller.signal.aborted) return;
       setFailure({ scope, settings, message: error instanceof Error ? error.message : 'Measurements could not be updated. Try again.' });

@@ -80,6 +80,7 @@ export type ChartMeasurement = Readonly<{
   elevation: number | null;
   motion: number | null;
   zeroSpeed?: boolean;
+  recordingGap?: boolean;
 }>;
 
 export const formatDuration = (seconds: number | null) => {
