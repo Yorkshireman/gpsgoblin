@@ -3,18 +3,18 @@
 Status: **not ready for public release**. Contact details are indefinitely deferred
 by the owner, with no deadline or commitment to revisit them. Contact setup is
 not an active task; the existing release criterion remains unresolved.
-This record covers the local release candidate on
-`feat/7-release-verification`, based on `320130a` (draft PR #20). It does not record
-a deployment, approval to merge, or closure of #6/#7.
+This record covers the release candidate on `feat/7-release-verification`, based
+on `320130a` (draft PR #20), including the workers.dev testing deployments below.
+No merge, public-domain cutover or closure of #6/#7 is recorded.
 
 ## Release gates
 
 | Gate | Evidence and remaining boundary |
 | --- | --- |
-| O2 basemap | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Actual-host requests still need verification. |
+| O2 basemap | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Six real tile requests on workers.dev passed with the expected origin-only referrer; repeat on the public domain at cutover. |
 | O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
 | O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
-| O5 | Local header/CSP implementation and privacy checks below. **Owner contact channel deferred**; final privacy assessment, deployed headers and hosting-side services/logging inventory remain open. |
+| O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) distinguishes verified behaviour from account-specific unknowns. **Owner contact channel deferred**; final account/zone services assessment and public-domain checks remain open. |
 | Actual hosts | Default workers.dev, version preview and branch-alias HTTPS/CSP/noindex checks passed; see hosted evidence below. Public-domain canonical/indexing, custom-domain routing/default-route disabling and final hosting privacy assessment remain open. |
 | O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
 
@@ -161,6 +161,36 @@ The technical assessment is recorded; account/zone-specific services and the
 future custom domain still need verification. Public-release approval, contact
 requirements and domain cutover remain unresolved; contact details remain
 indefinitely deferred. No account setting, deployment or domain was changed.
+
+## Latest hosted verification — 14 September 2026
+
+Cloudflare GitHub build `a639e1cf-ce81-4d36-9e2d-d63bf2020a86` completed
+successfully for `7d8be48`. Wrangler confirmed active version
+`4342ec3a-9cac-4a0b-b833-874d5773ad49` at 100%, deployed at 19:15:51 UTC.
+The updated network-error disclosure was present in returned `/privacy` HTML.
+Eight existing hydration and security checks passed against the live testing
+origin in Chrome desktop/mobile (15.2 seconds), with synthetic activity canaries
+and blocked public tiles. Output: `/private/tmp/gpsgoblin-privacy-live-results`.
+
+A separate single-load Chrome check at 1440 × 900 used a synthetic two-point York
+route with real tiles. Six GET tile requests returned 200; each used origin-only
+Referer `https://gpsgoblin.andrew-stelmach.workers.dev/`, a browser User-Agent,
+no request body and no cache-bypass header. Responses included Cache-Control and
+ETag. Attribution was visible. No pan/zoom loop or personal recording was used.
+
+Curl checks returned 200 for root, viewer, privacy, limitations, robots and
+sitemap, with noindex throughout. Canonical URLs, sitemap entries and robots'
+sitemap reference used gpsgoblin.com. An unknown route returned 404. Python's
+HTTP client received Cloudflare error 1010/403; curl and the actual Chrome
+workflows succeeded without configuration changes. This is a client-specific
+observation, not proof that every client can access the testing host.
+
+Current decision boundary: the testing deployment and branch-preview workflow
+are verified. Account/zone-specific hosting settings and the public-domain
+checks remain distinct from these results. The contact requirement remains
+indefinitely deferred. No public-release readiness, merge or domain change is
+implied. The draft PR remains open and mergeable; its older description needs
+refreshing when PR publication/editing is next authorised.
 
 ## Security policy and build
 
