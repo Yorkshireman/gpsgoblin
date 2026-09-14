@@ -1,14 +1,14 @@
 # Stage 1 release verification — issue #7
 
-Status: **not ready for public release**. Contact details are indefinitely deferred
-by the owner, with no deadline or commitment to revisit them. Contact setup is
-not an active task or a launch requirement, following the owner's subsequent
-approval on 14 September 2026. Public-domain verification and release approval
-remain outstanding. Earlier chronological entries describe the gates at that time;
-this decision supersedes their references to contact details blocking release.
-This record covers the release candidate on `feat/7-release-verification`, based
-on `320130a` (draft PR #20), including the workers.dev testing deployments below.
-No merge, public-domain cutover or closure of #6/#7 is recorded.
+Status: **public apex deployed; release follow-up remains open**. The owner
+connected gpsgoblin.com and confirmed the complete viewer works on their phone.
+Do not request a repeat of that manual check. Contact details are optional for
+launch and indefinitely deferred. The www HTTPS/redirect setup and merge/master
+build-branch transition remain outstanding. Earlier entries record historical
+states and are superseded by the cutover evidence below.
+
+This record covers `feat/7-release-verification`, including the work in draft
+PR #20. Neither PR has been merged and #6/#7 remain open.
 
 ## Release gates
 
@@ -488,3 +488,44 @@ The changes implement Stage 1 verification and scoped fixes. At that review,
 contact details, privacy/hosting confirmation and actual-host checks remained open; this work does
 not close #6/#7 or declare a release ready. The reviewed branch was subsequently
 pushed as draft PR #21; no public deployment or merge has been performed.
+
+## Public apex cutover — 14 September 2026
+
+The owner selected the Free zone plan, copied the existing GoDaddy DNS records,
+confirmed DNSSEC off and changed nameservers to iris.ns.cloudflare.com and
+leonidas.ns.cloudflare.com. Registry delegation and Cloudflare authoritative A
+answers were checked. Imported A/CNAME records were left DNS-only for migration.
+The owner then removed the two apex placeholder A records and attached
+`gpsgoblin.com` to the existing Worker in the dashboard. Registration remains at
+GoDaddy. The owner confirmed the public viewer's summary, chart and map work on
+their phone; their Mac still had cached DNS. No further manual retest is needed.
+
+Wrangler now records the apex custom domain, disables workers_dev and preserves
+preview_urls. Deployment version d32d4f69-5a85-40da-8991-105d1ce8c7f3 succeeded.
+The public viewer returned HTTPS 200 without noindex; the default workers.dev
+viewer returned 404. Both the new version preview and existing verification
+branch alias returned 200 with noindex.
+
+Local DNS still reached GoDaddy, so public-host automated checks used Cloudflare's
+observed 104.21.95.20 address through curl --resolve / Chrome host resolver rules,
+retaining gpsgoblin.com Host/SNI and normal certificate validation. Eight hosted
+Chrome desktop/mobile hydration/security checks passed (15.8 seconds), including
+synthetic activity privacy canaries. Public root, viewer, privacy and limitations
+returned 200 with correct canonical/Open Graph origins and no noindex. Unknown
+paths returned 404; sitemap entries and robots sitemap reference were correct.
+Cloudflare added managed AI-crawler rules to robots.txt but retained general
+Allow and the sitemap. Public page samples contained no beacon; NEL remains
+present as disclosed. Automated map tests blocked external tiles; real-phone map
+success is owner-reported.
+
+The production route initially made Wrangler's emulator override simulated Host
+headers, failing two header tests. The hosting test configuration now generates
+an ignored local config with the same assets but no production routes. All 12
+emulator checks passed after that fix. Build, clean Wrangler dry run, lint,
+typecheck, Knip and diff whitespace checks passed.
+
+Remaining: www.gpsgoblin.com returned a certificate mismatch in the local check;
+configure its HTTPS redirect to the apex and verify path/query preservation.
+Production Builds still uses feat/7-release-verification; do not select master
+until the reviewed hosting code is merged there. No merge was authorised or
+performed in this cutover follow-up.

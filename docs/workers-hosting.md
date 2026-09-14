@@ -2,8 +2,9 @@
 
 The owner approved Workers Static Assets on 14 September 2026, replacing the
 undeployed Pages plan. `wrangler.jsonc` serves only the Next static export `out/`.
-There is no application Worker script, OpenNext adapter, server-side GPX handling,
-asset binding or custom-domain route in this configuration. Worker observability
+The apex gpsgoblin.com custom domain is recorded in Wrangler; workers_dev is
+disabled and preview_urls remains enabled. There is no application Worker script,
+OpenNext adapter, server-side GPX handling or asset binding. Worker observability
 is disabled; verified platform behaviour and dashboard evidence are recorded in
 [hosting privacy](hosting-privacy.md).
 
@@ -41,7 +42,7 @@ The GitHub integration has been deployed and verified on workers.dev; see
 The configuration must be committed and pushed to the branch being built first.
 It currently lives on `feat/7-release-verification`; master does not yet contain
 it. That branch is currently the temporary production build branch for the
-workers.dev testing deployment. gpsgoblin.com is not attached. Once reviewed work is merged, use master as the
+workers.dev testing deployment. gpsgoblin.com is now attached; see the cutover evidence in release-readiness.md. Once reviewed work is merged, use master as the
 production build branch and enable non-production branch builds for previews.
 Do not treat the initial workers.dev deployment as public-release approval.
 
@@ -74,9 +75,11 @@ remain indefinitely deferred; this configuration does not declare release readin
 - [Build branches](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/)
 - [Preview URLs](https://developers.cloudflare.com/workers/versions-and-deployments/preview-urls/)
 
-## Prepared public-domain cutover
+## Cutover preparation (historical plan)
 
-Preparation checked 14 September 2026; no DNS or domain change executed.
+Preparation checked 14 September 2026. The subsequent apex cutover was executed
+by the owner and verified; see release-readiness.md. The observations below are
+the pre-cutover rollback baseline.
 Public DNS currently delegates to ns51.domaincontrol.com and
 ns52.domaincontrol.com. Apex A records returned 13.248.243.5 and 76.223.105.230;
 www is a CNAME to gpsgoblin.com. HTTPS returned the GoDaddy placeholder
