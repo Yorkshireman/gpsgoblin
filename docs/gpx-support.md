@@ -320,3 +320,31 @@ Owner-provided GPX recordings used for local validation live in the git-ignored
 `private-recordings/` directory. Do not commit their contents or screenshots. Supply
 them through the existing `GPSGOBLIN_GAP_FILE` and `GPSGOBLIN_CONTINUOUS_FILE` browser
 test environment variables; public fixtures remain synthetic or sanitised.
+
+## Dismissing point inspection
+
+The blue point-details panel has a 44-pixel close target labelled “Close point
+details”. Closing it clears the shared point selection: the panel, chart marker
+and selected map marker disappear, and the position control reports “No point
+selected”. Keyboard focus returns to the chart region without requesting a scroll.
+A later chart or position-control selection opens inspection again. The existing
+recording-gap close action also returns focus to the chart; stop confirmation and
+file contents are unchanged.
+
+Verification: the focused page test first failed because the close button was
+absent, then passed. `pnpm test --runInBand --silent` passed 175 tests in 14 suites;
+`pnpm tsc --incremental false`, `pnpm lint`, `pnpm knip` and `pnpm build` passed.
+`pnpm exec playwright test tests/browser/chartSelection.spec.ts
+ tests/browser/workspace.spec.ts --config
+ /private/tmp/gpsgoblin-discovery-playwright.config.ts --workers=2` passed nine
+checks against the static export on local port 4178, with external tiles blocked.
+
+Selected/dismissed viewport screenshots were inspected at 1440×900, 1280×720,
+390×844 and 375×667. With the chart region aligned to the top of the viewport,
+the close control and point feedback remain visible alongside the graph; desktop
+also shows the selected map marker. Dismissal removes both markers and leaves the
+chart visible. Phone checks reopen the map to verify no marker remains. Keyboard
+Enter and touch dismissal, reselection on the elevation chart, focus return and
+absence of horizontal overflow passed. Existing workspace checks also passed,
+including long names and enlarged text. This is Chrome on macOS with emulated
+phone viewports, not physical-device testing.

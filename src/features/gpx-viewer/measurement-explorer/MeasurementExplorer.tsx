@@ -212,7 +212,10 @@ export const MeasurementExplorer = ({
             {isMoving ? activeBasis : null}
             {motionChart}
           </StopDialog> : selected ? <SelectedMeasurement
-            onClear={() => { setSelectedId(undefined); }}
+            onClear={() => {
+              setSelectedId(undefined);
+              chartRegion.current?.focus({ preventScroll: true });
+            }}
             selected={selected}
             labels={labels}
             selectedMotion={selectedMotion}

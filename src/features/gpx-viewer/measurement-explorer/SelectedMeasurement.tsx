@@ -70,13 +70,15 @@ export const SelectedMeasurement = ({
       <Box flex='1' minW={0}>
         {selected ? (
           <Stack gap={1}>
-            <Text fontWeight='semibold'>
-              {selected.recordingGap ? 'Recording resumes at ' : 'At '}
-              {formatMeasurement(
-                selected.distanceMetres / labels.metresPerDistance,
-                labels.distance
-              )}
-            </Text>
+            <Flex align='center' justify='space-between' gap={2} minH='36px'>
+              <Text fontWeight='semibold'>
+                At {formatMeasurement(selected.distanceMetres / labels.metresPerDistance, labels.distance)}
+              </Text>
+              <IconButton aria-label='Close point details' title='Close point details' variant='ghost'
+                colorPalette='blue' size='sm' minW='44px' minH='44px' my={-1} onClick={onClear}>
+                <svg aria-hidden='true' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' strokeWidth='1.5'><path d='m4 4 8 8M12 4l-8 8' /></svg>
+              </IconButton>
+            </Flex>
             <Grid as='dl' templateColumns='repeat(2, minmax(0, 1fr))' gap={1}>
               <Box>
                 <Text as='dt'>{motion === 'speed' ? 'Speed' : 'Pace'}</Text>

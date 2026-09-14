@@ -46,3 +46,55 @@ test('clicking the drawn speed line selects its source point and map location', 
   if ((page.viewportSize()?.width ?? 1280) < 1024)
     await page.getByRole('button', { name: 'Back to chart' }).click();
 });
+
+for (const viewport of [
+  { width: 1440, height: 900 },
+  { width: 1280, height: 720 },
+  { width: 390, height: 844 },
+  { width: 375, height: 667 }
+]) {
+  test(`point dismissal clears inspection at ${viewport.width} × ${viewport.height}`, async ({ browser }, testInfo) => {
+    const context = await browser.newContext({ viewport, hasTouch: viewport.width < 600 });
+    await context.route('https://tile.openstreetmap.org/**', async route => {
+      await route.abort();
+      return;
+    });
+    const page = await context.newPage();
+    await page.goto('/tools/gpx-file-viewer.html');
+    await page.getByLabel('GPX file', { exact: true }).setInputFiles({
+      name: 'dismiss-selection.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(recording)
+    });
+    const chart = page.getByRole('region', { name: 'Measurement chart', exact: true });
+    const position = page.getByRole('slider', { name: 'Position on route' });
+    await position.press('ArrowRight');
+    const details = page.getByLabel('Selected measurement', { exact: true });
+    await expect(details).toContainText('At 0.1 km');
+    await expect(chart.locator('.recharts-reference-dot')).toHaveCount(1);
+    if (viewport.width >= 1024) {
+      await expect(page.getByRole('img', { name: 'Selected map position: 0, 0.001', exact: true })).toBeVisible();
+    }
+    await chart.evaluate(element => { element.scrollIntoView({ block: 'start' }); });
+    const close = details.getByRole('button', { name: 'Close point details' });
+    await expect(close).toBeInViewport();
+    await page.screenshot({ path: testInfo.outputPath('selected.png') });
+    if (viewport.width < 600) await close.tap();
+    else { await close.focus(); await close.press('Enter'); }
+    await expect(details).toHaveCount(0);
+    await expect(chart.locator('.recharts-reference-dot')).toHaveCount(0);
+    await expect(position).toHaveAttribute('aria-valuetext', 'No point selected');
+    await expect(chart).toBeFocused();
+    await page.screenshot({ path: testInfo.outputPath('dismissed.png') });
+    if (viewport.width < 1024) await page.getByRole('button', { name: 'View on map' }).tap();
+    await expect(page.getByRole('img', { name: /Selected map position:/ })).toHaveCount(0);
+    if (viewport.width < 1024) await page.getByRole('button', { name: 'Back to chart' }).tap();
+    await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
+    await position.press('ArrowRight');
+    await expect(details).toContainText('At 0.1 km');
+    await details.getByRole('button', { name: 'Close point details' }).click();
+    await expect(details).toHaveCount(0);
+    await expect(chart.locator('.recharts-reference-dot')).toHaveCount(0);
+    await expect(position).toHaveAttribute('aria-valuetext', 'No point selected');
+    expect(await page.evaluate(() => { return document.documentElement.scrollWidth > innerWidth; })).toBe(false);
+    await context.close();
+  });
+}
