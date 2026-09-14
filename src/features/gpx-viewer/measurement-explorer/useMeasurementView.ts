@@ -5,7 +5,7 @@ import type { TrackSegment } from '@/domain/activityDocument';
 import type { MeasurementSession } from '../import-processing';
 import type { ChartMeasurement } from '../measurementDisplay';
 
-type Analysis = ReturnType<typeof analyseMeasurements>;
+type Analysis = ReturnType<typeof analyseMeasurements> & Pick<PackedMeasurementAnalysis, 'stops' | 'recorded'>;
 const nullable = (value: number) => {
   return Number.isNaN(value) ? null : value;
 };
@@ -29,24 +29,29 @@ const unpackAnalysis = (packed: PackedMeasurementAnalysis, segments: readonly Tr
       seconds: point.intervalSeconds, distanceMetres: point.distanceMetres - previous.distanceMetres, startSampleId: previous.sample.id
     } };
   }
-  return { ...packed.summary, points };
+  return { ...packed.summary, points, stops: packed.stops, recorded: packed.recorded };
 };
 
-const unpackDisplay = (packed: PackedMeasurementView, points: readonly MeasurementPoint[]) => {
+const unpackDisplay = (packed: PackedMeasurementView, points: readonly MeasurementPoint[], stops: Analysis['stops']) => {
   const data: ChartMeasurement[] = [];
   let hasMotion = false;
   let hasElevation = false;
+  const excluded = new Uint8Array(points.length);
+  for (const range of packed.excludedRanges) excluded.fill(1, range.startIndex + 1, range.endIndex + 1);
+  const starts = new Set(packed.excludedRanges.map(range => { return range.startIndex; }));
+  const ends = new Set(stops.candidates.map(candidate => { return candidate.endIndex; }));
   for (let index = 0; index < points.length; index += 1) {
     const point = points[index];
     const distance = packed.display[index * 3];
     if (index > 0 && point.segmentId !== points[index - 1].segmentId) {
-      data.push({ sampleId: null, distance, motion: null, elevation: null });
+      data.push({ sampleId: null, distance, timeMinutes: packed.timeSeconds[index] / 60, motion: null, elevation: null });
     }
     const motion = nullable(packed.display[index * 3 + 2]);
     const elevation = nullable(packed.display[index * 3 + 1]);
     hasMotion ||= motion !== null;
     hasElevation ||= elevation !== null;
     data.push({ sampleId: point.sample.id, distance, motion, elevation,
+      timeMinutes: packed.timeSeconds[index] / 60, excludedStop: excluded[index] === 1, stopBoundary: starts.has(index), possibleStop: ends.has(index),
       recordingGap: Boolean(point.recordingGap), zeroSpeed: !point.recordingGap && point.speedMetresPerSecond === 0 });
   }
   return { data, hasMotion, hasElevation };
@@ -59,6 +64,7 @@ export const useMeasurementView = (session: MeasurementSession, segments: readon
   const [result, setResult] = useState<{
     scope: typeof scope; settings: MeasurementViewRequest; analysis: Analysis;
     data: ChartMeasurement[]; hasMotion: boolean; hasElevation: boolean; suggestedPaceMaximum?: number;
+    basis: PackedMeasurementView['basis']; timeAvailable: boolean;
   }>();
   const [failure, setFailure] = useState<{ scope: typeof scope; settings: MeasurementViewRequest; message: string }>();
   useEffect(() => {
@@ -74,7 +80,8 @@ export const useMeasurementView = (session: MeasurementSession, segments: readon
         analysis = unpackAnalysis(packed.analysis, segments);
       }
       receivedAnalysis.current = { scope, analysis };
-      setResult({ scope, settings, analysis, suggestedPaceMaximum: packed.suggestedPaceMaximum, ...unpackDisplay(packed, analysis.points) });
+      setResult({ scope, settings, analysis, basis: packed.basis, timeAvailable: packed.timeAvailable,
+        suggestedPaceMaximum: packed.suggestedPaceMaximum, ...unpackDisplay(packed, analysis.points, analysis.stops) });
     }).catch(error => {
       if (controller.signal.aborted) return;
       setFailure({ scope, settings, message: error instanceof Error ? error.message : 'Measurements could not be updated. Try again.' });

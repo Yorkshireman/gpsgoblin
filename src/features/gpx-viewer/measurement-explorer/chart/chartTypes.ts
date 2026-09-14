@@ -14,6 +14,9 @@ export type MeasurementChartProps = Readonly<{
   reference?: Readonly<{ value: number; label: string }>;
   unit: string;
   distanceUnit: string;
+  axisLabel?: string;
+  basisLabel?: string;
+  onStopSelect?: (id: string | undefined, trigger?: HTMLElement) => void;
   selectedId?: string;
   onSelect: (id: string | undefined) => void;
 }>;

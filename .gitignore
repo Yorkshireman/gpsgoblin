@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Python investigation caches
 __pycache__/
+
+# Owner-provided recordings for local validation only
+/private-recordings/

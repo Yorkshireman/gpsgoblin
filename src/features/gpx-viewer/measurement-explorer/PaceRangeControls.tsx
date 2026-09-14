@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { formatChartMeasurement } from '../measurementDisplay';
 import { Box, Button, Field, Flex, Grid, Input, NativeSelect, Stack, Text } from '@chakra-ui/react';
 
@@ -9,10 +10,11 @@ type PaceRangeControlsProps = Readonly<{
   maximum: number | undefined;
   onMaximumChange: (maximum: number | undefined) => void;
   unit: string;
+  children?: ReactNode;
 }>;
 
 // Preserve disclosure state on unit changes; display the converted maximum.
-export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximum, onMaximumChange, unit }: PaceRangeControlsProps) => {
+export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximum, onMaximumChange, unit, children }: PaceRangeControlsProps) => {
   const [entry, setEntry] = useState<{ unit: string; value: string }>();
   const draft = entry?.unit === unit ? entry.value : maximum === undefined ? '' : String(Number(maximum.toPrecision(12)));
   const visibleMaximum = mode === 'suggested' ? suggestedMaximum : mode === 'custom' ? maximum : undefined;
@@ -28,6 +30,7 @@ export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximu
       </Flex>
       <Box as='details' fontSize='sm'>
         <Box as='summary' cursor='pointer' fontWeight='medium'>Chart options</Box>
+        {children}
         <Grid templateColumns='repeat(2, minmax(0, 1fr))' gap={2} alignItems='start' pt={2}>
           <Field.Root>
             <Field.Label>Pace range</Field.Label>
@@ -61,7 +64,10 @@ export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximu
             </Field.Root>
           ) : null}
         </Grid>
-        <Text color='fg.muted' mt={2}>Suggested range focuses on the pace over most of your recorded distance. A short, slow section may sit above it. No measurements are removed.</Text>
+        <Box as='details' mt={2}>
+          <Box as='summary' cursor='pointer'>How suggested range works</Box>
+          <Text color='fg.muted' fontSize='xs' mt={1}>Suggested range focuses on the pace over most of your recorded distance. A short, slow section may sit above it. No measurements are removed.</Text>
+        </Box>
       </Box>
       <Box as='details' fontSize='sm' color='fg.muted'>
         <Box as='summary' cursor='pointer' fontWeight='medium' color='fg'>

@@ -17,7 +17,7 @@ describe('prepared measurements', () => {
       ] }] }]
     });
     const view = store.prepareView({ entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 60, includeAnalysis: false });
-    expect(view).toEqual({ display: new Float64Array([0, NaN, NaN, 0.11119508023353292, NaN, 40.03022888407185]) });
+    expect(view).toMatchObject({ display: new Float64Array([0, NaN, NaN, 0.11119508023353292, NaN, 40.03022888407185]) });
   });
 
   it('keeps complete measurements and calculates time-weighted display values without retaining returned buffers', () => {
@@ -134,6 +134,33 @@ describe('prepared measurements', () => {
   });
 });
 
+it('requires explicit candidate confirmation, resets smoothing after exclusion and restores the complete view', () => {
+  const samples = Array.from({ length: 81 }, (_, index) => {
+    const metres = index <= 10 ? index * 30 : index <= 70 ? 300 : 300 + (index - 70) * 20;
+    return { id: `p${index}`, latitudeDegrees: 0, longitudeDegrees: metres / 111195.0802335329,
+      elevationMetres: 100, sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 1000).toISOString() };
+  });
+  const document = { format: 'gpx' as const, version: '1.1' as const, originalContents: '<gpx/>', routes: [], waypoints: [],
+    tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }] };
+  const store = createMeasurementStore(document);
+  const request: MeasurementViewRequest = { entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 60 };
+  const complete = store.prepareView(request);
+  const candidate = complete.analysis?.stops?.candidates[0];
+  expect(candidate).toBeDefined();
+  if (!candidate) throw new Error('Expected a possible stop');
+  const unconfirmed = store.prepareView({ ...request, stopMode: 'exclude' });
+  expect(unconfirmed.basis.excludedSeconds).toBe(0);
+  const filtered = store.prepareView({ ...request, stopMode: 'exclude', confirmedStopIds: [candidate.id] });
+  expect(filtered.basis.excludedSeconds).toBe(60);
+  expect(filtered.display[(candidate.endIndex + 1) * 3 + 2]).toBeCloseTo(72);
+  expect(filtered.display[candidate.endIndex * 3 + 2]).toBeNaN();
+  expect(filtered.analysis?.summary).toEqual(complete.analysis?.summary);
+  expect(filtered.timeSeconds.at(-1)).toBe(20);
+  expect(filtered.basis.averageSpeedMetresPerSecond).toBeCloseTo(25);
+  expect(store.prepareView({ ...request, confirmedStopIds: [candidate.id] })).toEqual(complete);
+  expect(document.originalContents).toBe('<gpx/>');
+});
+
 it('masks gaps only for recorded display, preserves totals and resets smoothing in every view', () => {
   let seconds = 0;
   const samples = [0, ...Array(20).fill(10), 600, ...Array(20).fill(10)].map((duration, index) => {
@@ -166,6 +193,34 @@ it('masks gaps only for recorded display, preserves totals and resets smoothing 
   const update = store.prepareView({ ...request, includeAnalysis: false, smoothingSeconds: 0 });
   expect(update.analysis).toBeUndefined();
   expect(update.display[21 * 3 + 2]).toBeNaN();
+  const moving = store.prepareView({ ...request, stopMode: 'exclude', includeAnalysis: false });
+  expect(moving.basis).toMatchObject({ gapSeconds: 600, excludedSeconds: 0, eligibleSeconds: 400, partialCoverage: true });
+  expect(moving.basis.eligibleDistanceMetres).toBeCloseTo(444.78032, 5);
+  expect(moving.basis.averageSpeedMetresPerSecond).toBeCloseTo(1.1119508, 6);
+  expect(moving.timeSeconds[21]).toBe(moving.timeSeconds[20]);
+  expect(moving.timeSeconds.at(-1)).toBe(400);
+  expect(store.prepareView(request).timeSeconds.at(-1)).toBe(1000);
+});
+
+it('never excludes planned-route timestamps and makes incomplete time coverage explicit', () => {
+  const samples = Array.from({ length: 61 }, (_, index) => {
+    return { id: `p${index}`, latitudeDegrees: 0, longitudeDegrees: 0,
+      sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 1000).toISOString() };
+  });
+  const store = createMeasurementStore({ format: 'gpx', version: '1.1', originalContents: '', waypoints: [],
+    tracks: [{ id: 'track', segments: [{ id: 's', samples: [...samples, { ...samples[0], id: 'bad' }] }] }],
+    routes: [{ id: 'route', points: samples }] });
+  const request: MeasurementViewRequest = { entityId: 'route', units: 'metric', motion: 'speed', smoothingSeconds: 0, stopMode: 'exclude', confirmedStopIds: ['p0:p60'] };
+  const route = store.prepareView(request);
+  expect(route.basis.mode).toBe('include');
+  expect(route.analysis?.stops.candidates).toEqual([]);
+  const invalid = store.prepareView({ ...request, entityId: 'track', stopMode: 'include' });
+  expect(invalid.timeAvailable).toBe(false);
+  expect(invalid.basis.partialCoverage).toBe(true);
+  const excluded = store.prepareView({ ...request, entityId: 'track' });
+  expect(excluded.basis.eligibleSeconds).toBe(0);
+  expect(excluded.basis.averageSpeedMetresPerSecond).toBeNull();
+  expect(excluded.timeAvailable).toBe(false);
 });
 
 it('returns the suggested pace range with settings-only responses and converts it without changing summaries', () => {

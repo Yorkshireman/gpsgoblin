@@ -17,7 +17,7 @@ test('clicking the drawn speed line selects its source point and map location', 
     mimeType: 'application/gpx+xml',
     buffer: Buffer.from(recording)
   });
-  const speed = page.getByRole('heading', { name: 'Speed', exact: true }).locator('../..');
+  const speed = page.getByRole('region', { name: 'Measurement chart', exact: true });
   const trace = speed.locator('.recharts-line-curve');
   await trace.scrollIntoViewIfNeeded();
   const coordinate = await trace.evaluate((element) => {

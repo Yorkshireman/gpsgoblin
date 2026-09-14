@@ -81,6 +81,11 @@ export type ChartMeasurement = Readonly<{
   motion: number | null;
   zeroSpeed?: boolean;
   recordingGap?: boolean;
+  timeMinutes?: number;
+  position?: number;
+  possibleStop?: boolean;
+  excludedStop?: boolean;
+  stopBoundary?: boolean;
 }>;
 
 export const formatDuration = (seconds: number | null) => {

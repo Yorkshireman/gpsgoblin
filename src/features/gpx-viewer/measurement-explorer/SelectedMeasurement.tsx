@@ -52,8 +52,8 @@ export const SelectedMeasurement = ({
       width='full'
       align='start'
       position='relative'
-      gap={3}
-      p={4}
+      gap={1}
+      p={2}
       rounded='l3'
       textStyle='sm'
       colorPalette='blue'
@@ -69,7 +69,7 @@ export const SelectedMeasurement = ({
       )}
       <Box flex='1' minW={0}>
         {selected ? (
-          <Stack gap={3}>
+          <Stack gap={1}>
             <Text fontWeight='semibold'>
               {selected.recordingGap ? 'Recording resumes at ' : 'At '}
               {formatMeasurement(
@@ -77,10 +77,10 @@ export const SelectedMeasurement = ({
                 labels.distance
               )}
             </Text>
-            <Grid as='dl' templateColumns='repeat(2, minmax(0, 1fr))' gap={3}>
+            <Grid as='dl' templateColumns='repeat(2, minmax(0, 1fr))' gap={1}>
               <Box>
                 <Text as='dt'>{motion === 'speed' ? 'Speed' : 'Pace'}</Text>
-                <Text as='dd' fontSize='lg' fontWeight='semibold'>
+                <Text as='dd' fontSize='md' fontWeight='semibold'>
                   {selectedMotion === null
                     ? 'Unavailable'
                     : formatChartMeasurement(selectedMotion, motionUnit)}
@@ -88,7 +88,7 @@ export const SelectedMeasurement = ({
               </Box>
               <Box>
                 <Text as='dt'>Elevation</Text>
-                <Text as='dd' fontSize='lg' fontWeight='semibold'>
+                <Text as='dd' fontSize='md' fontWeight='semibold'>
                   {formatMeasurement(
                     selected.elevationMetres === null
                       ? null
