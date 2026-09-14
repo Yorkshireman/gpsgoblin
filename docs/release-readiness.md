@@ -260,10 +260,30 @@ the conversation:
 
 This is successful owner-reported basic workflow evidence, not an agent-observed
 browser session. The exact Brave version, viewport, recording provenance, file
-sizes, point counts and timings were not recorded. No desktop Brave keyboard,
-assistive-technology, large-file performance, failure-recovery or public-host
+sizes, point counts and timings were not recorded. No keyboard coverage is inferred from this basic workflow check; the separate
+keyboard check follows below. No assistive-technology, large-file performance, failure-recovery or public-host
 verification is inferred. Contact details remain indefinitely deferred; the
 remaining release gates are unchanged and #7 remains open.
+
+### Owner-reported desktop Brave keyboard check — 14 September 2026
+
+The owner tested the local production preview on their Mac in Brave following
+commit `57f76bd`, confirming these guided keyboard checks in the conversation:
+
+| Interaction | Reported result |
+| --- | --- |
+| Tab to Choose GPX file, then press Enter | Focus was clearly visible and the file picker opened. |
+| Choose a GPX recording | Recording loaded with the summary, chart and map. |
+| Tab to Position on route, then press Right Arrow | Focus was visible; selected-point details and the map marker updated. |
+| Tab or Shift+Tab to the blue details box's close button, then press Enter | Focus was visible; the box closed and the selected-point marker cleared. |
+| Tab or Shift+Tab to Clear file, then press Enter | Focus was visible and the file chooser returned. |
+
+These are successful owner-reported checks, not an agent-observed browser session
+or a full keyboard/accessibility audit. Exact Brave version, viewport and recording
+details were not recorded. Keyboard replacement, every control's tab order, focus
+placement after dismissal/clear, assistive technology and physical-phone keyboard
+behaviour were not established by these confirmations. Contact details remain
+indefinitely deferred and the remaining release gates stay open.
 
 ### Review and release decision
 
