@@ -10,31 +10,46 @@ type MeasurementSummaryProps = Readonly<{
 
 export const MeasurementSummary = ({ analysis, labels, plannedRoute }: MeasurementSummaryProps) => {
   return (
-    <>
-      <Grid templateColumns='repeat(2, minmax(0, 1fr))' gap={3}>
-        <Stat.Root>
-          <Stat.Label>Calculated distance</Stat.Label>
-          <Stat.ValueText fontSize={{ base: 'xl', md: '2xl' }}>
-            {formatMeasurement(analysis.distanceMetres / labels.metresPerDistance, labels.distance)}
-          </Stat.ValueText>
-          <Stat.HelpText as='dd' fontSize='xs'>
-            {!plannedRoute
-              ? 'Based on the recorded GPS points'
-              : 'Based on straight lines between route points'}
-          </Stat.HelpText>
-        </Stat.Root>
-        <Stat.Root>
-          <Stat.Label>Duration</Stat.Label>
-          <Stat.ValueText fontSize={{ base: 'xl', md: '2xl' }}>
-            {formatDuration(analysis.elapsedDurationSeconds)}
-          </Stat.ValueText>
-          <Stat.HelpText as='dd' fontSize='xs'>
-            {analysis.elapsedDurationSeconds === null
-              ? 'Needs valid start and finish times'
-              : 'From start to finish, including pauses and gaps'}
-          </Stat.HelpText>
-        </Stat.Root>
-      </Grid>
+    <Box mb={2} bg='bg' borderWidth='1px' borderColor='border.subtle' rounded='xl' p={{ base: 3, md: 4 }}>
+      <Stack gap={1}>
+        <Grid templateColumns='repeat(2, minmax(0, 1fr))' gap={3}>
+          <Stat.Root>
+            <Stat.Label>Calculated distance</Stat.Label>
+            <Stat.ValueText fontSize={{ base: 'xl', md: '2xl' }}>
+              {formatMeasurement(
+                analysis.distanceMetres / labels.metresPerDistance,
+                labels.distance
+              )}
+            </Stat.ValueText>
+          </Stat.Root>
+          <Stat.Root>
+            <Stat.Label>Elapsed time</Stat.Label>
+            <Stat.ValueText fontSize={{ base: 'xl', md: '2xl' }}>
+              {formatDuration(analysis.elapsedDurationSeconds)}
+            </Stat.ValueText>
+          </Stat.Root>
+        </Grid>
+        <Box as='details' fontSize='sm'>
+          <Box as='summary' cursor='pointer' alignContent='center'>
+            About these totals
+          </Box>
+          <Stack gap={1} pb={2}>
+            <Text>
+              {!plannedRoute
+                ? 'Based on the recorded GPS points'
+                : 'Based on straight lines between route points'}
+              . Distance may differ from your device.
+            </Text>
+            <Text>
+              Elapsed time runs from start to finish, including stops and recording gaps. Choosing
+              stops to leave out of a chart does not change these totals.
+            </Text>
+          </Stack>
+        </Box>
+      </Stack>
+      {analysis.elapsedDurationSeconds === null ? (
+        <Text fontSize='sm'>Elapsed time needs valid start and finish times.</Text>
+      ) : null}
       {plannedRoute ? <Text>This is a planned route. Its times may be estimates.</Text> : null}
       {analysis.warnings.length ? (
         <Box as='details' fontSize='sm'>
@@ -52,6 +67,6 @@ export const MeasurementSummary = ({ analysis, labels, plannedRoute }: Measureme
           </Stack>
         </Box>
       ) : null}
-    </>
+    </Box>
   );
 };

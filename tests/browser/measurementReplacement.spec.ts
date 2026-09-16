@@ -32,7 +32,7 @@ test('successful replacement resets the previous selection and file-owned chart 
   await units.selectOption('imperial');
   await page.getByRole('slider', { name: 'Smoothing' }).press('End');
   await expect(page.getByRole('region', { name: 'Measurement chart', exact: true })).toHaveAttribute('aria-busy', 'false');
-  await page.getByText('Chart options', { exact: true }).click();
+  await page.getByText('Advanced Controls', { exact: true }).click();
   await page.getByRole('combobox', { name: 'Pace range' }).selectOption('custom');
   await page.getByRole('spinbutton', { name: 'Maximum (min/mi)' }).fill('10');
 
@@ -43,7 +43,7 @@ test('successful replacement resets the previous selection and file-owned chart 
   await expect(units).toHaveValue('metric');
   await expect(page.getByRole('slider', { name: 'Smoothing' })).toHaveAttribute('aria-valuetext', '1 minute');
   await chart.selectOption('pace');
-  await page.getByText('Chart options', { exact: true }).click();
+  await page.getByText('Advanced Controls', { exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Pace range' })).toHaveValue('suggested');
   await position.press('End');
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('220.0 m');

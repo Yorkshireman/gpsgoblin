@@ -6,6 +6,7 @@ type GpxFileControlsProps = Readonly<{
   showDropzone: boolean;
   isLoading: boolean;
   filename?: string;
+  onReset?: () => void;
   onClear: () => void;
   onCancel: () => void;
 }>;
@@ -15,6 +16,7 @@ export const GpxFileControls = ({
   showDropzone,
   isLoading,
   filename,
+  onReset,
   onClear,
   onCancel
 }: GpxFileControlsProps) => {
@@ -28,13 +30,22 @@ export const GpxFileControls = ({
         <FileUpload.Dropzone _hover={{ bg: 'bg' }} cursor='default' disableClick width='full'>
           <FileUpload.DropzoneContent>
             <Text fontWeight='medium'>Drag and drop a GPX file here</Text>
-            <Text color='fg.muted'>GPX files only</Text>
+            <Text color='fg.muted'>GPX 1.1 files</Text>
           </FileUpload.DropzoneContent>
         </FileUpload.Dropzone>
       ) : null}
       <Flex gap={2} align='center' wrap='wrap' width='full'>
         {filename ? (
-          <Text fontWeight='medium' truncate minW={0} title={filename} flex='1 1 6rem'>
+          <Text
+            fontWeight='medium'
+            minW={0}
+            title={filename}
+            flex={{ base: '1 1 100%', md: '1 1 6rem' }}
+            whiteSpace={{ base: 'normal', md: 'nowrap' }}
+            overflow={{ base: 'visible', md: 'hidden' }}
+            textOverflow={{ base: 'clip', md: 'ellipsis' }}
+            overflowWrap='anywhere'
+          >
             {filename}
           </Text>
         ) : null}
@@ -43,6 +54,11 @@ export const GpxFileControls = ({
             {filename ? 'Change GPX file' : 'Choose GPX file'}
           </Button>
         </FileUpload.Trigger>
+        {onReset ? (
+          <Button type='button' variant='outline' colorPalette='orange' disabled={isLoading} onClick={onReset}>
+            Reset view
+          </Button>
+        ) : null}
         {canClear ? (
           <Button
             colorPalette='gray'
@@ -58,11 +74,6 @@ export const GpxFileControls = ({
           </Button>
         ) : null}
       </Flex>
-      {filename ? (
-        <Text fontSize='sm' color='fg.muted'>
-          Refreshing closes the file and resets your choices.
-        </Text>
-      ) : null}
       {isLoading ? (
         <Alert.Root role='status' status='info'>
           <Spinner aria-hidden='true' size='sm' />

@@ -41,7 +41,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.keyboard.press('Enter');
     await expect(selected).toContainText('Above the chart limit');
     expect(await page.evaluate(() => { return document.documentElement.scrollWidth <= innerWidth; })).toBe(true);
-    await page.getByText('Chart options', { exact: true }).click();
+    await page.getByText('Advanced Controls', { exact: true }).click();
     const range = page.getByRole('combobox', { name: 'Pace range' });
     await range.selectOption('custom');
     const maximum = page.getByRole('spinbutton', { name: 'Maximum (min/mi)' });

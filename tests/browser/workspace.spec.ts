@@ -19,6 +19,12 @@ for (const viewport of [
     const page = await context.newPage();
     await page.goto('/tools/gpx-file-viewer.html');
     await page.screenshot({ path: testInfo.outputPath('initial.png') });
+    const help = page.getByText('Help with this viewer', { exact: true });
+    await expect(page.getByRole('heading', { name: 'Supported data' })).not.toBeVisible();
+    await help.press('Enter');
+    await expect(page.getByRole('heading', { name: 'Supported data' })).toBeVisible();
+    await help.press('Enter');
+    await page.evaluate(() => { window.scrollTo(0, 0); });
     await page.getByLabel('GPX file', { exact: true }).setInputFiles({
       name: 'workspace.gpx',
       mimeType: 'application/gpx+xml',
@@ -28,7 +34,16 @@ for (const viewport of [
     });
     await expect(page.getByRole('button', { name: 'Change GPX file' })).toBeVisible();
     await expect(page.getByText('Calculated distance')).toBeInViewport();
+    if (viewport.width >= 1024) {
+      await expect(page.getByRole('status').filter({ hasText: 'Background map unavailable' })).toBeVisible();
+    }
     await page.screenshot({ path: testInfo.outputPath('loaded.png') });
+    const totals = page.getByText('About these totals', { exact: true });
+    await expect(page.getByText(/Based on the recorded GPS points/)).not.toBeVisible();
+    if (viewport.width < 600) await totals.tap();
+    else await totals.press('Enter');
+    await expect(page.getByText(/Based on the recorded GPS points/)).toBeVisible();
+    await totals.press('Enter');
     const chartChoice = page.getByRole('combobox', { name: 'Chart', exact: true });
     await page
       .getByRole('region', { name: 'Measurement chart', exact: true })
@@ -68,11 +83,20 @@ for (const viewport of [
       })
     ).toBe(scrollBefore);
     await page.screenshot({ path: testInfo.outputPath('selected.png') });
+    await testInfo.attach('selection-viewport', {
+      body: JSON.stringify(await page.evaluate(() => {
+        return { width: innerWidth, height: innerHeight, scrollY };
+      })), contentType: 'application/json'
+    });
     const selectedText = await selection.textContent();
     if (viewport.width < 600) {
       await page.getByRole('button', { name: 'View on map' }).tap();
       await expect(page.getByRole('dialog')).toBeVisible();
       await expect(page.getByRole('img', { name: /Selected map position/ })).toBeInViewport();
+      await expect(page.getByRole('button', { name: 'Back to chart' })).toBeInViewport({ ratio: 1 });
+      await page.getByText('Map privacy', { exact: true }).tap();
+      await expect(page.getByRole('button', { name: 'Back to chart' })).toBeInViewport({ ratio: 1 });
+      await page.getByText('Map privacy', { exact: true }).tap();
       await page.screenshot({ path: testInfo.outputPath('map.png') });
       await page.getByRole('button', { name: 'Back to chart' }).tap();
       await expect(page.getByRole('button', { name: 'View on map' })).toBeFocused();
@@ -88,6 +112,18 @@ for (const viewport of [
         return document.documentElement.scrollWidth <= window.innerWidth;
       })
     ).toBe(true);
+    await page.getByText('File details', { exact: true }).click();
+    await page.getByRole('button', { name: 'Reset view', exact: true }).click();
+    await expect(chartChoice).toHaveValue('speed');
+    await expect(page.getByRole('combobox', { name: 'Display units' })).toHaveValue('metric');
+    await expect(smoothing).toHaveAttribute('aria-valuetext', '1 minute');
+    await expect(selection).toHaveCount(0);
+    await expect(page.locator('.elevation-background')).toHaveCount(0);
+    await expect(page.getByLabel('Chart selection tip')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'File details', exact: true })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Start of route' })).toHaveCount(0);
+    await page.getByLabel('Chart selection tip').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath('reset.png') });
     // Long metadata, missing measurements and enlarged text must not crowd out the workspace.
     await page.getByLabel('GPX file', { exact: true }).setInputFiles({
       name: `${'Long recording name '.repeat(8)}.gpx`,
@@ -96,6 +132,7 @@ for (const viewport of [
         `<gpx version="1.1" creator="Test exporter" xmlns="http://www.topografix.com/GPX/1/1"><metadata><desc>${'File notes '.repeat(80)}</desc></metadata><trk><name>${'Route name '.repeat(30)}</name><desc>${'Route notes '.repeat(80)}</desc><trkseg><trkpt lat="0" lon="0"><ele>10</ele></trkpt><trkpt lat="0" lon="0.01"/></trkseg></trk></gpx>`
       )
     });
+    await expect(page.getByText('Elapsed time needs valid start and finish times.')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Elevation profile' })).toBeVisible();
     await page.evaluate(() => {
       document.documentElement.style.fontSize = '24px';
@@ -111,6 +148,7 @@ for (const viewport of [
     await expect(page.getByRole('region', { name: 'Measurement warnings' })).toBeVisible();
     await page.getByText('File details', { exact: true }).first().click();
     await expect(page.getByText('Test exporter', { exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('large-text-details.png') });
     await context.close();
   });
 }

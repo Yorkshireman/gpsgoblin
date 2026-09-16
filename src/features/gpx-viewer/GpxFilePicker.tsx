@@ -1,11 +1,10 @@
 'use client';
 
-import { Alert, FileUpload, Heading, Stack, Text } from '@chakra-ui/react';
+import { Alert, FileUpload, Stack, Text } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
-import type { DragEvent } from 'react';
+import type { DragEvent, ReactNode } from 'react';
 
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
-import { GPX_IMPORT_DESCRIPTION } from '@/parsers/gpx';
 
 import { GpxDocumentResults } from './components/GpxDocumentResults';
 import { GpxFileControls } from './components/GpxFileControls';
@@ -16,7 +15,20 @@ import type { SelectedGpxItem } from './selectedGpxItem';
 const oneFileMessage =
   'Open one GPX file at a time. Choose a single file to replace the current file.';
 
-export const GpxFilePicker = () => {
+const initialItem = (document: ImportedGpxDocument): SelectedGpxItem | undefined => {
+  const track = document.tracks[0];
+  const route = document.routes[0];
+  const waypoint = document.waypoints[0];
+  return track
+    ? { kind: 'track', id: track.id }
+    : route
+      ? { kind: 'route', id: route.id }
+      : waypoint
+        ? { kind: 'waypoint', id: waypoint.id }
+        : undefined;
+};
+
+export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) => {
   const [filename, setFilename] = useState<string>();
   const [error, setError] = useState<string>();
   const [notice, setNotice] = useState<string>();
@@ -74,18 +86,7 @@ export const GpxFilePicker = () => {
         };
       });
       setFilename(file.name);
-      const firstTrack = result.document.tracks[0];
-      const firstRoute = result.document.routes[0];
-      const firstWaypoint = result.document.waypoints[0];
-      if (firstTrack) {
-        setSelectedItem({ kind: 'track', id: firstTrack.id });
-      } else if (firstRoute) {
-        setSelectedItem({ kind: 'route', id: firstRoute.id });
-      } else if (firstWaypoint) {
-        setSelectedItem({ kind: 'waypoint', id: firstWaypoint.id });
-      } else {
-        setSelectedItem(undefined);
-      }
+      setSelectedItem(initialItem(result.document));
     } catch {
       if (activeImport.current === controller && !controller.signal.aborted) {
         setError('The file could not be read. Try again or choose another GPX file.');
@@ -96,6 +97,17 @@ export const GpxFilePicker = () => {
         setIsLoading(false);
       }
     }
+    return;
+  };
+
+  const resetView = () => {
+    if (!workspace) return;
+    setSelectedItem(initialItem(workspace.document));
+    // Remount all viewer state, including disclosures and map position, without
+    // rereading the file or replacing its measurement session.
+    setWorkspace({ ...workspace, revision: workspace.revision + 1 });
+    setError(undefined);
+    setNotice('View reset.');
     return;
   };
 
@@ -147,22 +159,20 @@ export const GpxFilePicker = () => {
       maxFiles={1}
       width='full'
       maxW={document ? 'full' : '2xl'}
+      bg={document ? undefined : 'bg'}
+      p={document ? 0 : { base: 3, md: 5 }}
+      borderWidth={document ? 0 : '1px'}
+      borderColor='border.subtle'
+      rounded='xl'
       gap={3}
     >
       {!document ? (
         <Stack gap={3} maxW='prose'>
-          <Heading as='h2' size='xl'>
-            Open a GPX file
-          </Heading>
           <Text>
-            See your route, elevation, speed and pace. Your file stays on your device; this
-            tool does not upload it.
+            See your route, elevation, speed and pace.
           </Text>
           <Text color='fg.muted' fontSize='sm'>
-            {GPX_IMPORT_DESCRIPTION}
-          </Text>
-          <Text color='fg.muted' fontSize='sm'>
-            Refreshing this page closes the file and resets your choices.
+            Your file stays on your device.
           </Text>
         </Stack>
       ) : null}
@@ -171,6 +181,7 @@ export const GpxFilePicker = () => {
         showDropzone={!document && !isLoading && !error}
         canClear={Boolean(document || error || isLoading)}
         isLoading={isLoading}
+        onReset={workspace ? resetView : undefined}
         onClear={clearFile}
         onCancel={() => {
           cancelPending();
@@ -199,8 +210,10 @@ export const GpxFilePicker = () => {
           filename={filename}
           onItemChange={setSelectedItem}
           selectedItem={selectedItem}
-        />
-      ) : null}
+        >
+          {children}
+        </GpxDocumentResults>
+      ) : children}
     </FileUpload.Root>
   );
 };

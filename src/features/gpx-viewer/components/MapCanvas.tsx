@@ -91,10 +91,13 @@ export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvas
                 : null}
         </Text>
       ) : null}
-      <Text fontSize='xs' color='fg.muted'>
-        Your file stays on your device. OpenStreetMap receives the area you view to load the background map.{' '}
-        <Link href='https://osmfoundation.org/wiki/Privacy_Policy'>Map privacy</Link>
-      </Text>
+      <Box as='details' fontSize='xs' color='fg.muted'>
+        <Box as='summary' cursor='pointer' minH='44px' alignContent='center'>Map privacy</Box>
+        <Text>
+          Your file stays on your device. OpenStreetMap receives the area you view to load the background map.{' '}
+          <Link href='https://osmfoundation.org/wiki/Privacy_Policy'>OpenStreetMap privacy policy</Link>
+        </Text>
+      </Box>
     </Stack>
   );
 };
