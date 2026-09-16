@@ -14,7 +14,7 @@ export const SpeedExplanation = ({ moving }: Readonly<{ moving: boolean }>) => {
         <Text>
           {moving
             ? 'The average leaves out the stops you chose and any recording gaps. Stops you have not chosen still count.'
-            : 'The average includes stops and time in recording gaps. You can choose stops to leave out under Chart options.'}
+            : 'The average includes stops and time in recording gaps. You can choose stops to leave out under Advanced Controls.'}
           {' '}Parts with missing or unreliable times cannot be included.
         </Text>
         <Text>

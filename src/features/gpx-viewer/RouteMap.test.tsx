@@ -1,5 +1,6 @@
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import type { Track, TrackSegment } from '@/domain/activityDocument';
 
@@ -176,7 +177,7 @@ describe('RouteMap segment selection', () => {
 
 
 describe('RouteMap background notices', () => {
-  it.each(['unavailable', 'disabled'] as const)('keeps the map visible when the background is %s', (basemapStatus) => {
+  it.each(['unavailable', 'disabled'] as const)('keeps the map visible when the background is %s', async (basemapStatus) => {
     jest.mocked(initialiseRouteMap).mockImplementation(({ onStatusChange, onBasemapStatusChange }) => {
       onStatusChange?.('ready');
       onBasemapStatusChange?.(basemapStatus);
@@ -188,6 +189,8 @@ describe('RouteMap background notices', () => {
     );
     expect(screen.getByLabelText('Interactive route map')).toBeVisible();
     expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
+    expect(screen.getByText(/OpenStreetMap receives the area you view to load the background map/)).not.toBeVisible();
+    await userEvent.click(screen.getByText('Map privacy', { selector: 'summary' }));
     expect(screen.getByText(/OpenStreetMap receives the area you view to load the background map/)).toBeVisible();
   });
 });

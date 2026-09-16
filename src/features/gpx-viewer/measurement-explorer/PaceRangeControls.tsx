@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { formatChartMeasurement } from '../measurementDisplay';
 import { Box, Button, Field, Flex, Grid, Input, NativeSelect, Stack, Text } from '@chakra-ui/react';
+import { AdvancedControls } from './AdvancedControls';
 
 type PaceRangeControlsProps = Readonly<{
   mode: 'suggested' | 'full' | 'custom';
@@ -28,8 +29,7 @@ export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximu
           {mode === 'full' ? 'Use suggested range' : 'Show full range'}
         </Button>
       </Flex>
-      <Box as='details' fontSize='sm'>
-        <Box as='summary' cursor='pointer' fontWeight='medium'>Chart options</Box>
+      <AdvancedControls>
         {children}
         <Grid templateColumns='repeat(2, minmax(0, 1fr))' gap={2} alignItems='start' pt={2}>
           <Field.Root>
@@ -68,7 +68,7 @@ export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximu
           <Box as='summary' cursor='pointer'>How suggested range works</Box>
           <Text color='fg.muted' fontSize='xs' mt={1}>Suggested range makes the pace for most of your route easier to see. Select an arrow to see a reading above the chart limit.</Text>
         </Box>
-      </Box>
+      </AdvancedControls>
       <Box as='details' fontSize='sm' color='fg.muted'>
         <Box as='summary' cursor='pointer' fontWeight='medium' color='fg'>
           Why does pace sometimes spike?
@@ -84,7 +84,7 @@ export const PaceRangeControls = ({ mode, onModeChange, suggestedMaximum, maximu
           </Text>
           <Text>
             Smoothing can soften brief changes, but a longer stop may still produce a large spike.
-            Open Chart options and choose <Text as='strong' fontWeight='semibold'>Custom maximum</Text> to adjust how much of the graph is visible. Select an arrow to see a reading above the chart limit. Choose <Text as='strong' fontWeight='semibold'>Show full range</Text> to show the full
+            Open Advanced Controls and choose <Text as='strong' fontWeight='semibold'>Custom maximum</Text> to adjust how much of the graph is visible. Select an arrow to see a reading above the chart limit. Choose <Text as='strong' fontWeight='semibold'>Show full range</Text> to show the full
             range again. Your measurements and totals stay the same.
           </Text>
         </Stack>

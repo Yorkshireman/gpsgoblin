@@ -34,6 +34,8 @@ Carry the ticket through implementation, required checks and review. Use a draft
 
 ## Guide the user one step at a time
 
+Present commands or requests intended for the user to copy and paste on their own plain-text line, without backticks, code fences, quotation marks or list prefixes. In particular, a suggested /agent request must begin with /agent so copying it preserves the execution prefix.
+
 Whenever the user must perform a sequence of actions, give only the current actionable step. Include its purpose, the exact action and how the user can recognise completion. Then wait for the user to confirm completion or provide evidence that it is complete before giving the next step.
 
 For test-first guidance, treat adding the red test and implementing the behaviour as consecutive parts of one actionable step. State the expected failure, then continue directly to the implementation instructions. Assume the user runs the test immediately and will report when it does not fail as expected.

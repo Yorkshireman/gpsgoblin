@@ -40,9 +40,14 @@ export const SelectedMeasurement = ({
           <svg aria-hidden='true' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' strokeWidth='1.5'><path d='m4 4 8 8M12 4l-8 8' /></svg>
         </IconButton>
       </Flex>
-      <Text>No GPS readings for {formatDuration(selected.recordingGap.seconds)}. The last and next positions are{' '}
-        {formatMeasurement(selected.recordingGap.distanceMetres / (labels.elevation === 'ft' ? 0.3048 : 1), labels.elevation)} apart.</Text>
-      <Text fontSize='xs'>We can’t tell how you moved during this gap. The map shows where recording resumed.</Text>
+      <Box as='details'>
+        <Box as='summary' cursor='pointer'>No GPS readings for {formatDuration(selected.recordingGap.seconds)}</Box>
+        <Stack gap={1} pt={2}>
+          <Text>The last and next positions are{' '}
+            {formatMeasurement(selected.recordingGap.distanceMetres / (labels.elevation === 'ft' ? 0.3048 : 1), labels.elevation)} apart.</Text>
+          <Text fontSize='xs'>We can’t tell how you moved during this gap. The map shows where recording resumed.</Text>
+        </Stack>
+      </Box>
     </Stack>;
   }
   return (

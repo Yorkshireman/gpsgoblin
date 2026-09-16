@@ -22,6 +22,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.screenshot({ path: testInfo.outputPath('loaded.png') });
     const marker = page.getByRole('button', { name: '3 nearby recording gaps; select to see the next one' });
     await expect(marker).toBeVisible();
+    const initialScroll = await page.evaluate(() => { return window.scrollY; });
     if (viewport.width >= 600) {
       await marker.hover();
       await expect(page.getByRole('tooltip')).toContainText('3 nearby recording gaps; select to see the next one');
@@ -36,6 +37,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await expect(control).toHaveValue('track-0-segment-0-sample-21');
     await expect(selection).toBeInViewport({ ratio: 1 });
     await expect(marker).toBeInViewport({ ratio: 1 });
+    if (viewport.width < 600) expect(await page.evaluate(() => { return window.scrollY; })).toBe(initialScroll);
     await expect(page.locator('.recharts-tooltip-wrapper')).not.toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('selected.png') });
     const clear = page.getByRole('button', { name: 'Close gap details', exact: true });
@@ -46,6 +48,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await expect(marker).toHaveAttribute('aria-pressed', 'false');
     await page.screenshot({ path: testInfo.outputPath('cleared.png') });
     await marker.click();
+    await expect(page.getByText('3 recording gaps', { exact: true })).not.toBeVisible();
+    await page.getByText('Advanced Controls', { exact: true }).click();
     await page.getByText('3 recording gaps', { exact: true }).click();
     await control.selectOption('');
     await expect(selection).toHaveCount(0);
@@ -54,7 +58,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.keyboard.press('Enter');
     await expect(control).toHaveValue('track-0-segment-0-sample-22');
     await control.selectOption({ index: 3 });
-    await expect(selection).toContainText('We can’t tell how you moved during this gap');
+    await selection.locator('summary').click();
+    await expect(selection.getByText(/We can’t tell/)).toBeVisible();
     await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
     await expect(selection).toContainText('ft apart');
     await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
@@ -100,6 +105,7 @@ test('permissioned local recordings preserve gap distinction', async ({ page }, 
   const control = page.getByLabel('Inspect recording gap', { exact: true });
   await expect(control).toBeHidden();
   await expect(control.locator('option')).toHaveCount(10);
+  await page.getByText('Advanced Controls', { exact: true }).click();
   await page.getByText('9 recording gaps', { exact: true }).click();
   await control.selectOption({ index: 1 });
   await expect(page.getByLabel('Selected measurement', { exact: true })).toContainText('We can’t tell how you moved during this gap');

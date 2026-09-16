@@ -1,4 +1,4 @@
-import { Button, Field, Input } from '@chakra-ui/react';
+import { Field, Input } from '@chakra-ui/react';
 import type { MeasurementPoint } from '@/analysis/measurements';
 import { displayUnits, formatMeasurement } from '../measurementDisplay';
 
@@ -15,7 +15,7 @@ export const RoutePosition = ({ points, selectedIndex, labels, onSelect }: Route
     return null;
   }
   return (
-    <Field.Root>
+    <Field.Root mb={2}>
       <Field.Label>Position on route</Field.Label>
       <Input
         type='range'
@@ -32,6 +32,12 @@ export const RoutePosition = ({ points, selectedIndex, labels, onSelect }: Route
             ? formatMeasurement(selected.distanceMetres / labels.metresPerDistance, labels.distance)
             : 'No point selected'
         }
+        onKeyDown={event => {
+          if (event.key === 'Home' || event.key === 'End') {
+            event.preventDefault();
+            onSelect(points[event.key === 'Home' ? 0 : points.length - 1].sample.id);
+          }
+        }}
         onChange={event => {
           const point = points[Number(event.currentTarget.value)];
           if (point) {
@@ -39,15 +45,6 @@ export const RoutePosition = ({ points, selectedIndex, labels, onSelect }: Route
           }
         }}
       />
-      <Button
-        size='sm'
-        variant='outline'
-        onClick={() => {
-          onSelect(points[0].sample.id);
-        }}
-      >
-        Start of route
-      </Button>
     </Field.Root>
   );
 };

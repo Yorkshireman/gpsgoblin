@@ -38,7 +38,7 @@ test('actual worker rejects hostile input without network requests and recovers'
   await expect(page.getByText(markup, { exact: true })).toBeVisible();
   expect(outbound.every((url) => { return /^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/.test(url); })).toBe(true);
   await page.getByRole('button', { name: 'Clear file' }).click();
-  await expect(page.getByRole('heading', { name: 'Open a GPX file', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Choose GPX file', exact: true })).toBeVisible();
   await picker.setInputFiles(file('valid.gpx'));
   await expect(page.getByText('Safe waypoint', { exact: true })).toBeVisible();
 });
