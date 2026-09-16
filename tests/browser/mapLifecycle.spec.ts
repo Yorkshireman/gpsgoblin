@@ -1,7 +1,12 @@
 import { expect, test, blockExternalTiles } from './browserTest';
 
-test('phone maps mount only when requested and adapt to desktop without losing selection', async ({ browser }) => {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+test('phone maps mount only when requested and adapt to desktop without losing selection', async ({
+  browser
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true
+  });
   await blockExternalTiles(context);
   const page = await context.newPage();
   await page.goto('/tools/gpx-file-viewer.html');
@@ -24,7 +29,10 @@ test('phone maps mount only when requested and adapt to desktop without losing s
   await expect(maps).toHaveCount(0);
 
   const viewMap = page.getByRole('button', { name: 'View on map' });
-  const marker = page.getByRole('img', { name: 'Selected map position: 0, 0.02', exact: true });
+  const marker = page.getByRole('img', {
+    name: 'Selected map position: 0, 0.02',
+    exact: true
+  });
   await viewMap.tap();
   await expect(marker).toBeVisible();
   await expect(canvases).toHaveCount(1);

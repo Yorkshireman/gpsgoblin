@@ -474,18 +474,18 @@ Do not claim that browser-only processing guarantees isolation from all third-pa
 
 ## 14. Agreed stack and repository structure
 
-| Concern                                              | Decision                                       |
-| ---------------------------------------------------- | ---------------------------------------------- |
-| Application                                          | Next.js App Router, React and TypeScript       |
-| Package management                                   | pnpm                                           |
-| UI                                                   | Chakra UI                                      |
-| Maps                                                 | MapLibre GL JS; replaceable basemap provider   |
-| Charts                                               | Recharts                                       |
-| Domain tests                                         | Jest                                           |
-| Frontend integration and appropriate component tests | React Testing Library with Jest                |
-| Browser integration                                  | Focused Playwright where necessary             |
-| Hosting                                              | Cloudflare Workers Static Assets with a Next.js static export  |
-| Runtime processing                                   | Browser-only; workers for expensive operations |
+| Concern                                              | Decision                                                      |
+| ---------------------------------------------------- | ------------------------------------------------------------- |
+| Application                                          | Next.js App Router, React and TypeScript                      |
+| Package management                                   | pnpm                                                          |
+| UI                                                   | Chakra UI                                                     |
+| Maps                                                 | MapLibre GL JS; replaceable basemap provider                  |
+| Charts                                               | Recharts                                                      |
+| Domain tests                                         | Jest                                                          |
+| Frontend integration and appropriate component tests | React Testing Library with Jest                               |
+| Browser integration                                  | Focused Playwright where necessary                            |
+| Hosting                                              | Cloudflare Workers Static Assets with a Next.js static export |
+| Runtime processing                                   | Browser-only; workers for expensive operations                |
 
 Use a single application repository initially, not a monorepo. Suggested responsibility boundaries:
 
@@ -711,10 +711,10 @@ O1 and O2 are retained below as resolved decisions for traceability. The remaini
 | ID  | Item / status                                                                                                                                                | Required by                                                                                             |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
 | O1  | Resolved: GPSGoblin; `gpsgoblin.com` purchased; canonical origin `https://gpsgoblin.com`. Record actual registration/renewal costs under operating expenses. | Name/domain selection and purchase are complete; verify production configuration before Stage 1 release |
-| O2  | Resolved: OSM public raster tiles; terms, request sample, privacy, disable switch and fallback recorded in [basemap assessment](basemap.md)                                                                | First public map-enabled release                                                                        |
+| O2  | Resolved: OSM public raster tiles; terms, request sample, privacy, disable switch and fallback recorded in [basemap assessment](basemap.md)                  | First public map-enabled release                                                                        |
 | O3  | GPX/TCX/FIT parser choices, licence checks and published format/extension coverage                                                                           | Each affected format release                                                                            |
-| O4  | Large-file performance, workarounds and browser support matrix; any hard limits require owner agreement                                                                                              | Each affected tool release                                                                              |
-| O5  | Privacy wording, security headers and third-party inventory                                                                                 | First public release; update before new suppliers                                                       |
+| O4  | Large-file performance, workarounds and browser support matrix; any hard limits require owner agreement                                                      | Each affected tool release                                                                              |
+| O5  | Privacy wording, security headers and third-party inventory                                                                                                  | First public release; update before new suppliers                                                       |
 | O6  | Analytics supplier, consent/legal assessment and event implementation                                                                                        | Before product telemetry is enabled                                                                     |
 | O7  | AdSense approval, ad placement, CMP and advertising privacy verification                                                                                     | Before advertisements are enabled                                                                       |
 | O8  | Matching algorithm, correspondence/coverage thresholds, offsets and ambiguity rules                                                                          | Stage 5 release                                                                                         |

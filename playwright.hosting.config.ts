@@ -11,11 +11,17 @@ const localConfigPath = path.resolve('.wrangler/hosting-test.json');
 // Production routes make Wrangler replace incoming Host headers. Keep the asset
 // configuration, but let these local checks simulate public and preview hosts.
 mkdirSync(path.dirname(localConfigPath), { recursive: true });
-writeFileSync(localConfigPath, JSON.stringify({
-  ...hostingConfig,
-  routes: [],
-  assets: { ...hostingConfig.assets, directory: path.resolve(hostingConfig.assets.directory) }
-}));
+writeFileSync(
+  localConfigPath,
+  JSON.stringify({
+    ...hostingConfig,
+    routes: [],
+    assets: {
+      ...hostingConfig.assets,
+      directory: path.resolve(hostingConfig.assets.directory)
+    }
+  })
+);
 
 export default defineConfig({
   ...base,

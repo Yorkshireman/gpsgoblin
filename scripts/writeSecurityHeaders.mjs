@@ -9,12 +9,17 @@ const hashes = new Set();
 const htmlFiles = readdirSync(output, { recursive: true }).filter((file) => {
   return file.endsWith('.html');
 });
-if (!htmlFiles.length) throw new Error('Build the static export before generating headers.');
+if (!htmlFiles.length)
+  throw new Error('Build the static export before generating headers.');
 for (const file of htmlFiles) {
   const html = readFileSync(path.join(output, file), 'utf8');
-  for (const [, attributes, script] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+  for (const [, attributes, script] of html.matchAll(
+    /<script\b([^>]*)>([\s\S]*?)<\/script>/gi
+  )) {
     if (!/\bsrc\s*=/i.test(attributes)) {
-      hashes.add(`'sha256-${createHash('sha256').update(script).digest('base64')}'`);
+      hashes.add(
+        `'sha256-${createHash('sha256').update(script).digest('base64')}'`
+      );
     }
   }
 }
@@ -44,8 +49,16 @@ https://:version.:subdomain.workers.dev/*
 `;
 // Cloudflare Static Assets rejects individual lines over 2,000 characters. Fail the
 // build rather than ship a silently missing policy as the site grows.
-if (headers.split('\n').some((line) => { return line.length > 2000; })) {
-  throw new Error('Security headers exceed the Cloudflare Static Assets line limit.');
+if (
+  headers.split('\n').some((line) => {
+    return line.length > 2000;
+  })
+) {
+  throw new Error(
+    'Security headers exceed the Cloudflare Static Assets line limit.'
+  );
 }
 writeFileSync(path.join(output, '_headers'), headers);
-console.log(`Generated security headers for ${htmlFiles.length} HTML files (${hashes.size} inline script hashes).`);
+console.log(
+  `Generated security headers for ${htmlFiles.length} HTML files (${hashes.size} inline script hashes).`
+);

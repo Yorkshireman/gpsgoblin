@@ -1,7 +1,13 @@
 import { chartPosition } from './chartPosition';
 import { useMemo } from 'react';
 import { IconButton } from '@chakra-ui/react';
-import { DefaultZIndexes, ZIndexLayer, useXAxisScale, useYAxisScale, usePlotArea } from 'recharts';
+import {
+  DefaultZIndexes,
+  ZIndexLayer,
+  useXAxisScale,
+  useYAxisScale,
+  usePlotArea
+} from 'recharts';
 import { formatChartMeasurement } from '../../measurementDisplay';
 import type { ChartMeasurement } from '../../measurementDisplay';
 
@@ -15,7 +21,15 @@ type OverflowMarkersProps = Readonly<{
   onHover: (id: string | undefined) => void;
 }>;
 
-export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, onSelect, onHover }: OverflowMarkersProps) => {
+export const OverflowMarkers = ({
+  data,
+  maximum,
+  unit,
+  distanceUnit,
+  selected,
+  onSelect,
+  onHover
+}: OverflowMarkersProps) => {
   const xScale = useXAxisScale();
   const area = usePlotArea();
   const yScale = useYAxisScale();
@@ -41,16 +55,31 @@ export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, o
     const result: ChartMeasurement[] = [];
     for (const peak of peaks) {
       const previous = result.at(-1);
-      if (previous && Math.abs((xScale(chartPosition(peak)) ?? 0) - (xScale(chartPosition(previous)) ?? 0)) < 32) {
-        if ((peak.motion ?? 0) > (previous.motion ?? 0)) result[result.length - 1] = peak;
+      if (
+        previous &&
+        Math.abs(
+          (xScale(chartPosition(peak)) ?? 0) -
+            (xScale(chartPosition(previous)) ?? 0)
+        ) < 32
+      ) {
+        if ((peak.motion ?? 0) > (previous.motion ?? 0))
+          result[result.length - 1] = peak;
       } else {
         result.push(peak);
       }
     }
     if (selected?.motion != null && selected.motion > maximum) {
-      return [...result.filter(point => {
-        return Math.abs((xScale(chartPosition(point)) ?? 0) - (xScale(chartPosition(selected)) ?? 0)) >= 32;
-      }), selected];
+      return [
+        ...result.filter((point) => {
+          return (
+            Math.abs(
+              (xScale(chartPosition(point)) ?? 0) -
+                (xScale(chartPosition(selected)) ?? 0)
+            ) >= 32
+          );
+        }),
+        selected
+      ];
     }
     return result;
   }, [peaks, selected, maximum, xScale]);
@@ -58,17 +87,43 @@ export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, o
   if (!area || !xScale || y === undefined) return null;
   return (
     <ZIndexLayer zIndex={DefaultZIndexes.label + 2}>
-      {markers.map(point => {
+      {markers.map((point) => {
         const scaled = xScale(chartPosition(point));
-        if (scaled === undefined || !point.sampleId || point.motion === null) return null;
-        const x = Math.max(area.x + 14, Math.min(area.x + area.width - 14, scaled));
+        if (scaled === undefined || !point.sampleId || point.motion === null)
+          return null;
+        const x = Math.max(
+          area.x + 14,
+          Math.min(area.x + area.width - 14, scaled)
+        );
         const label = `Above range: ${formatChartMeasurement(point.motion, unit)} at ${point.distance.toFixed(2)} ${distanceUnit}`;
         return (
-          <foreignObject key={point.sampleId} x={x - 14} y={Math.max(0, y - 10)} width={28} height={28} overflow='visible'>
-            <IconButton type='button' aria-label={label} title={label} size='2xs' width='28px' height='28px'
-              colorPalette='green' variant='outline' color='green.fg'
-              borderWidth={point.sampleId === selected?.sampleId ? '2px' : '1px'}
-              bg={point.sampleId === selected?.sampleId ? 'green.subtle' : 'bg.panel'} rounded='full'
+          <foreignObject
+            key={point.sampleId}
+            x={x - 14}
+            y={Math.max(0, y - 10)}
+            width={28}
+            height={28}
+            overflow="visible"
+          >
+            <IconButton
+              type="button"
+              aria-label={label}
+              title={label}
+              size="2xs"
+              width="28px"
+              height="28px"
+              colorPalette="green"
+              variant="outline"
+              color="green.fg"
+              borderWidth={
+                point.sampleId === selected?.sampleId ? '2px' : '1px'
+              }
+              bg={
+                point.sampleId === selected?.sampleId
+                  ? 'green.subtle'
+                  : 'bg.panel'
+              }
+              rounded="full"
               onPointerEnter={() => {
                 onHover(point.sampleId ?? undefined);
               }}
@@ -77,9 +132,18 @@ export const OverflowMarkers = ({ data, maximum, unit, distanceUnit, selected, o
               }}
               onClick={() => {
                 if (point.sampleId) onSelect(point.sampleId);
-              }}>
-              <svg viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='currentColor' strokeWidth='2' aria-hidden='true'>
-                <path d='M3 8L8 3L13 8M8 3V14' />
+              }}
+            >
+              <svg
+                viewBox="0 0 16 16"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path d="M3 8L8 3L13 8M8 3V14" />
               </svg>
             </IconButton>
           </foreignObject>

@@ -14,7 +14,12 @@ type MapCanvasProps = Readonly<{
   routeColor: string;
 }>;
 
-export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvasProps) => {
+export const MapCanvas = ({
+  paths,
+  point,
+  selectedPoint,
+  routeColor
+}: MapCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<ReturnType<typeof initialiseRouteMap> | null>(null);
   const [basemapStatus, setBasemapStatus] = useState<BasemapStatus>('loading');
@@ -54,26 +59,32 @@ export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvas
 
   return (
     <Stack gap={2}>
-      <Box position='relative'>
+      <Box position="relative">
         <Box
-          role='group'
-          aria-label='Interactive route map'
-          bg='bg.muted'
-          borderWidth='1px'
+          role="group"
+          aria-label="Interactive route map"
+          bg="bg.muted"
+          borderWidth="1px"
           minH={{ base: 'xs', md: 'sm' }}
-          overflow='hidden'
+          overflow="hidden"
           ref={containerRef}
-          rounded='lg'
+          rounded="lg"
           visibility={failure ? 'hidden' : 'visible'}
         />
         {failure ? (
-          <Stack position='absolute' inset={0} justify='center' p={{ base: 3, md: 6 }}>
-            <Alert.Root status='warning'>
+          <Stack
+            position="absolute"
+            inset={0}
+            justify="center"
+            p={{ base: 3, md: 6 }}
+          >
+            <Alert.Root status="warning">
               <Alert.Indicator />
               <Alert.Content>
                 <Alert.Title>Map unavailable</Alert.Title>
                 <Alert.Description>
-                  {failure} Your file details and any calculated results are still available.
+                  {failure} Your file details and any calculated results are
+                  still available.
                 </Alert.Description>
               </Alert.Content>
             </Alert.Root>
@@ -81,7 +92,7 @@ export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvas
         ) : null}
       </Box>
       {!failure ? (
-        <Text role='status' fontSize='sm' color='fg.muted'>
+        <Text role="status" fontSize="sm" color="fg.muted">
           {basemapStatus === 'unavailable'
             ? 'Background map unavailable. Your route and selected position are still shown.'
             : basemapStatus === 'disabled'
@@ -91,11 +102,16 @@ export const MapCanvas = ({ paths, point, selectedPoint, routeColor }: MapCanvas
                 : null}
         </Text>
       ) : null}
-      <Box as='details' fontSize='xs' color='fg.muted'>
-        <Box as='summary' cursor='pointer' minH='44px' alignContent='center'>Map privacy</Box>
+      <Box as="details" fontSize="xs" color="fg.muted">
+        <Box as="summary" cursor="pointer" minH="44px" alignContent="center">
+          Map privacy
+        </Box>
         <Text>
-          Your file stays on your device. OpenStreetMap receives the area you view to load the background map.{' '}
-          <Link href='https://osmfoundation.org/wiki/Privacy_Policy'>OpenStreetMap privacy policy</Link>
+          Your file stays on your device. OpenStreetMap receives the area you
+          view to load the background map.{' '}
+          <Link href="https://osmfoundation.org/wiki/Privacy_Policy">
+            OpenStreetMap privacy policy
+          </Link>
         </Text>
       </Box>
     </Stack>

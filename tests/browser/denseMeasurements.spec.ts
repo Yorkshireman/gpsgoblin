@@ -19,8 +19,13 @@ test('dense recordings keep elevation visible without a dot on every measurement
       `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>${recording}</trkseg></trk></gpx>`
     )
   });
-  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
-  const elevation = page.getByRole('region', { name: 'Measurement chart', exact: true });
+  await page
+    .getByRole('combobox', { name: 'Chart', exact: true })
+    .selectOption('elevation');
+  const elevation = page.getByRole('region', {
+    name: 'Measurement chart',
+    exact: true
+  });
   await expect(elevation.locator('.recharts-line-curve')).toBeVisible();
   await elevation.scrollIntoViewIfNeeded();
   await elevation.screenshot({
@@ -32,7 +37,9 @@ test('dense recordings keep elevation visible without a dot on every measurement
   });
   expect(await elevation.locator('circle').count()).toBeLessThanOrEqual(1);
   expect(
-    (await elevation.locator('.recharts-line-curve').getAttribute('d'))?.match(/M/g)
+    (await elevation.locator('.recharts-line-curve').getAttribute('d'))?.match(
+      /M/g
+    )
   ).toHaveLength(2);
 });
 
@@ -51,8 +58,13 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   });
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles(filename);
-  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
-  const elevation = page.getByRole('region', { name: 'Measurement chart', exact: true });
+  await page
+    .getByRole('combobox', { name: 'Chart', exact: true })
+    .selectOption('elevation');
+  const elevation = page.getByRole('region', {
+    name: 'Measurement chart',
+    exact: true
+  });
   await expect(elevation.locator('.recharts-line-curve')).toBeVisible();
   expect(await elevation.locator('circle').count()).toBeLessThanOrEqual(1);
 
@@ -60,15 +72,26 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   await elevation.screenshot({
     path: testInfo.outputPath('local-elevation.png')
   });
-  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('speed');
-  const speed = page.getByRole('region', { name: 'Measurement chart', exact: true });
-  const elevationToggle = speed.getByRole('checkbox', { name: 'Show elevation' });
+  await page
+    .getByRole('combobox', { name: 'Chart', exact: true })
+    .selectOption('speed');
+  const speed = page.getByRole('region', {
+    name: 'Measurement chart',
+    exact: true
+  });
+  const elevationToggle = speed.getByRole('checkbox', {
+    name: 'Show elevation'
+  });
   await expect(elevationToggle).not.toBeChecked();
   await expect(speed.locator('.elevation-background')).toHaveCount(0);
   await speed.getByText('Show elevation', { exact: true }).click();
   await expect(elevationToggle).toBeChecked();
-  await expect(speed.locator('.elevation-background .recharts-area-area')).toBeVisible();
-  await speed.screenshot({ path: testInfo.outputPath('local-speed-with-elevation.png') });
+  await expect(
+    speed.locator('.elevation-background .recharts-area-area')
+  ).toBeVisible();
+  await speed.screenshot({
+    path: testInfo.outputPath('local-speed-with-elevation.png')
+  });
   await elevationToggle.focus();
   await elevationToggle.press('Space');
   await expect(elevationToggle).not.toBeChecked();
@@ -78,89 +101,151 @@ test('optional local recording verification', async ({ page }, testInfo) => {
   expect(Number(await averageLine.getAttribute('x2'))).toBeGreaterThan(
     Number(await averageLine.getAttribute('x1'))
   );
-  expect(await averageLine.getAttribute('y1')).toBe(await averageLine.getAttribute('y2'));
+  expect(await averageLine.getAttribute('y1')).toBe(
+    await averageLine.getAttribute('y2')
+  );
   const averageLabel = await speed.getByText(/Average speed:/).textContent();
   await speed.screenshot({ path: testInfo.outputPath('local-speed.png') });
   await expect(speed.locator('.recharts-line-curve')).toHaveCount(1);
-  const smoothedPath = await speed.locator('.recharts-line-curve').getAttribute('d');
+  const smoothedPath = await speed
+    .locator('.recharts-line-curve')
+    .getAttribute('d');
   const smoothing = page.getByRole('slider', { name: 'Smoothing' });
   await expect(smoothing).toHaveAttribute('aria-valuetext', '1 minute');
   await smoothing.press('ArrowRight');
-  await expect(smoothing).toHaveAttribute('aria-valuetext', '1 minute 5 seconds');
+  await expect(smoothing).toHaveAttribute(
+    'aria-valuetext',
+    '1 minute 5 seconds'
+  );
   await smoothing.focus();
   await smoothing.press('Home');
-  await expect(smoothing).toHaveAttribute('aria-valuetext', '0 seconds (unsmoothed)');
-  await expect(speed.locator('.recharts-line-curve')).not.toHaveAttribute('d', smoothedPath ?? '');
+  await expect(smoothing).toHaveAttribute(
+    'aria-valuetext',
+    '0 seconds (unsmoothed)'
+  );
+  await expect(speed.locator('.recharts-line-curve')).not.toHaveAttribute(
+    'd',
+    smoothedPath ?? ''
+  );
   await smoothing.press('End');
   await expect(smoothing).toHaveAttribute('aria-valuetext', '10 minutes');
-  await expect(speed.getByText(/Average speed:/)).toHaveText(averageLabel ?? '');
+  await expect(speed.getByText(/Average speed:/)).toHaveText(
+    averageLabel ?? ''
+  );
   await expect(page.getByText('10 minutes', { exact: true })).toBeVisible();
   await speed
     .locator('..')
     .screenshot({ path: testInfo.outputPath('local-speed-ten-minutes.png') });
   await smoothing.press('ArrowLeft');
-  await expect(smoothing).toHaveAttribute('aria-valuetext', '9 minutes 30 seconds');
+  await expect(smoothing).toHaveAttribute(
+    'aria-valuetext',
+    '9 minutes 30 seconds'
+  );
   await smoothing.press('End');
-  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
-  const pace = page.getByRole('region', { name: 'Measurement chart', exact: true });
-  await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText('0:00');
+  await page
+    .getByRole('combobox', { name: 'Chart', exact: true })
+    .selectOption('pace');
+  const pace = page.getByRole('region', {
+    name: 'Measurement chart',
+    exact: true
+  });
+  await expect(pace.locator('.recharts-yAxis-tick-labels')).toContainText(
+    '0:00'
+  );
   await pace.screenshot({ path: testInfo.outputPath('local-pace.png') });
-  const unitBounds = await pace.getByText('min/km', { exact: true }).boundingBox();
-  const axisBounds = await pace.locator('.recharts-yAxis-tick-labels').boundingBox();
+  const unitBounds = await pace
+    .getByText('min/km', { exact: true })
+    .boundingBox();
+  const axisBounds = await pace
+    .locator('.recharts-yAxis-tick-labels')
+    .boundingBox();
   const chartBounds = await pace.boundingBox();
   const sliderBounds = await smoothing.boundingBox();
-  expect(unitBounds && axisBounds && unitBounds.y + unitBounds.height <= axisBounds.y).toBe(true);
-  expect(chartBounds && sliderBounds && sliderBounds.y >= chartBounds.y + chartBounds.height).toBe(
-    true
-  );
+  expect(
+    unitBounds && axisBounds && unitBounds.y + unitBounds.height <= axisBounds.y
+  ).toBe(true);
+  expect(
+    chartBounds &&
+      sliderBounds &&
+      sliderBounds.y >= chartBounds.y + chartBounds.height
+  ).toBe(true);
   await smoothing.press('Home');
-  await page.getByRole('button', { name: 'Show full range', exact: true }).click();
-  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('elevation');
+  await page
+    .getByRole('button', { name: 'Show full range', exact: true })
+    .click();
+  await page
+    .getByRole('combobox', { name: 'Chart', exact: true })
+    .selectOption('elevation');
   const area = elevation.locator('.measurement-selection-area');
   const bounds = await area.boundingBox();
   if (!bounds) {
     throw new Error('Chart selection area missing');
   }
   await area.click({ position: { x: bounds.width / 2, y: bounds.height / 2 } });
-  await expect(page.getByLabel('Selected measurement', { exact: true })).toBeVisible();
+  await expect(
+    page.getByLabel('Selected measurement', { exact: true })
+  ).toBeVisible();
   if ((page.viewportSize()?.width ?? 1280) < 1024)
     await page.getByRole('button', { name: 'View on map' }).click();
-  await expect(page.getByRole('img', { name: /Selected map position/ })).toBeVisible();
+  await expect(
+    page.getByRole('img', { name: /Selected map position/ })
+  ).toBeVisible();
   if ((page.viewportSize()?.width ?? 1280) < 1024)
     await page.getByRole('button', { name: 'Back to chart' }).click();
-  await expect(page.getByText(/We calculate speed from the distance/)).not.toBeVisible();
+  await expect(
+    page.getByText(/We calculate speed from the distance/)
+  ).not.toBeVisible();
   await page.getByText('How speed is calculated', { exact: true }).click();
-  await expect(page.getByText(/We calculate speed from the distance/)).toBeVisible();
+  await expect(
+    page.getByText(/We calculate speed from the distance/)
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test('pace plots actual values above 30 with explicit minutes per distance', async ({ page }, testInfo) => {
+test('pace plots actual values above 30 with explicit minutes per distance', async ({
+  page
+}, testInfo) => {
   const times = [0, 3600, 10800, 11160];
-  const points = times.map((seconds, index) => {
-    return `<trkpt lat="0" lon="${index * 0.01}"><time>${new Date(Date.UTC(2026, 0, 1, 0, 0, seconds)).toISOString()}</time></trkpt>`;
-  }).join('');
+  const points = times
+    .map((seconds, index) => {
+      return `<trkpt lat="0" lon="${index * 0.01}"><time>${new Date(Date.UTC(2026, 0, 1, 0, 0, seconds)).toISOString()}</time></trkpt>`;
+    })
+    .join('');
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles({
-    name: 'slow-pace.gpx', mimeType: 'application/gpx+xml',
-    buffer: Buffer.from(`<gpx version="1.1"><trk><trkseg>${points}</trkseg></trk></gpx>`)
+    name: 'slow-pace.gpx',
+    mimeType: 'application/gpx+xml',
+    buffer: Buffer.from(
+      `<gpx version="1.1"><trk><trkseg>${points}</trkseg></trk></gpx>`
+    )
   });
-  await page.getByRole('combobox', { name: 'Chart', exact: true }).selectOption('pace');
-  await page.getByRole('button', { name: 'Show full range', exact: true }).click();
+  await page
+    .getByRole('combobox', { name: 'Chart', exact: true })
+    .selectOption('pace');
+  await page
+    .getByRole('button', { name: 'Show full range', exact: true })
+    .click();
   await expect(page.getByText(/Paces slower than/)).toHaveCount(0);
   const smoothing = page.getByRole('slider', { name: 'Smoothing' });
   await smoothing.press('Home');
   const trace = page.locator('.recharts-line-curve');
-  const path = await trace.getAttribute('d') ?? '';
-  const vertices = Array.from(path.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g), match => {
-    return { x: Number(match[1]), y: Number(match[2]) };
-  });
+  const path = (await trace.getAttribute('d')) ?? '';
+  const vertices = Array.from(
+    path.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g),
+    (match) => {
+      return { x: Number(match[1]), y: Number(match[2]) };
+    }
+  );
   expect(vertices).toHaveLength(3);
   const area = page.locator('.measurement-selection-area');
   const top = Number(await area.getAttribute('y'));
   const bottom = top + Number(await area.getAttribute('height'));
   // The 108-minute peak is twice the 54-minute peak, not flattened to one ceiling.
   expect(vertices[1].y - top).toBeCloseTo(3, 1);
-  expect((bottom - vertices[0].y) / (bottom - vertices[1].y)).toBeCloseTo(0.5, 2);
+  expect((bottom - vertices[0].y) / (bottom - vertices[1].y)).toBeCloseTo(
+    0.5,
+    2
+  );
   const position = page.getByRole('slider', { name: 'Position on route' });
   await position.press('Home');
   await position.press('ArrowRight');
@@ -170,13 +255,19 @@ test('pace plots actual values above 30 with explicit minutes per distance', asy
   await expect(selected).toContainText(/107:\d{2} min\/km/);
   const marker = page.locator('.recharts-reference-dot circle');
   expect(Number(await marker.getAttribute('cy'))).toBeCloseTo(vertices[1].y, 2);
-  await page.getByRole('combobox', { name: 'Display units' }).selectOption('imperial');
+  await page
+    .getByRole('combobox', { name: 'Display units' })
+    .selectOption('imperial');
   await expect(selected).toContainText(/173:\d{2} min\/mi/);
-  await page.getByRole('combobox', { name: 'Display units' }).selectOption('metric');
+  await page
+    .getByRole('combobox', { name: 'Display units' })
+    .selectOption('metric');
   await smoothing.press('End');
   await expect(selected).toContainText(/107:\d{2} min\/km/);
-  await page.getByRole('region', { name: 'Measurement chart', exact: true }).evaluate(element => {
-    element.scrollIntoView({ block: 'start' });
-  });
+  await page
+    .getByRole('region', { name: 'Measurement chart', exact: true })
+    .evaluate((element) => {
+      element.scrollIntoView({ block: 'start' });
+    });
   await page.screenshot({ path: testInfo.outputPath('uncapped-pace.png') });
 });

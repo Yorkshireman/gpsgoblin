@@ -13,9 +13,12 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <Provider>{children}<SiteFooter /></Provider>
+        <Provider>
+          {children}
+          <SiteFooter />
+        </Provider>
       </body>
     </html>
   );

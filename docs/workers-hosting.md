@@ -48,16 +48,16 @@ Neither establishes deployed Cloudflare behaviour.
 The GitHub integration has been deployed and verified on workers.dev; see
 [release evidence](release-readiness.md). Current build settings:
 
-| Setting | Value |
-| --- | --- |
-| Product | Workers, with GitHub integration |
-| Repository | Yorkshireman/gpsgoblin |
-| Worker name | gpsgoblin (must match wrangler.jsonc) |
-| Root directory | Repository root |
-| Build command | `pnpm run build` |
-| Deploy command | `pnpm exec wrangler deploy` |
-| Non-production branch command | `pnpm exec wrangler versions upload` |
-| Build environment | `NODE_VERSION=24.20.0`, `PNPM_VERSION=12.3.4`, `WRANGLER_SEND_METRICS=false` |
+| Setting                       | Value                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| Product                       | Workers, with GitHub integration                                             |
+| Repository                    | Yorkshireman/gpsgoblin                                                       |
+| Worker name                   | gpsgoblin (must match wrangler.jsonc)                                        |
+| Root directory                | Repository root                                                              |
+| Build command                 | `pnpm run build`                                                             |
+| Deploy command                | `pnpm exec wrangler deploy`                                                  |
+| Non-production branch command | `pnpm exec wrangler versions upload`                                         |
+| Build environment             | `NODE_VERSION=24.20.0`, `PNPM_VERSION=12.3.4`, `WRANGLER_SEND_METRICS=false` |
 
 The configuration is merged to master. Cloudflare uses master as the production
 build branch, with Builds for non-production branches enabled for previews.
@@ -146,7 +146,6 @@ available until the cutover is accepted. No rollback was performed as a test.
 
 Sources: [Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/),
 [rollbacks](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/).
-
 
 ## Current WWW redirect
 

@@ -33,12 +33,12 @@ Completion criterion: for every added or retained message, the reviewer can name
 
 For layout or flow changes, use these browser **content viewport** sizes as the baseline:
 
-| Context | Width × height in CSS pixels |
-| --- | --- |
-| Desktop | 1440 × 900 |
-| Short laptop window | 1280 × 720 |
-| Phone | 390 × 844 |
-| Small/short phone | 375 × 667 |
+| Context             | Width × height in CSS pixels |
+| ------------------- | ---------------------------- |
+| Desktop             | 1440 × 900                   |
+| Short laptop window | 1280 × 720                   |
+| Phone               | 390 × 844                    |
+| Small/short phone   | 375 × 667                    |
 
 These are test cases, not required CSS breakpoints or a claim of physical-device coverage. Add relevant sizes or real-device checks when the change warrants them. For a local change, focus on the affected states and dimensions and explain any narrower coverage.
 

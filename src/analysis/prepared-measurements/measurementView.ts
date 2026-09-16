@@ -1,4 +1,7 @@
-import type { analyseMeasurements, StopEvidence } from '@/analysis/measurements';
+import type {
+  analyseMeasurements,
+  StopEvidence
+} from '@/analysis/measurements';
 
 export type MeasurementViewRequest = Readonly<{
   entityId: string;
@@ -12,7 +15,10 @@ export type MeasurementViewRequest = Readonly<{
   includeAnalysis?: boolean;
 }>;
 
-export type MeasurementSummary = Omit<ReturnType<typeof analyseMeasurements>, 'points'>;
+export type MeasurementSummary = Omit<
+  ReturnType<typeof analyseMeasurements>,
+  'points'
+>;
 
 export type PackedMeasurementAnalysis = Readonly<{
   summary: MeasurementSummary;

@@ -1,8 +1,14 @@
-import type { MeasurementViewRequest, PackedMeasurementView } from '@/analysis/prepared-measurements';
+import type {
+  MeasurementViewRequest,
+  PackedMeasurementView
+} from '@/analysis/prepared-measurements';
 import type { ImportResponse } from './workerMessages';
 
 export type MeasurementSession = Readonly<{
-  prepareView: (settings: MeasurementViewRequest, signal: AbortSignal) => Promise<PackedMeasurementView>;
+  prepareView: (
+    settings: MeasurementViewRequest,
+    signal: AbortSignal
+  ) => Promise<PackedMeasurementView>;
   dispose: () => void;
 }>;
 
@@ -21,7 +27,9 @@ const cancelled = () => {
 
 // Keep at most one running calculation and the newest queued settings. An
 // obsolete result cannot replace the displayed view or build an unbounded queue.
-export const createMeasurementSession = (worker: Worker): MeasurementSession => {
+export const createMeasurementSession = (
+  worker: Worker
+): MeasurementSession => {
   let nextId = 0;
   let running: PendingView | undefined;
   let queued: PendingView | undefined;
@@ -35,7 +43,11 @@ export const createMeasurementSession = (worker: Worker): MeasurementSession => 
     for (const pending of [running, queued]) {
       if (!pending) continue;
       detach(pending);
-      pending.reject(new Error('Measurements could not be updated. Clear and reopen the file to try again.'));
+      pending.reject(
+        new Error(
+          'Measurements could not be updated. Clear and reopen the file to try again.'
+        )
+      );
     }
     running = undefined;
     queued = undefined;
@@ -45,7 +57,11 @@ export const createMeasurementSession = (worker: Worker): MeasurementSession => 
   const send = (pending: PendingView) => {
     running = pending;
     try {
-      worker.postMessage({ type: 'view', requestId: pending.requestId, settings: pending.settings });
+      worker.postMessage({
+        type: 'view',
+        requestId: pending.requestId,
+        settings: pending.settings
+      });
     } catch {
       fail();
     }
@@ -53,7 +69,12 @@ export const createMeasurementSession = (worker: Worker): MeasurementSession => 
   };
   worker.onmessage = (event: MessageEvent<ImportResponse>) => {
     const response = event.data;
-    if (!('type' in response) || response.type !== 'view' || response.requestId !== running?.requestId) return;
+    if (
+      !('type' in response) ||
+      response.type !== 'view' ||
+      response.requestId !== running?.requestId
+    )
+      return;
     const completed = running;
     running = undefined;
     detach(completed);
@@ -73,10 +94,24 @@ export const createMeasurementSession = (worker: Worker): MeasurementSession => 
   return {
     prepareView: (settings, signal) => {
       return new Promise((resolve, reject) => {
-        if (signal.aborted) { reject(cancelled()); return; }
-        if (disposed) { reject(new Error('Measurements are unavailable. Clear and reopen the file to try again.')); return; }
+        if (signal.aborted) {
+          reject(cancelled());
+          return;
+        }
+        if (disposed) {
+          reject(
+            new Error(
+              'Measurements are unavailable. Clear and reopen the file to try again.'
+            )
+          );
+          return;
+        }
         const pending: PendingView = {
-          requestId: ++nextId, settings, signal, resolve, reject,
+          requestId: ++nextId,
+          settings,
+          signal,
+          resolve,
+          reject,
           abort: () => {
             detach(pending);
             if (queued === pending) queued = undefined;
@@ -86,7 +121,10 @@ export const createMeasurementSession = (worker: Worker): MeasurementSession => 
         };
         signal.addEventListener('abort', pending.abort, { once: true });
         if (running) {
-          if (queued) { detach(queued); queued.reject(cancelled()); }
+          if (queued) {
+            detach(queued);
+            queued.reject(cancelled());
+          }
           queued = pending;
         } else send(pending);
         return;

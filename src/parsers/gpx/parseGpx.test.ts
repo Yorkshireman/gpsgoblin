@@ -12,7 +12,7 @@ describe('parseGpx', () => {
     ];
     const contents = `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>
       ${times
-        .map(time => {
+        .map((time) => {
           return `<trkpt lat="0" lon="0"><time>${time}</time></trkpt>`;
         })
         .join('')}<trkpt lat="0" lon="0" />
@@ -23,14 +23,19 @@ describe('parseGpx', () => {
     }
     expect(result.document.originalContents).toBe(contents);
     expect(
-      result.document.tracks[0].segments[0].samples.map(sample => {
+      result.document.tracks[0].segments[0].samples.map((sample) => {
         return sample.sourceTime;
       })
     ).toEqual([...times, undefined]);
   });
 
   describe.each([
-    { kind: 'track point', before: '<trk><trkseg>', point: 'trkpt', after: '</trkseg></trk>' },
+    {
+      kind: 'track point',
+      before: '<trk><trkseg>',
+      point: 'trkpt',
+      after: '</trkseg></trk>'
+    },
     { kind: 'route point', before: '<rte>', point: 'rtept', after: '</rte>' },
     { kind: 'waypoint', before: '', point: 'wpt', after: '' }
   ])('$kind coordinates', ({ kind, before, point, after }) => {
@@ -46,19 +51,22 @@ describe('parseGpx', () => {
       }
 
       const samples = [
-        ...result.document.tracks.flatMap(track => {
-          return track.segments.flatMap(segment => {
+        ...result.document.tracks.flatMap((track) => {
+          return track.segments.flatMap((segment) => {
             return segment.samples;
           });
         }),
-        ...result.document.routes.flatMap(route => {
+        ...result.document.routes.flatMap((route) => {
           return route.points;
         }),
         ...result.document.waypoints
       ];
 
       expect(samples).toHaveLength(1);
-      expect(samples[0]).toMatchObject({ latitudeDegrees: 0, longitudeDegrees: 0 });
+      expect(samples[0]).toMatchObject({
+        latitudeDegrees: 0,
+        longitudeDegrees: 0
+      });
     });
 
     it.each([
@@ -66,18 +74,21 @@ describe('parseGpx', () => {
       { latitude: '1', longitude: '' },
       { latitude: '   ', longitude: '1' },
       { latitude: '1', longitude: '   ' }
-    ])('rejects blank coordinates: $latitude / $longitude', ({ latitude, longitude }) => {
-      const result = parseGpx(`
+    ])(
+      'rejects blank coordinates: $latitude / $longitude',
+      ({ latitude, longitude }) => {
+        const result = parseGpx(`
         <gpx version="1.1" creator="GPSGoblin test" xmlns="http://www.topografix.com/GPX/1/1">
           ${before}<${point} lat="${latitude}" lon="${longitude}" />${after}
         </gpx>
       `);
 
-      expect(result).toEqual({
-        ok: false,
-        error: `A ${kind} is missing its map location. Download a new copy and try again.`
-      });
-    });
+        expect(result).toEqual({
+          ok: false,
+          error: `A ${kind} is missing its map location. Download a new copy and try again.`
+        });
+      }
+    );
   });
 
   it('returns the complete activity document for a valid GPX file', () => {
@@ -154,7 +165,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'The file is damaged or incomplete. Download a new copy and try again.'
+      error:
+        'The file is damaged or incomplete. Download a new copy and try again.'
     });
   });
 
@@ -214,7 +226,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point is missing its map location. Download a new copy and try again.'
+      error:
+        'A track point is missing its map location. Download a new copy and try again.'
     });
   });
 
@@ -235,7 +248,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point has a map location that cannot be read. Download a new copy and try again.'
+      error:
+        'A track point has a map location that cannot be read. Download a new copy and try again.'
     });
   });
 
@@ -256,7 +270,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point has a map location that cannot be read. Download a new copy and try again.'
+      error:
+        'A track point has a map location that cannot be read. Download a new copy and try again.'
     });
   });
 
@@ -271,7 +286,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'This viewer needs GPX version 1.1. Try exporting your file in that version.'
+      error:
+        'This viewer needs GPX version 1.1. Try exporting your file in that version.'
     });
   });
 
@@ -287,7 +303,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'This GPX file uses an unsupported format. Download a new GPX copy from the app that created it.'
+      error:
+        'This GPX file uses an unsupported format. Download a new GPX copy from the app that created it.'
     });
   });
 
@@ -335,7 +352,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A track point has a height reading that cannot be read. Download a new copy and try again.'
+      error:
+        'A track point has a height reading that cannot be read. Download a new copy and try again.'
     });
   });
 
@@ -372,7 +390,9 @@ describe('parseGpx', () => {
       description: 'Routes recorded during September',
       name: 'Peak District collection'
     });
-    expect(result.document.tracks[0]?.description).toBe('A wet and windy recording');
+    expect(result.document.tracks[0]?.description).toBe(
+      'A wet and windy recording'
+    );
   });
 
   it('parses a waypoint-only document and preserves waypoint order', () => {
@@ -434,7 +454,8 @@ describe('parseGpx', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: 'A waypoint is missing its map location. Download a new copy and try again.'
+      error:
+        'A waypoint is missing its map location. Download a new copy and try again.'
     });
   });
 
@@ -452,7 +473,8 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A waypoint has a map location that cannot be read. Download a new copy and try again.',
+      error:
+        'A waypoint has a map location that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -472,7 +494,8 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A waypoint has a height reading that cannot be read. Download a new copy and try again.',
+      error:
+        'A waypoint has a height reading that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -545,7 +568,8 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A route point is missing its map location. Download a new copy and try again.',
+      error:
+        'A route point is missing its map location. Download a new copy and try again.',
       ok: false
     });
   });
@@ -565,7 +589,8 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A route point has a map location that cannot be read. Download a new copy and try again.',
+      error:
+        'A route point has a map location that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -587,7 +612,8 @@ describe('parseGpx', () => {
     `);
 
     expect(result).toEqual({
-      error: 'A route point has a height reading that cannot be read. Download a new copy and try again.',
+      error:
+        'A route point has a height reading that cannot be read. Download a new copy and try again.',
       ok: false
     });
   });
@@ -637,27 +663,28 @@ describe('parseGpx', () => {
       throw new Error('Expected the GPX document to parse successfully');
     }
 
-    expect(result.document.waypoints.map(waypoint => waypoint.name)).toEqual([
+    expect(result.document.waypoints.map((waypoint) => waypoint.name)).toEqual([
       'First waypoint',
       'Second waypoint'
     ]);
-    expect(result.document.routes.map(route => route.name)).toEqual([
+    expect(result.document.routes.map((route) => route.name)).toEqual([
       'First route',
       'Second route'
     ]);
-    expect(result.document.tracks.map(track => track.name)).toEqual([
+    expect(result.document.tracks.map((track) => track.name)).toEqual([
       'First track',
       'Second track'
     ]);
-    expect(result.document.tracks[0]?.segments.map(segment => segment.id)).toEqual([
-      'track-0-segment-0',
-      'track-0-segment-1'
-    ]);
+    expect(
+      result.document.tracks[0]?.segments.map((segment) => segment.id)
+    ).toEqual(['track-0-segment-0', 'track-0-segment-1']);
   });
 });
 
 it('preserves large point collections across tracks, routes and waypoints', () => {
-  const result = parseGpx(`<gpx version="1.1"><trk><trkseg>${'<trkpt lat="0" lon="0"/>'.repeat(30000)}</trkseg></trk><rte><rtept lat="0" lon="0"/></rte><wpt lat="0" lon="0"/></gpx>`);
+  const result = parseGpx(
+    `<gpx version="1.1"><trk><trkseg>${'<trkpt lat="0" lon="0"/>'.repeat(30000)}</trkseg></trk><rte><rtept lat="0" lon="0"/></rte><wpt lat="0" lon="0"/></gpx>`
+  );
   expect(result.ok).toBe(true);
   if (!result.ok) throw new Error(result.error);
   expect(result.document.tracks[0].segments[0].samples).toHaveLength(30000);
@@ -666,6 +693,12 @@ it('preserves large point collections across tracks, routes and waypoints', () =
 });
 
 it('rejects a route with no geographic points as missing data', () => {
-  const result = parseGpx('<gpx version="1.1"><rte><name>Empty route</name></rte></gpx>');
-  expect(result).toEqual({ ok: false, error: 'This GPX file does not contain any map locations to display. Choose another file.' });
+  const result = parseGpx(
+    '<gpx version="1.1"><rte><name>Empty route</name></rte></gpx>'
+  );
+  expect(result).toEqual({
+    ok: false,
+    error:
+      'This GPX file does not contain any map locations to display. Choose another file.'
+  });
 });

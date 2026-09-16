@@ -38,13 +38,13 @@ that low-distance intervals are unimportant or stationary.
 At one-minute smoothing, independent trials on the two permissioned local exports
 produced these maximums (min/km, rounded upwards with 25% headroom for percentiles):
 
-| Candidate | Variable-frequency export | Near-one-second export |
-| --- | ---: | ---: |
-| Fixed maximum | 30 | 30 |
-| Sample-count 95th percentile | 53 | 287 |
-| Time-weighted 95th percentile | 81 | 285 |
-| Distance-weighted 95th percentile | 54 | 32 |
-| Full displayed maximum, approximately | 166 | 3,839 |
+| Candidate                             | Variable-frequency export | Near-one-second export |
+| ------------------------------------- | ------------------------: | ---------------------: |
+| Fixed maximum                         |                        30 |                     30 |
+| Sample-count 95th percentile          |                        53 |                    287 |
+| Time-weighted 95th percentile         |                        81 |                    285 |
+| Distance-weighted 95th percentile     |                        54 |                     32 |
+| Full displayed maximum, approximately |                       166 |                  3,839 |
 
 The distance-weighted choice places about 2.10% and 2.03% of eligible interval
 distance above the axis, respectively. These are not percentages of stopped time.

@@ -23,11 +23,11 @@ export const TrackSegmentSelector = ({
       <NativeSelect.Root>
         <NativeSelect.Field
           value={selectedSegmentId ?? ''}
-          onChange={event => {
+          onChange={(event) => {
             onSegmentChange(event.currentTarget.value || undefined);
           }}
         >
-          <option value=''>Whole track</option>
+          <option value="">Whole track</option>
           {track.segments.map((segment, index) => {
             return (
               <option key={segment.id} value={segment.id}>
@@ -39,7 +39,8 @@ export const TrackSegmentSelector = ({
         <NativeSelect.Indicator />
       </NativeSelect.Root>
       <Field.HelperText>
-        The file splits this track into sections. Distance does not include the gaps between them.
+        The file splits this track into sections. Distance does not include the
+        gaps between them.
       </Field.HelperText>
     </Field.Root>
   );

@@ -11,7 +11,7 @@ export const GpxFileDetails = ({ document }: GpxFileDetailsProps) => {
     { label: 'Name', value: document.metadata?.name },
     { label: 'Description', value: document.metadata?.description },
     { label: 'Created by', value: document.creator }
-  ].filter(field => {
+  ].filter((field) => {
     return Boolean(field.value);
   });
 
@@ -20,13 +20,15 @@ export const GpxFileDetails = ({ document }: GpxFileDetailsProps) => {
   }
 
   return (
-    <Stack as='section' aria-label='File details' gap={3}>
-      <Stack as='dl' gap={3}>
-        {fields.map(field => {
+    <Stack as="section" aria-label="File details" gap={3}>
+      <Stack as="dl" gap={3}>
+        {fields.map((field) => {
           return (
             <Stack key={field.label} gap={1}>
-              <Text as='dt' fontWeight='medium'>{field.label}</Text>
-              <Text as='dd' overflowWrap='anywhere' whiteSpace='pre-wrap'>
+              <Text as="dt" fontWeight="medium">
+                {field.label}
+              </Text>
+              <Text as="dd" overflowWrap="anywhere" whiteSpace="pre-wrap">
                 {field.value}
               </Text>
             </Stack>

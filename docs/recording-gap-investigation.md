@@ -14,33 +14,33 @@ Prefer the local reference to one median over the whole segment: a sustained swi
 
 The reproducible standard-library diagnostic is [investigateRecordingGaps.py](../scripts/investigateRecordingGaps.py). Two owner-provided exports were inspected locally. The repository contains no copies of them, paths, coordinates, dates of activity or health measurements. A denotes the variable-frequency export; B denotes the near-one-second export. These are observation intervals, not labelled stop durations.
 
-| Observation | A | B |
-| --- | ---: | ---: |
-| Valid timed intervals | 1,610 | 8,141 |
-| Median interval | 11 s | 1 s |
-| Usable runs | 1 | 1 |
-| Unusable timestamps found by diagnostic | 0 | 0 |
-| Proposed local rule: flagged intervals | 9 | 0 |
-| Flagged duration | 7,492.003 s | 0 s |
-| Flagged interval range | 349.999–1,954.001 s | — |
+| Observation                             |                   A |     B |
+| --------------------------------------- | ------------------: | ----: |
+| Valid timed intervals                   |               1,610 | 8,141 |
+| Median interval                         |                11 s |   1 s |
+| Usable runs                             |                   1 |     1 |
+| Unusable timestamps found by diagnostic |                   0 |     0 |
+| Proposed local rule: flagged intervals  |                   9 |     0 |
+| Flagged duration                        |         7,492.003 s |   0 s |
+| Flagged interval range                  | 349.999–1,954.001 s |     — |
 
 All tested absolute floors of 120, 180 and 300 seconds, combined with factors of 5, 10 and 20, identify the same nine intervals in A under both global and local rules. B has no flags for any tested setting. Consequently these files **cannot establish that 120 seconds or factor 10 is optimal**. At a 60-second floor, factor 5 flags 20 intervals globally and 16 locally; factor 10 flags 12 globally and nine locally. Conservative settings avoid treating the shorter sampling variation as gaps.
 
 The proposed 120-second/10× rule gives these synthetic results:
 
-| Synthetic interval schedule | Whole-run median | Local reference |
-| --- | ---: | ---: |
-| Regular 1 s or regular 300 s | 0 flags | 0 flags |
-| One 600 s interval among 1 s intervals | 1 | 1 |
-| One 3,600 s interval among 300 s intervals | 1 | 1 |
-| 100 intervals at 1 s then 40 at 300 s, or reverse | 40 | 0 |
-| Alternating 1 s and 300 s | 0 | 0 |
-| Three 300 s intervals among 1 s intervals | 3 | 3 |
-| Three intervals: 1 s, 600 s, 1 s | 1 | 0 (insufficient context) |
-| 600 s at exact start/end, 40 neighbouring 1 s intervals | 1 | 1 |
-| 600 s after only three 1 s intervals, then 40 at 1 s | 1 | 0 (conservative abstention) |
-| Exactly 120 s among 1 s intervals | 0 | 0 |
-| Exactly ten times the 20 s reference | 0 | 0 |
+| Synthetic interval schedule                             | Whole-run median |             Local reference |
+| ------------------------------------------------------- | ---------------: | --------------------------: |
+| Regular 1 s or regular 300 s                            |          0 flags |                     0 flags |
+| One 600 s interval among 1 s intervals                  |                1 |                           1 |
+| One 3,600 s interval among 300 s intervals              |                1 |                           1 |
+| 100 intervals at 1 s then 40 at 300 s, or reverse       |               40 |                           0 |
+| Alternating 1 s and 300 s                               |                0 |                           0 |
+| Three 300 s intervals among 1 s intervals               |                3 |                           3 |
+| Three intervals: 1 s, 600 s, 1 s                        |                1 |    0 (insufficient context) |
+| 600 s at exact start/end, 40 neighbouring 1 s intervals |                1 |                           1 |
+| 600 s after only three 1 s intervals, then 40 at 1 s    |                1 | 0 (conservative abstention) |
+| Exactly 120 s among 1 s intervals                       |                0 |                           0 |
+| Exactly ten times the 20 s reference                    |                0 |                           0 |
 
 One-second observations labelled stationary or slow walking have identical timing inputs and neither is flagged. This is timing-only evidence, not a spatial stop-detection test. Separate regular runs are analysed independently.
 

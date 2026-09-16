@@ -15,7 +15,9 @@ import type { SelectedGpxItem } from './selectedGpxItem';
 const oneFileMessage =
   'Open one GPX file at a time. Choose a single file to replace the current file.';
 
-const initialItem = (document: ImportedGpxDocument): SelectedGpxItem | undefined => {
+const initialItem = (
+  document: ImportedGpxDocument
+): SelectedGpxItem | undefined => {
   const track = document.tracks[0];
   const route = document.routes[0];
   const waypoint = document.waypoints[0];
@@ -28,7 +30,9 @@ const initialItem = (document: ImportedGpxDocument): SelectedGpxItem | undefined
         : undefined;
 };
 
-export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) => {
+export const GpxFilePicker = ({
+  children
+}: Readonly<{ children?: ReactNode }>) => {
   const [filename, setFilename] = useState<string>();
   const [error, setError] = useState<string>();
   const [notice, setNotice] = useState<string>();
@@ -78,7 +82,7 @@ export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) 
       }
       activeMeasurements.current?.dispose();
       activeMeasurements.current = result.measurements;
-      setWorkspace(previous => {
+      setWorkspace((previous) => {
         return {
           document: result.document,
           measurements: result.measurements,
@@ -89,7 +93,9 @@ export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) 
       setSelectedItem(initialItem(result.document));
     } catch {
       if (activeImport.current === controller && !controller.signal.aborted) {
-        setError('The file could not be read. Try again or choose another GPX file.');
+        setError(
+          'The file could not be read. Try again or choose another GPX file.'
+        );
       }
     } finally {
       if (activeImport.current === controller) {
@@ -126,9 +132,9 @@ export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) 
   const handleFileReject = (details: FileUpload.FileRejectDetails) => {
     cancelPending();
     setNotice(undefined);
-    const errors = details.files.flatMap(rejected => rejected.errors);
+    const errors = details.files.flatMap((rejected) => rejected.errors);
     setError(
-      errors.some(error => error === 'TOO_MANY_FILES')
+      errors.some((error) => error === 'TOO_MANY_FILES')
         ? oneFileMessage
         : 'Choose a file with a .gpx filename.'
     );
@@ -152,26 +158,24 @@ export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) 
       accept={{ 'application/gpx+xml': ['.gpx'], 'application/xml': ['.gpx'] }}
       // The picker is transient; only successful imports become workspace data.
       acceptedFiles={[]}
-      colorPalette='green'
+      colorPalette="green"
       onFileAccept={handleFileAccept}
       onFileReject={handleFileReject}
       onDropCapture={handleDropCapture}
       maxFiles={1}
-      width='full'
+      width="full"
       maxW={document ? 'full' : '2xl'}
       bg={document ? undefined : 'bg'}
       p={document ? 0 : { base: 3, md: 5 }}
       borderWidth={document ? 0 : '1px'}
-      borderColor='border.subtle'
-      rounded='xl'
+      borderColor="border.subtle"
+      rounded="xl"
       gap={3}
     >
       {!document ? (
-        <Stack gap={3} maxW='prose'>
-          <Text>
-            See your route, elevation, speed and pace.
-          </Text>
-          <Text color='fg.muted' fontSize='sm'>
+        <Stack gap={3} maxW="prose">
+          <Text>See your route, elevation, speed and pace.</Text>
+          <Text color="fg.muted" fontSize="sm">
             Your file stays on your device.
           </Text>
         </Stack>
@@ -190,15 +194,19 @@ export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) 
         }}
       />
       {notice ? (
-        <Text role='status' fontSize='sm'>{notice}</Text>
+        <Text role="status" fontSize="sm">
+          {notice}
+        </Text>
       ) : null}
       {error ? (
-        <Alert.Root status='error'>
+        <Alert.Root status="error">
           <Alert.Indicator />
           <Alert.Content>
             <Alert.Title>Unable to open GPX file</Alert.Title>
             <Alert.Description>{error}</Alert.Description>
-            {document ? <Text fontSize='sm'>Your previous file is still open.</Text> : null}
+            {document ? (
+              <Text fontSize="sm">Your previous file is still open.</Text>
+            ) : null}
           </Alert.Content>
         </Alert.Root>
       ) : null}
@@ -213,7 +221,9 @@ export const GpxFilePicker = ({ children }: Readonly<{ children?: ReactNode }>) 
         >
           {children}
         </GpxDocumentResults>
-      ) : children}
+      ) : (
+        children
+      )}
     </FileUpload.Root>
   );
 };

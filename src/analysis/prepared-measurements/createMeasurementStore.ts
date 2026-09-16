@@ -1,8 +1,23 @@
-import { analyseMeasurements, findRecordingGaps, findStopCandidates, averageSpeeds, readTimestamp, summariseMeasurements } from '@/analysis/measurements';
+import {
+  analyseMeasurements,
+  findRecordingGaps,
+  findStopCandidates,
+  averageSpeeds,
+  readTimestamp,
+  summariseMeasurements
+} from '@/analysis/measurements';
 import type { StopEvidence } from '@/analysis/measurements';
 import { suggestPaceMaximum } from './suggestPaceMaximum';
-import type { ImportedGpxDocument, TrackSegment } from '@/domain/activityDocument';
-import type { MeasurementSummary, MeasurementViewRequest, PackedMeasurementView, PackedMeasurementAnalysis } from './measurementView';
+import type {
+  ImportedGpxDocument,
+  TrackSegment
+} from '@/domain/activityDocument';
+import type {
+  MeasurementSummary,
+  MeasurementViewRequest,
+  PackedMeasurementView,
+  PackedMeasurementAnalysis
+} from './measurementView';
 
 type SegmentRange = Readonly<{
   id: string;
@@ -22,7 +37,10 @@ type PreparedEntity = Readonly<{
   recorded: boolean;
 }>;
 
-const prepareEntity = (segments: readonly TrackSegment[], recorded = true): PreparedEntity => {
+const prepareEntity = (
+  segments: readonly TrackSegment[],
+  recorded = true
+): PreparedEntity => {
   const { points, ...summary } = analyseMeasurements(segments);
   const metrics = new Float64Array(points.length * 4);
   const timeIssues: { index: number; issue: string }[] = [];
@@ -35,7 +53,7 @@ const prepareEntity = (segments: readonly TrackSegment[], recorded = true): Prep
     if (point.timeIssue) timeIssues.push({ index, issue: point.timeIssue });
   }
   let start = 0;
-  const ranges = segments.map(segment => {
+  const ranges = segments.map((segment) => {
     const end = start + segment.samples.length;
     const counts = new Map<string, number>();
     let timedDuration = 0;
@@ -43,20 +61,37 @@ const prepareEntity = (segments: readonly TrackSegment[], recorded = true): Prep
     let timedIntervals = 0;
     for (let index = start; index < end; index += 1) {
       const point = points[index];
-      if (point.timeIssue) counts.set(point.timeIssue, (counts.get(point.timeIssue) ?? 0) + 1);
-      if (point.sample.elevationMetres !== undefined && point.elevationMetres === null) {
-        counts.set('invalid elevation', (counts.get('invalid elevation') ?? 0) + 1);
+      if (point.timeIssue)
+        counts.set(point.timeIssue, (counts.get(point.timeIssue) ?? 0) + 1);
+      if (
+        point.sample.elevationMetres !== undefined &&
+        point.elevationMetres === null
+      ) {
+        counts.set(
+          'invalid elevation',
+          (counts.get('invalid elevation') ?? 0) + 1
+        );
       }
-      if (point.intervalSeconds !== null && point.speedMetresPerSecond !== null) {
+      if (
+        point.intervalSeconds !== null &&
+        point.speedMetresPerSecond !== null
+      ) {
         timedDuration += point.intervalSeconds;
         timedDistance += point.speedMetresPerSecond * point.intervalSeconds;
         timedIntervals += 1;
       }
     }
-    const firstTime = readTimestamp(segment.samples[0]?.sourceTime).milliseconds;
-    const lastTime = readTimestamp(segment.samples.at(-1)?.sourceTime).milliseconds;
+    const firstTime = readTimestamp(
+      segment.samples[0]?.sourceTime
+    ).milliseconds;
+    const lastTime = readTimestamp(
+      segment.samples.at(-1)?.sourceTime
+    ).milliseconds;
     const segmentSummary = summariseMeasurements({
-      distanceMetres: end > start ? points[end - 1].distanceMetres - points[start].distanceMetres : 0,
+      distanceMetres:
+        end > start
+          ? points[end - 1].distanceMetres - points[start].distanceMetres
+          : 0,
       pointCount: end - start,
       startMilliseconds: firstTime,
       finishMilliseconds: lastTime,
@@ -70,19 +105,42 @@ const prepareEntity = (segments: readonly TrackSegment[], recorded = true): Prep
     start = end;
     return range;
   });
-  return { metrics, summary, segments: ranges, timeIssues, recordingGaps: new Set(recorded ? findRecordingGaps(points) : []),
-    timestamps: Float64Array.from(points, point => { return point.timeIssue ? NaN : readTimestamp(point.sample.sourceTime).milliseconds ?? NaN; }),
-    stops: recorded ? findStopCandidates(points) : { candidates: [], eligibleSeconds: 0, eligibleIntervalCount: 0 }, recorded };
+  return {
+    metrics,
+    summary,
+    segments: ranges,
+    timeIssues,
+    recordingGaps: new Set(recorded ? findRecordingGaps(points) : []),
+    timestamps: Float64Array.from(points, (point) => {
+      return point.timeIssue
+        ? NaN
+        : (readTimestamp(point.sample.sourceTime).milliseconds ?? NaN);
+    }),
+    stops: recorded
+      ? findStopCandidates(points)
+      : { candidates: [], eligibleSeconds: 0, eligibleIntervalCount: 0 },
+    recorded
+  };
 };
 
 const prepareEntities = (document: ImportedGpxDocument) => {
   const entities = new Map<string, PreparedEntity>();
-  for (const track of document.tracks) entities.set(track.id, prepareEntity(track.segments));
-  for (const route of document.routes) entities.set(route.id, prepareEntity([{ id: route.id, samples: route.points }], false));
+  for (const track of document.tracks)
+    entities.set(track.id, prepareEntity(track.segments));
+  for (const route of document.routes)
+    entities.set(
+      route.id,
+      prepareEntity([{ id: route.id, samples: route.points }], false)
+    );
   return entities;
 };
 
-const speedIntervals = (entity: PreparedEntity, start: number, end: number, excluded: Uint8Array) => {
+const speedIntervals = (
+  entity: PreparedEntity,
+  start: number,
+  end: number,
+  excluded: Uint8Array
+) => {
   return {
     [Symbol.iterator]: () => {
       let index = start;
@@ -91,7 +149,10 @@ const speedIntervals = (entity: PreparedEntity, start: number, end: number, excl
         next: () => {
           if (index >= end) return { done: true as const, value: undefined };
           while (entity.segments[segmentIndex].end <= index) segmentIndex += 1;
-          const speed = entity.recordingGaps.has(index) || excluded[index - start] ? NaN : entity.metrics[index * 4 + 2];
+          const speed =
+            entity.recordingGaps.has(index) || excluded[index - start]
+              ? NaN
+              : entity.metrics[index * 4 + 2];
           const seconds = entity.metrics[index * 4 + 3];
           const value = {
             segmentId: entity.segments[segmentIndex].id,
@@ -114,23 +175,48 @@ export const createMeasurementStore = (document: ImportedGpxDocument) => {
     prepareView: (request: MeasurementViewRequest): PackedMeasurementView => {
       const entity = entities.get(request.entityId);
       if (!entity) throw new Error('The selected activity is unavailable.');
-      const segment = request.segmentId === undefined ? undefined : entity.segments.find(candidate => {
-        return candidate.id === request.segmentId;
-      });
-      if (request.segmentId !== undefined && !segment) throw new Error('The selected segment is unavailable.');
+      const segment =
+        request.segmentId === undefined
+          ? undefined
+          : entity.segments.find((candidate) => {
+              return candidate.id === request.segmentId;
+            });
+      if (request.segmentId !== undefined && !segment)
+        throw new Error('The selected segment is unavailable.');
       const start = segment?.start ?? 0;
       const end = segment?.end ?? entity.metrics.length / 4;
-      const distanceOffset = segment && end > start ? entity.metrics[start * 4] : 0;
+      const distanceOffset =
+        segment && end > start ? entity.metrics[start * 4] : 0;
       const summary = segment?.summary ?? entity.summary;
-      const mode = entity.recorded && request.stopMode === 'exclude' ? 'exclude' : 'include';
-      const candidates = entity.stops.candidates.filter(candidate => {
-        return candidate.startIndex >= start && candidate.endIndex < end;
-      }).map(candidate => { return { ...candidate, startIndex: candidate.startIndex - start, endIndex: candidate.endIndex - start }; });
+      const mode =
+        entity.recorded && request.stopMode === 'exclude'
+          ? 'exclude'
+          : 'include';
+      const candidates = entity.stops.candidates
+        .filter((candidate) => {
+          return candidate.startIndex >= start && candidate.endIndex < end;
+        })
+        .map((candidate) => {
+          return {
+            ...candidate,
+            startIndex: candidate.startIndex - start,
+            endIndex: candidate.endIndex - start
+          };
+        });
       const confirmed = new Set(request.confirmedStopIds ?? []);
-      const excludedRanges = mode === 'exclude' ? candidates.filter(candidate => { return confirmed.has(candidate.id); })
-        .map(({ startIndex, endIndex }) => { return { startIndex, endIndex }; }) : [];
+      const excludedRanges =
+        mode === 'exclude'
+          ? candidates
+              .filter((candidate) => {
+                return confirmed.has(candidate.id);
+              })
+              .map(({ startIndex, endIndex }) => {
+                return { startIndex, endIndex };
+              })
+          : [];
       const excluded = new Uint8Array(end - start);
-      for (const range of excludedRanges) excluded.fill(1, range.startIndex + 1, range.endIndex + 1);
+      for (const range of excludedRanges)
+        excluded.fill(1, range.startIndex + 1, range.endIndex + 1);
       let excludedSeconds = 0;
       let gapSeconds = 0;
       let eligibleSeconds = 0;
@@ -145,53 +231,120 @@ export const createMeasurementStore = (document: ImportedGpxDocument) => {
         const gap = entity.recordingGaps.has(index);
         const removed = excluded[index - start] === 1;
         if (Number.isFinite(seconds) && seconds > 0 && Number.isFinite(speed)) {
-          if (seconds <= 10) { detectionSeconds += seconds; detectionIntervals += 1; }
+          if (seconds <= 10) {
+            detectionSeconds += seconds;
+            detectionIntervals += 1;
+          }
           if (gap) gapSeconds += seconds;
           if (removed) excludedSeconds += seconds;
-          if (!removed && !gap) { eligibleSeconds += seconds; eligibleDistanceMetres += speed * seconds; }
+          if (!removed && !gap) {
+            eligibleSeconds += seconds;
+            eligibleDistanceMetres += speed * seconds;
+          }
         }
         if (mode === 'exclude') timeSeconds[index - start] = eligibleSeconds;
         else {
-          timeSeconds[index - start] = (entity.timestamps[index] - entity.timestamps[start]) / 1000;
-          if (!Number.isFinite(timeSeconds[index - start]) || (index > start && entity.timestamps[index] < entity.timestamps[index - 1])) timeAvailable = false;
+          timeSeconds[index - start] =
+            (entity.timestamps[index] - entity.timestamps[start]) / 1000;
+          if (
+            !Number.isFinite(timeSeconds[index - start]) ||
+            (index > start &&
+              entity.timestamps[index] < entity.timestamps[index - 1])
+          )
+            timeAvailable = false;
         }
       }
       if (mode === 'exclude') timeAvailable = eligibleSeconds > 0;
-      const basis: PackedMeasurementView['basis'] = { mode, excludedSeconds, gapSeconds, eligibleSeconds, eligibleDistanceMetres,
-        averageSpeedMetresPerSecond: mode === 'exclude' ? eligibleSeconds > 0 ? eligibleDistanceMetres / eligibleSeconds : null : summary.averageSpeedMetresPerSecond,
-        partialCoverage: summary.timedIntervalCount !== summary.intervalCount || gapSeconds > 0 ||
-          summary.elapsedDurationSeconds === null || Math.abs((summary.timedDurationSeconds ?? 0) - summary.elapsedDurationSeconds) > 0.001 };
-      const speeds = averageSpeeds(speedIntervals(entity, start, end, excluded), request.smoothingSeconds);
+      const basis: PackedMeasurementView['basis'] = {
+        mode,
+        excludedSeconds,
+        gapSeconds,
+        eligibleSeconds,
+        eligibleDistanceMetres,
+        averageSpeedMetresPerSecond:
+          mode === 'exclude'
+            ? eligibleSeconds > 0
+              ? eligibleDistanceMetres / eligibleSeconds
+              : null
+            : summary.averageSpeedMetresPerSecond,
+        partialCoverage:
+          summary.timedIntervalCount !== summary.intervalCount ||
+          gapSeconds > 0 ||
+          summary.elapsedDurationSeconds === null ||
+          Math.abs(
+            (summary.timedDurationSeconds ?? 0) - summary.elapsedDurationSeconds
+          ) > 0.001
+      };
+      const speeds = averageSpeeds(
+        speedIntervals(entity, start, end, excluded),
+        request.smoothingSeconds
+      );
       const metresPerDistance = request.units === 'metric' ? 1000 : 1609.344;
       const metresPerElevation = request.units === 'metric' ? 1 : 0.3048;
       const display = new Float64Array((end - start) * 3);
       for (let index = 0; index < end - start; index += 1) {
         const speed = speeds[index];
-        display[index * 3] = (entity.metrics[(start + index) * 4] - distanceOffset) / metresPerDistance;
-        display[index * 3 + 1] = entity.metrics[(start + index) * 4 + 1] / metresPerElevation;
-        display[index * 3 + 2] = speed === null ? NaN : request.motion === 'speed'
-          ? speed * 3600 / metresPerDistance
-          : speed > 0 ? metresPerDistance / speed / 60 : NaN;
+        display[index * 3] =
+          (entity.metrics[(start + index) * 4] - distanceOffset) /
+          metresPerDistance;
+        display[index * 3 + 1] =
+          entity.metrics[(start + index) * 4 + 1] / metresPerElevation;
+        display[index * 3 + 2] =
+          speed === null
+            ? NaN
+            : request.motion === 'speed'
+              ? (speed * 3600) / metresPerDistance
+              : speed > 0
+                ? metresPerDistance / speed / 60
+                : NaN;
       }
-      const suggestedPaceMaximum = request.motion === 'pace' ? suggestPaceMaximum(display, entity.metrics, start, metresPerDistance) : undefined;
-      const presentation = { display, ...(request.motion === 'pace' ? { suggestedPaceMaximum } : {}), timeSeconds, timeAvailable, excludedRanges, basis };
+      const suggestedPaceMaximum =
+        request.motion === 'pace'
+          ? suggestPaceMaximum(
+              display,
+              entity.metrics,
+              start,
+              metresPerDistance
+            )
+          : undefined;
+      const presentation = {
+        display,
+        ...(request.motion === 'pace' ? { suggestedPaceMaximum } : {}),
+        timeSeconds,
+        timeAvailable,
+        excludedRanges,
+        basis
+      };
       if (request.includeAnalysis === false) return presentation;
       const metrics = entity.metrics.slice(start * 4, end * 4);
       if (distanceOffset) {
-        for (let index = 0; index < end - start; index += 1) metrics[index * 4] -= distanceOffset;
+        for (let index = 0; index < end - start; index += 1)
+          metrics[index * 4] -= distanceOffset;
       }
       return {
         analysis: {
           summary,
           recorded: entity.recorded,
-          stops: { candidates, eligibleSeconds: entity.recorded ? detectionSeconds : 0, eligibleIntervalCount: entity.recorded ? detectionIntervals : 0 },
+          stops: {
+            candidates,
+            eligibleSeconds: entity.recorded ? detectionSeconds : 0,
+            eligibleIntervalCount: entity.recorded ? detectionIntervals : 0
+          },
           metrics,
-          recordingGaps: Array.from(entity.recordingGaps).filter(index => { return index >= start && index < end; }).map(index => { return index - start; }),
-          timeIssues: entity.timeIssues.filter(item => {
-            return item.index >= start && item.index < end;
-          }).map(item => {
-            return { index: item.index - start, issue: item.issue };
-          })
+          recordingGaps: Array.from(entity.recordingGaps)
+            .filter((index) => {
+              return index >= start && index < end;
+            })
+            .map((index) => {
+              return index - start;
+            }),
+          timeIssues: entity.timeIssues
+            .filter((item) => {
+              return item.index >= start && item.index < end;
+            })
+            .map((item) => {
+              return { index: item.index - start, issue: item.issue };
+            })
         },
         ...presentation
       };

@@ -11,7 +11,11 @@ export type MeasurementPoint = Readonly<{
   speedMetresPerSecond: number | null;
   intervalSeconds: number | null;
   timeIssue?: string;
-  recordingGap?: Readonly<{ seconds: number; distanceMetres: number; startSampleId: string }>;
+  recordingGap?: Readonly<{
+    seconds: number;
+    distanceMetres: number;
+    startSampleId: string;
+  }>;
 }>;
 
 export type MeasurementAnalysis = Readonly<{
@@ -25,7 +29,9 @@ export type MeasurementAnalysis = Readonly<{
   warnings: readonly string[];
 }>;
 
-export const analyseMeasurements = (segments: readonly TrackSegment[]): MeasurementAnalysis => {
+export const analyseMeasurements = (
+  segments: readonly TrackSegment[]
+): MeasurementAnalysis => {
   const points: MeasurementPoint[] = [];
   let distanceMetres = 0;
   let durationSeconds = 0;
@@ -50,13 +56,19 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
         timestamp.milliseconds <= latestTime
       ) {
         timeIssue =
-          timestamp.milliseconds === latestTime ? 'duplicate timestamp' : 'backwards timestamp';
+          timestamp.milliseconds === latestTime
+            ? 'duplicate timestamp'
+            : 'backwards timestamp';
       }
       if (previous) {
         intervalCount += 1;
         const distance = calculatePathDistanceMetres([previous, sample]);
         distanceMetres += distance;
-        if (!timeIssue && timestamp.milliseconds !== null && previousTime !== null) {
+        if (
+          !timeIssue &&
+          timestamp.milliseconds !== null &&
+          previousTime !== null
+        ) {
           const seconds = (timestamp.milliseconds - previousTime) / 1000;
           if (seconds > 0) {
             durationSeconds += seconds;
@@ -78,7 +90,10 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
         ? (sample.elevationMetres ?? null)
         : null;
       if (sample.elevationMetres !== undefined && elevationMetres === null) {
-        issueCounts.set('invalid elevation', (issueCounts.get('invalid elevation') ?? 0) + 1);
+        issueCounts.set(
+          'invalid elevation',
+          (issueCounts.get('invalid elevation') ?? 0) + 1
+        );
       }
       points.push({
         sample,
@@ -96,8 +111,15 @@ export const analyseMeasurements = (segments: readonly TrackSegment[]): Measurem
   return {
     points,
     ...summariseMeasurements({
-      distanceMetres, durationSeconds, timedDistanceMetres, timedIntervalCount, intervalCount,
-      pointCount: points.length, startMilliseconds: start, finishMilliseconds: finish, issueCounts
+      distanceMetres,
+      durationSeconds,
+      timedDistanceMetres,
+      timedIntervalCount,
+      intervalCount,
+      pointCount: points.length,
+      startMilliseconds: start,
+      finishMilliseconds: finish,
+      issueCounts
     })
   };
 };

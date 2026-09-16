@@ -7,17 +7,22 @@ export const MeasurementChart = (props: MeasurementChartProps) => {
   const { title, description, reference, elevationOverlay, unit } = props;
   return (
     <Stack gap={2} minW={0}>
-      <Flex align='center' justify='space-between' gap={2} wrap='wrap'>
-        <Flex align='baseline' gap={2}><Heading as='h3' size='lg'>
-          {title}
-        </Heading>{props.basisLabel ? <Text fontSize='xs'>{props.basisLabel}</Text> : null}</Flex>
+      <Flex align="center" justify="space-between" gap={2} wrap="wrap">
+        <Flex align="baseline" gap={2}>
+          <Heading as="h3" size="lg">
+            {title}
+          </Heading>
+          {props.basisLabel ? (
+            <Text fontSize="xs">{props.basisLabel}</Text>
+          ) : null}
+        </Flex>
         {elevationOverlay ? (
           <Switch.Root
             checked={elevationOverlay.enabled}
-            onCheckedChange={details => {
+            onCheckedChange={(details) => {
               elevationOverlay.onToggle(details.checked);
             }}
-            colorPalette='green'
+            colorPalette="green"
           >
             <Switch.HiddenInput />
             <Switch.Control>
@@ -28,32 +33,47 @@ export const MeasurementChart = (props: MeasurementChartProps) => {
         ) : null}
       </Flex>
       {description ? (
-        <Text fontSize='sm' color='fg.muted'>
+        <Text fontSize="sm" color="fg.muted">
           {description}
         </Text>
       ) : null}
       {reference ? (
-        <Stack direction='row' align='center' gap={2}>
+        <Stack direction="row" align="center" gap={2}>
           <Box
-            aria-hidden='true'
-            width='6'
-            borderTopWidth='2px'
-            borderStyle='dashed'
-            borderColor='fg.muted'
+            aria-hidden="true"
+            width="6"
+            borderTopWidth="2px"
+            borderStyle="dashed"
+            borderColor="fg.muted"
           />
-          <Text fontSize='sm'>
+          <Text fontSize="sm">
             {reference.label}: {formatChartMeasurement(reference.value, unit)}
           </Text>
         </Stack>
       ) : null}
-      {props.axisMaximum !== undefined && props.data.some(point => {
-        return point.motion !== null && point.motion > (props.axisMaximum ?? Infinity);
+      {props.axisMaximum !== undefined &&
+      props.data.some((point) => {
+        return (
+          point.motion !== null &&
+          point.motion > (props.axisMaximum ?? Infinity)
+        );
       }) ? (
-        <Text fontSize='xs'>Some pace readings are above the chart limit ({formatChartMeasurement(props.axisMaximum, unit)}). Select an arrow to see them.</Text>
+        <Text fontSize="xs">
+          Some pace readings are above the chart limit (
+          {formatChartMeasurement(props.axisMaximum, unit)}). Select an arrow to
+          see them.
+        </Text>
       ) : null}
-      <Stack direction='row' justify='space-between' fontSize='sm' color='fg.muted'>
+      <Stack
+        direction="row"
+        justify="space-between"
+        fontSize="sm"
+        color="fg.muted"
+      >
         <Text>{unit}</Text>
-        {elevationOverlay?.enabled ? <Text>Elevation ({elevationOverlay.unit})</Text> : null}
+        {elevationOverlay?.enabled ? (
+          <Text>Elevation ({elevationOverlay.unit})</Text>
+        ) : null}
       </Stack>
       <MeasurementPlot {...props} />
     </Stack>

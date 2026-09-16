@@ -4,7 +4,10 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import GpxFileViewerPage from './page';
 import { createTestFile } from './pageTestFixtures';
-import type { ImportRequest, ImportResponse } from '@/features/gpx-viewer/import-processing';
+import type {
+  ImportRequest,
+  ImportResponse
+} from '@/features/gpx-viewer/import-processing';
 import type { createMeasurementStore } from '@/analysis/prepared-measurements';
 
 // Replace only the browser Worker transport in JSDOM; run the real GPX parser.
@@ -22,7 +25,16 @@ jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
         if ('type' in request) {
           const view = measurements?.prepareView(request.settings);
           if (!view) throw new Error('Missing prepared measurements');
-          worker.onmessage?.(new MessageEvent('message', { data: { type: 'view', requestId: request.requestId, ok: true, view } }));
+          worker.onmessage?.(
+            new MessageEvent('message', {
+              data: {
+                type: 'view',
+                requestId: request.requestId,
+                ok: true,
+                view
+              }
+            })
+          );
           return;
         }
         const { requestId, file } = request;
@@ -30,8 +42,13 @@ jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
         reader.onload = () => {
           const { parseGpx } = jest.requireActual('@/parsers/gpx');
           const result = parseGpx(reader?.result ?? '');
-          if (result.ok) measurements = jest.requireActual('@/analysis/prepared-measurements').createMeasurementStore(result.document);
-          worker.onmessage?.(new MessageEvent('message', { data: { requestId, result } }));
+          if (result.ok)
+            measurements = jest
+              .requireActual('@/analysis/prepared-measurements')
+              .createMeasurementStore(result.document);
+          worker.onmessage?.(
+            new MessageEvent('message', { data: { requestId, result } })
+          );
         };
         reader.readAsText(file);
       },
@@ -46,31 +63,60 @@ jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
 describe('GPX file viewer', () => {
   it('dismisses inspected point details and allows a point to be selected again', async () => {
     const user = userEvent.setup();
-    await user.upload(screen.getByLabelText('GPX file'), createTestFile('singleTrack'));
-    const position = await screen.findByRole('slider', { name: 'Position on route' });
-    fireEvent.keyDown(screen.getByRole('slider', { name: 'Position on route' }), { key: 'Home' });
+    await user.upload(
+      screen.getByLabelText('GPX file'),
+      createTestFile('singleTrack')
+    );
+    const position = await screen.findByRole('slider', {
+      name: 'Position on route'
+    });
+    fireEvent.keyDown(
+      screen.getByRole('slider', { name: 'Position on route' }),
+      { key: 'Home' }
+    );
     const details = screen.getByLabelText('Selected measurement');
-    await user.click(within(details).getByRole('button', { name: 'Close point details' }));
-    expect(screen.queryByLabelText('Selected measurement')).not.toBeInTheDocument();
+    await user.click(
+      within(details).getByRole('button', { name: 'Close point details' })
+    );
+    expect(
+      screen.queryByLabelText('Selected measurement')
+    ).not.toBeInTheDocument();
     expect(position).toHaveAttribute('aria-valuetext', 'No point selected');
-    expect(screen.getByRole('region', { name: 'Measurement chart' })).toHaveFocus();
-    fireEvent.keyDown(screen.getByRole('slider', { name: 'Position on route' }), { key: 'Home' });
+    expect(
+      screen.getByRole('region', { name: 'Measurement chart' })
+    ).toHaveFocus();
+    fireEvent.keyDown(
+      screen.getByRole('slider', { name: 'Position on route' }),
+      { key: 'Home' }
+    );
     expect(screen.getByLabelText('Selected measurement')).toBeVisible();
   });
 
   it('lets users cancel a pending replacement while keeping their loaded file', async () => {
     const user = userEvent.setup();
-    await user.upload(screen.getByLabelText('GPX file'), createTestFile('singleTrack'));
+    await user.upload(
+      screen.getByLabelText('GPX file'),
+      createTestFile('singleTrack')
+    );
     expect(await screen.findByText('Morning route')).toBeVisible();
-    const read = jest.spyOn(FileReader.prototype, 'readAsText').mockImplementation(() => {
-      return;
-    });
+    const read = jest
+      .spyOn(FileReader.prototype, 'readAsText')
+      .mockImplementation(() => {
+        return;
+      });
     try {
-      await user.upload(screen.getByLabelText('GPX file'), createTestFile('routeOnly'));
-      expect(screen.getByRole('button', { name: 'Change GPX file' })).toBeEnabled();
+      await user.upload(
+        screen.getByLabelText('GPX file'),
+        createTestFile('routeOnly')
+      );
+      expect(
+        screen.getByRole('button', { name: 'Change GPX file' })
+      ).toBeEnabled();
       await user.click(screen.getByRole('button', { name: 'Cancel import' }));
       expect(screen.getByText('Import cancelled.')).toBeVisible();
-      expect(screen.getByRole('button', { name: 'Change GPX file' })).toHaveFocus();
+      expect(
+        screen.getByRole('button', { name: 'Change GPX file' })
+      ).toHaveFocus();
       expect(screen.getByText('Morning route')).toBeVisible();
       expect(screen.queryByText('Opening GPX file')).not.toBeInTheDocument();
     } finally {
@@ -80,10 +126,19 @@ describe('GPX file viewer', () => {
 
   it('replaces onboarding with a compact workspace and restores it when cleared', async () => {
     const user = userEvent.setup();
-    await user.upload(screen.getByLabelText('GPX file'), createTestFile('singleTrack'));
-    expect(await screen.findByRole('button', { name: 'Change GPX file' })).toBeVisible();
-    expect(screen.queryByText('Drag and drop a GPX file here')).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Open a GPX file' })).not.toBeInTheDocument();
+    await user.upload(
+      screen.getByLabelText('GPX file'),
+      createTestFile('singleTrack')
+    );
+    expect(
+      await screen.findByRole('button', { name: 'Change GPX file' })
+    ).toBeVisible();
+    expect(
+      screen.queryByText('Drag and drop a GPX file here')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Open a GPX file' })
+    ).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Clear file' }));
     expect(screen.getByText('Drag and drop a GPX file here')).toBeVisible();
   });
@@ -125,10 +180,17 @@ describe('GPX file viewer', () => {
       await screen.findByRole('combobox', { name: 'Chart' }),
       'elevation'
     );
-    expect(screen.getByRole('heading', { name: 'Elevation profile' })).toBeVisible();
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Chart' }), 'speed');
+    expect(
+      screen.getByRole('heading', { name: 'Elevation profile' })
+    ).toBeVisible();
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Chart' }),
+      'speed'
+    );
     expect(screen.getByRole('heading', { name: 'Speed' })).toBeVisible();
-    const elevationToggle = screen.getByRole('checkbox', { name: 'Show elevation' });
+    const elevationToggle = screen.getByRole('checkbox', {
+      name: 'Show elevation'
+    });
     expect(elevationToggle).not.toBeChecked();
     fireEvent.click(elevationToggle);
     expect(elevationToggle).toBeChecked();
@@ -143,31 +205,44 @@ describe('GPX file viewer', () => {
     });
     expect(screen.getByText('Average speed: 66.7 km/h')).toBeVisible();
     expect(
-      screen.getByText(
-        'Select a point on the chart to see it on the map.'
-      )
+      screen.getByText('Select a point on the chart to see it on the map.')
     ).toBeVisible();
     expect(screen.getByText(/Speed comes from the distance/)).not.toBeVisible();
     expect(screen.getByText('1 min')).toBeVisible();
     expect(screen.getByLabelText('Chart selection tip')).toBeVisible();
-    expect(screen.queryByLabelText('Selected measurement')).not.toBeInTheDocument();
-    fireEvent.change(screen.getByRole('slider', { name: 'Position on route' }), {
-      target: { value: '1' }
-    });
+    expect(
+      screen.queryByLabelText('Selected measurement')
+    ).not.toBeInTheDocument();
+    fireEvent.change(
+      screen.getByRole('slider', { name: 'Position on route' }),
+      {
+        target: { value: '1' }
+      }
+    );
     expect(screen.getByText('10 minutes', { exact: true })).toBeVisible();
     const selection = screen.getByLabelText('Selected measurement');
-    expect(screen.queryByLabelText('Chart selection tip')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Chart selection tip')
+    ).not.toBeInTheDocument();
     expect(within(selection).getByText('100.0 m')).toBeVisible();
     expect(within(selection).getByText('At 1.1 km')).toBeVisible();
-    expect(screen.queryByText('Selected point details')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Selected point details')
+    ).not.toBeInTheDocument();
     await user.click(within(selection).getByText('GPS details'));
     expect(within(selection).getByText(/Latitude:/)).toBeVisible();
     expect(screen.getByText('11 September 2026 at 12:01:00 UTC')).toBeVisible();
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Display units' }), 'imperial');
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Display units' }),
+      'imperial'
+    );
     expect(within(selection).getByText('328.1 ft')).toBeVisible();
     expect(screen.getByText('Average speed: 41.5 mph')).toBeVisible();
     expect(screen.getByText('Elevation (ft)')).toBeVisible();
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Chart' }), 'pace');
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Chart' }),
+      'pace'
+    );
     expect(screen.getByRole('heading', { name: 'Pace' })).toBeVisible();
     expect(within(selection).getByText(/\/mi/)).toBeVisible();
   });
@@ -178,14 +253,27 @@ describe('GPX file viewer', () => {
     ['2026-02-30T12:01:00Z', '2026-02-30T12:01:00Z'],
     ['', '(empty)'],
     [undefined, 'Missing']
-  ])('displays recorded time without inventing a date or timezone for %s', async (source, expected) => {
-    const user = userEvent.setup();
-    await user.upload(screen.getByLabelText('GPX file'), new File([
-      `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg><trkpt lat="0" lon="0">${source === undefined ? '' : `<time>${source}</time>`}</trkpt></trkseg></trk></gpx>`
-    ], 'time.gpx', { type: 'application/gpx+xml' }));
-    fireEvent.keyDown(await screen.findByRole('slider', { name: 'Position on route' }), { key: 'Home' });
-    expect(screen.getByText(expected)).toBeVisible();
-  });
+  ])(
+    'displays recorded time without inventing a date or timezone for %s',
+    async (source, expected) => {
+      const user = userEvent.setup();
+      await user.upload(
+        screen.getByLabelText('GPX file'),
+        new File(
+          [
+            `<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg><trkpt lat="0" lon="0">${source === undefined ? '' : `<time>${source}</time>`}</trkpt></trkseg></trk></gpx>`
+          ],
+          'time.gpx',
+          { type: 'application/gpx+xml' }
+        )
+      );
+      fireEvent.keyDown(
+        await screen.findByRole('slider', { name: 'Position on route' }),
+        { key: 'Home' }
+      );
+      expect(screen.getByText(expected)).toBeVisible();
+    }
+  );
 
   beforeEach(() => {
     render(
@@ -197,7 +285,9 @@ describe('GPX file viewer', () => {
 
   describe('file input', () => {
     it('shows the file picker button', () => {
-      expect(screen.getByRole('button', { name: 'Choose GPX file' })).toBeVisible();
+      expect(
+        screen.getByRole('button', { name: 'Choose GPX file' })
+      ).toBeVisible();
     });
 
     it('shows the drag-and-drop prompt', () => {
@@ -237,11 +327,19 @@ describe('GPX file viewer', () => {
       await user.upload(screen.getByLabelText('GPX file'), file);
 
       expect(await screen.findByText('Map unavailable')).toBeVisible();
-      expect(screen.getByText(/This browser cannot display the map/)).toBeVisible();
+      expect(
+        screen.getByText(/This browser cannot display the map/)
+      ).toBeVisible();
       expect(screen.getByText('111.2 km')).toBeVisible();
-      await user.click(screen.getByText('File details', { selector: 'summary' }));
-      expect(screen.getByRole('region', { name: 'File details' })).toBeVisible();
-      expect(screen.queryByText('Unable to open GPX file')).not.toBeInTheDocument();
+      await user.click(
+        screen.getByText('File details', { selector: 'summary' })
+      );
+      expect(
+        screen.getByRole('region', { name: 'File details' })
+      ).toBeVisible();
+      expect(
+        screen.queryByText('Unable to open GPX file')
+      ).not.toBeInTheDocument();
     });
 
     it('explains a singleton segment and removes the notice when a drawable segment is selected', async () => {
@@ -276,11 +374,17 @@ describe('GPX file viewer', () => {
 
       await user.upload(screen.getByLabelText('GPX file'), file);
 
-      await user.click(await screen.findByText('File details', { selector: 'summary' }));
+      await user.click(
+        await screen.findByText('File details', { selector: 'summary' })
+      );
       const details = screen.getByRole('region', { name: 'File details' });
       expect(within(details).getByText('Weekend walk')).toBeVisible();
-      expect(within(details).getByText('GPSGoblin test exporter')).toBeVisible();
-      expect(within(details).getByText('<strong>Original file notes</strong>')).toBeVisible();
+      expect(
+        within(details).getByText('GPSGoblin test exporter')
+      ).toBeVisible();
+      expect(
+        within(details).getByText('<strong>Original file notes</strong>')
+      ).toBeVisible();
       expect(details.querySelector('strong')).toBeNull();
 
       await user.selectOptions(
@@ -288,9 +392,13 @@ describe('GPX file viewer', () => {
         'route-0'
       );
 
-      const updatedDetails = screen.getByRole('region', { name: 'File details' });
+      const updatedDetails = screen.getByRole('region', {
+        name: 'File details'
+      });
       expect(within(updatedDetails).getByText('Weekend walk')).toBeVisible();
-      expect(within(updatedDetails).getByText('GPSGoblin test exporter')).toBeVisible();
+      expect(
+        within(updatedDetails).getByText('GPSGoblin test exporter')
+      ).toBeVisible();
     });
 
     it('hides absent fields and removes the section when the next file has no metadata', async () => {
@@ -299,16 +407,22 @@ describe('GPX file viewer', () => {
 
       await user.upload(fileInput, createTestFile('singleTrack'));
 
-      await user.click(await screen.findByText('File details', { selector: 'summary' }));
+      await user.click(
+        await screen.findByText('File details', { selector: 'summary' })
+      );
       const details = screen.getByRole('region', { name: 'File details' });
       expect(within(details).getByText('GPSGoblin test')).toBeVisible();
       expect(within(details).queryByText('Name')).not.toBeInTheDocument();
-      expect(within(details).queryByText('Description')).not.toBeInTheDocument();
+      expect(
+        within(details).queryByText('Description')
+      ).not.toBeInTheDocument();
 
       await user.upload(fileInput, createTestFile('multipleTracks'));
       await screen.findByRole('combobox', { name: 'View' });
 
-      expect(screen.queryByRole('region', { name: 'File details' })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('region', { name: 'File details' })
+      ).not.toBeInTheDocument();
     });
 
     it('shows only the selected track or route description, as text', async () => {
@@ -321,20 +435,30 @@ describe('GPX file viewer', () => {
         name: 'View'
       });
       const map = await screen.findByRole('region', { name: 'Route map' });
-      await user.click(within(map).getByText('Route description', { exact: true }));
-      expect(within(map).getByText('<em>Recorded walk notes</em>')).toBeVisible();
+      await user.click(
+        within(map).getByText('Route description', { exact: true })
+      );
+      expect(
+        within(map).getByText('<em>Recorded walk notes</em>')
+      ).toBeVisible();
       expect(map.querySelector('em')).toBeNull();
 
       await user.selectOptions(selector, 'track-1');
 
-      expect(screen.queryByText('<em>Recorded walk notes</em>')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('<em>Recorded walk notes</em>')
+      ).not.toBeInTheDocument();
 
       await user.selectOptions(selector, 'route-0');
 
       const routeMap = screen.getByRole('region', { name: 'Route map' });
-      await user.click(within(routeMap).getByText('Route description', { exact: true }));
+      await user.click(
+        within(routeMap).getByText('Route description', { exact: true })
+      );
       expect(within(routeMap).getByText('Follow the ridge')).toBeVisible();
-      expect(screen.queryByText('<em>Recorded walk notes</em>')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('<em>Recorded walk notes</em>')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -346,7 +470,11 @@ describe('GPX file viewer', () => {
 
       await user.upload(screen.getByLabelText('GPX file'), file);
 
-      expect(await screen.findByText('The file is damaged or incomplete. Download a new copy and try again.')).toBeVisible();
+      expect(
+        await screen.findByText(
+          'The file is damaged or incomplete. Download a new copy and try again.'
+        )
+      ).toBeVisible();
     });
 
     it('keeps the previous result when another file cannot be opened', async () => {
@@ -362,7 +490,11 @@ describe('GPX file viewer', () => {
 
       await user.upload(fileInput, malformedFile);
 
-      expect(await screen.findByText('The file is damaged or incomplete. Download a new copy and try again.')).toBeVisible();
+      expect(
+        await screen.findByText(
+          'The file is damaged or incomplete. Download a new copy and try again.'
+        )
+      ).toBeVisible();
       expect(screen.getByText('Morning route')).toBeVisible();
     });
 
@@ -374,7 +506,9 @@ describe('GPX file viewer', () => {
       await user.upload(screen.getByLabelText('GPX file'), file);
 
       expect(
-        await screen.findByText('This GPX file does not contain a track to display. Choose another file.')
+        await screen.findByText(
+          'This GPX file does not contain a track to display. Choose another file.'
+        )
       ).toBeVisible();
     });
 
@@ -386,7 +520,9 @@ describe('GPX file viewer', () => {
       await user.upload(screen.getByLabelText('GPX file'), file);
 
       expect(
-        await screen.findByText('This GPX file does not contain any map locations to display. Choose another file.')
+        await screen.findByText(
+          'This GPX file does not contain any map locations to display. Choose another file.'
+        )
       ).toBeVisible();
     });
 
@@ -397,7 +533,9 @@ describe('GPX file viewer', () => {
 
       await user.upload(screen.getByLabelText('GPX file'), file);
 
-      expect(await screen.findByText('Choose a file with a .gpx filename.')).toBeVisible();
+      expect(
+        await screen.findByText('Choose a file with a .gpx filename.')
+      ).toBeVisible();
     });
   });
 
@@ -422,7 +560,9 @@ describe('GPX file viewer', () => {
       expect(await screen.findByText('Calculated distance')).toBeVisible();
       expect(screen.getByText('111.2 km')).toBeVisible();
       await user.click(screen.getByText('About these totals'));
-      expect(screen.getByText(/Based on the recorded GPS points/)).toBeVisible();
+      expect(
+        screen.getByText(/Based on the recorded GPS points/)
+      ).toBeVisible();
     });
 
     it('lets the user choose which track to inspect', async () => {
@@ -448,13 +588,18 @@ describe('GPX file viewer', () => {
       it('selects a segment and restores the total without counting gaps', async () => {
         const user = userEvent.setup();
 
-        await user.upload(screen.getByLabelText('GPX file'), createTestFile('selectableSegments'));
+        await user.upload(
+          screen.getByLabelText('GPX file'),
+          createTestFile('selectableSegments')
+        );
 
         const selector = await screen.findByRole('combobox', {
           name: 'Track section'
         });
         expect(selector).toHaveValue('');
-        expect(within(selector).getByRole('option', { name: 'Whole track' })).toBeInTheDocument();
+        expect(
+          within(selector).getByRole('option', { name: 'Whole track' })
+        ).toBeInTheDocument();
         expect(screen.getByText('333.6 km')).toBeVisible();
 
         await user.selectOptions(
@@ -497,10 +642,14 @@ describe('GPX file viewer', () => {
           name: 'View'
         });
         await user.selectOptions(itemSelector, 'track-1');
-        expect(screen.queryByRole('combobox', { name: 'Track section' })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('combobox', { name: 'Track section' })
+        ).not.toBeInTheDocument();
 
         await user.selectOptions(itemSelector, 'track-0');
-        expect(screen.getByRole('combobox', { name: 'Track section' })).toHaveValue('');
+        expect(
+          screen.getByRole('combobox', { name: 'Track section' })
+        ).toHaveValue('');
         expect(screen.getByText('333.6 km')).toBeVisible();
 
         const restoredSelector = screen.getByRole('combobox', {
@@ -512,7 +661,9 @@ describe('GPX file viewer', () => {
         );
         await user.upload(fileInput, createTestFile('segmentedTrack'));
         expect(await screen.findByText('Morning route')).toBeVisible();
-        expect(screen.getByRole('combobox', { name: 'Track section' })).toHaveValue('');
+        expect(
+          screen.getByRole('combobox', { name: 'Track section' })
+        ).toHaveValue('');
         expect(screen.getByText('2 track sections')).toBeVisible();
       });
     });
@@ -546,7 +697,9 @@ describe('GPX file viewer', () => {
         name: 'View'
       });
 
-      expect(within(selector).getByRole('option', { name: /Morning track/ })).toBeInTheDocument();
+      expect(
+        within(selector).getByRole('option', { name: /Morning track/ })
+      ).toBeInTheDocument();
       const routeOption = within(selector).getByRole('option', {
         name: /Hill route/
       });
@@ -561,8 +714,12 @@ describe('GPX file viewer', () => {
       expect(within(routeDetails).getByText('2 route points')).toBeVisible();
       expect(screen.getByText('111.2 km')).toBeVisible();
       await user.click(screen.getByText('About these totals'));
-      expect(screen.getByText(/Based on straight lines between route points/)).toBeVisible();
-      expect(screen.queryByText(/Based on the recorded GPS points/)).not.toBeInTheDocument();
+      expect(
+        screen.getByText(/Based on straight lines between route points/)
+      ).toBeVisible();
+      expect(
+        screen.queryByText(/Based on the recorded GPS points/)
+      ).not.toBeInTheDocument();
     });
 
     it('automatically displays the only route without a selector', async () => {
@@ -580,8 +737,12 @@ describe('GPX file viewer', () => {
       expect(within(routeDetails).getByText('2 route points')).toBeVisible();
       expect(screen.getByText('111.2 km')).toBeVisible();
       await user.click(screen.getByText('About these totals'));
-      expect(screen.getByText(/Based on straight lines between route points/)).toBeVisible();
-      expect(screen.queryByRole('combobox', { name: 'View' })).not.toBeInTheDocument();
+      expect(
+        screen.getByText(/Based on straight lines between route points/)
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('combobox', { name: 'View' })
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -607,7 +768,9 @@ describe('GPX file viewer', () => {
       expect(within(details).getByText('Latitude: 53.1°')).toBeVisible();
       expect(within(details).getByText('Longitude: -1.2°')).toBeVisible();
       expect(within(details).getByText('Elevation: 0 m')).toBeVisible();
-      expect(within(details).getByRole('region', { name: 'Waypoint map' })).toBeVisible();
+      expect(
+        within(details).getByRole('region', { name: 'Waypoint map' })
+      ).toBeVisible();
       expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
 
       await user.selectOptions(
@@ -619,21 +782,31 @@ describe('GPX file viewer', () => {
       expect(within(details).getByText('Unnamed waypoint')).toBeVisible();
       expect(within(details).getByText('Latitude: 54°')).toBeVisible();
       expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
-      expect(within(details).queryByText('A place to rest')).not.toBeInTheDocument();
+      expect(
+        within(details).queryByText('A place to rest')
+      ).not.toBeInTheDocument();
 
       await user.selectOptions(selector, 'route-0');
       expect(screen.getByText('111.2 km')).toBeVisible();
       await user.click(screen.getByText('About these totals'));
-      expect(screen.getByText(/Based on straight lines between route points/)).toBeVisible();
-      expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
+      expect(
+        screen.getByText(/Based on straight lines between route points/)
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('region', { name: 'Waypoint' })
+      ).not.toBeInTheDocument();
 
       await user.selectOptions(selector, 'track-0');
       await user.click(screen.getByText('About these totals'));
-      expect(screen.getByText(/Based on the recorded GPS points/)).toBeVisible();
+      expect(
+        screen.getByText(/Based on the recorded GPS points/)
+      ).toBeVisible();
 
       await user.selectOptions(selector, 'waypoint-0');
       await user.click(screen.getByRole('button', { name: 'Clear file' }));
-      expect(screen.queryByRole('region', { name: 'Waypoint' })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('region', { name: 'Waypoint' })
+      ).not.toBeInTheDocument();
       expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
     });
 

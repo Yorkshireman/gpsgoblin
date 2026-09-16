@@ -15,13 +15,29 @@ import { MapCanvas } from './components/MapCanvas';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 type RouteMapProps = (
-  | Readonly<{ route?: never; track: Track; waypoint?: never; segment?: TrackSegment }>
+  | Readonly<{
+      route?: never;
+      track: Track;
+      waypoint?: never;
+      segment?: TrackSegment;
+    }>
   | Readonly<{ route: Route; track?: never; waypoint?: never; segment?: never }>
-  | Readonly<{ route?: never; track?: never; waypoint: Waypoint; segment?: never }>
+  | Readonly<{
+      route?: never;
+      track?: never;
+      waypoint: Waypoint;
+      segment?: never;
+    }>
 ) &
   Readonly<{ selectedPoint?: GeographicSample }>;
 
-export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: RouteMapProps) => {
+export const RouteMap = ({
+  route,
+  track,
+  waypoint,
+  segment,
+  selectedPoint
+}: RouteMapProps) => {
   // A dark route on a white casing stays distinct over light and dark map tiles.
   const [routeColor] = useToken('colors', 'green.700');
 
@@ -65,7 +81,11 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
       ? (route.name ?? 'Unnamed route')
       : (waypoint.name ?? 'Unnamed waypoint');
 
-  const pointOrSegmentCount = track ? track.segments.length : route ? route.points.length : 1;
+  const pointOrSegmentCount = track
+    ? track.segments.length
+    : route
+      ? route.points.length
+      : 1;
 
   const selectedSegmentIndex = track?.segments.findIndex((candidate) => {
     return candidate.id === segment?.id;
@@ -88,37 +108,44 @@ export const RouteMap = ({ route, track, waypoint, segment, selectedPoint }: Rou
   const description = track?.description ?? route?.description;
 
   return (
-    <Box as='section' aria-labelledby={headingId} width='full'>
+    <Box as="section" aria-labelledby={headingId} width="full">
       <Stack gap={3}>
         <Stack gap={1}>
-          <Heading as={track ? 'h3' : 'h4'} id={headingId} size='lg'>
+          <Heading as={track ? 'h3' : 'h4'} id={headingId} size="lg">
             {waypoint ? 'Waypoint map' : 'Route map'}
           </Heading>
-          <Text fontWeight='medium' overflowWrap='anywhere' lineClamp={2} title={itemName}>
+          <Text
+            fontWeight="medium"
+            overflowWrap="anywhere"
+            lineClamp={2}
+            title={itemName}
+          >
             {itemName}
           </Text>
-          <Box as='details' fontSize='sm'>
-            <Box as='summary' cursor='pointer'>
+          <Box as="details" fontSize="sm">
+            <Box as="summary" cursor="pointer">
               {description ? 'Route description' : 'Route details'}
             </Box>
-            <Text overflowWrap='anywhere'>Name: {itemName}</Text>
+            <Text overflowWrap="anywhere">Name: {itemName}</Text>
             {description ? (
-              <Text overflowWrap='anywhere' whiteSpace='pre-wrap'>
+              <Text overflowWrap="anywhere" whiteSpace="pre-wrap">
                 {description}
               </Text>
             ) : null}
           </Box>
-          <Text color='fg.muted' fontSize='sm'>
+          <Text color="fg.muted" fontSize="sm">
             {itemDescription}
           </Text>
         </Stack>
 
         {geometryMessage ? (
-          <Alert.Root status='info'>
+          <Alert.Root status="info">
             <Alert.Indicator />
             <Alert.Content>
               <Alert.Title>
-                {hasLine ? 'Some sections cannot be drawn' : 'No line to display'}
+                {hasLine
+                  ? 'Some sections cannot be drawn'
+                  : 'No line to display'}
               </Alert.Title>
               <Alert.Description>{geometryMessage}</Alert.Description>
             </Alert.Content>

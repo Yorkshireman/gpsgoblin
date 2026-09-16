@@ -5,7 +5,7 @@
   "scripts": {
     "benchmark:imports": "node scripts/benchmarkImports.mjs",
     "build": "next build",
-    "dev": "next dev",
+    "dev": "concurrently --kill-others --names next,prettier \"next dev\" \"pnpm format:watch\"",
     "preview:hosting": "wrangler dev --local --port 4186",
     "deploy:check": "wrangler deploy --dry-run",
     "knip": "knip",
@@ -20,7 +20,10 @@
     "test:browser:compatibility": "playwright test --config playwright.compatibility.config.ts",
     "tsc": "tsc --noEmit",
     "profile:imports": "node --expose-gc scripts/profileGpxPipeline.mjs",
-    "profile:browser-memory": "node scripts/profileBrowserMemory.mjs"
+    "profile:browser-memory": "node scripts/profileBrowserMemory.mjs",
+    "format": "prettier --write . --ignore-unknown",
+    "format:check": "prettier --check . --ignore-unknown",
+    "format:watch": "onchange \"**/*.{js,jsx,ts,tsx,mjs,cjs,json,jsonc,css,scss,md,mdx,yaml,yml,html}\" --exclude-path .prettierignore --filter add --filter change --poll 200 --await-write-finish 200 -- prettier --write --ignore-unknown {{file}}"
   },
   "dependencies": {
     "@chakra-ui/charts": "^3.37.0",
@@ -45,11 +48,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "10.0.5",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.3.4",
     "jest": "^30.5.1",
     "jest-environment-jsdom": "^30.5.1",
     "knip": "^6.35.1",
+    "onchange": "7.1.0",
+    "prettier": "3.9.6",
     "typescript": "^5",
     "wrangler": "4.131.1"
   },

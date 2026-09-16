@@ -49,14 +49,14 @@ baseline and follow-up profiles. Private paths and contents are not in results.
 
 Native CPU ranges across three runs; milliseconds except heap:
 
-| Input | Load before → after | Largest main task before → after | Keyboard selection before → after | Page heap MiB before → after | Drawn vertices after |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Complete private, 8,142 points | 414–472 → 378–421 | 162–169 → 93–99 | 86–102 → 59–91 | 29–33 → 22–25 | 2,774 |
-| Complete sanitised, 8,142 points | 354–367 → 283–300 | 161–163 → 88–91 | 79–89 → 64–69 | 27–31 → 20–21 | 2,708 |
-| 10,000 points | 369–384 → 284–330 | 177–179 → 88–97 | 90–105 → 65–73 | 32–34 → 20–21 | 2,303 |
-| 50,000 points | 1,083–1,128 → 815–875 | 531–558 → 122–148 | 241–273 → 59–69 | 127–132 → 40–50 | 3,154 |
-| 100,000 points | 1,916–1,949 → 1,314–1,326 | 985–1,007 → 177–179 | 431–525 → 60–62 | 251 → 87–89 | 3,625 |
-| 250,000 points | 5,052–5,144 → 2,514–2,646 | 2,907–2,978 → 298–315 | 1,076–1,095 → 66–85 | 532–537 → 179 | 3,619 |
+| Input                            |       Load before → after | Largest main task before → after | Keyboard selection before → after | Page heap MiB before → after | Drawn vertices after |
+| -------------------------------- | ------------------------: | -------------------------------: | --------------------------------: | ---------------------------: | -------------------: |
+| Complete private, 8,142 points   |         414–472 → 378–421 |                  162–169 → 93–99 |                    86–102 → 59–91 |                29–33 → 22–25 |                2,774 |
+| Complete sanitised, 8,142 points |         354–367 → 283–300 |                  161–163 → 88–91 |                     79–89 → 64–69 |                27–31 → 20–21 |                2,708 |
+| 10,000 points                    |         369–384 → 284–330 |                  177–179 → 88–97 |                    90–105 → 65–73 |                32–34 → 20–21 |                2,303 |
+| 50,000 points                    |     1,083–1,128 → 815–875 |                531–558 → 122–148 |                   241–273 → 59–69 |              127–132 → 40–50 |                3,154 |
+| 100,000 points                   | 1,916–1,949 → 1,314–1,326 |              985–1,007 → 177–179 |                   431–525 → 60–62 |                  251 → 87–89 |                3,625 |
+| 250,000 points                   | 5,052–5,144 → 2,514–2,646 |            2,907–2,978 → 298–315 |               1,076–1,095 → 66–85 |                532–537 → 179 |                3,619 |
 
 Load is worker creation through loaded controls plus two animation frames: a
 chart-paint proxy. The initial screenshot can precede map-worker drawing.
@@ -65,12 +65,12 @@ vertices count SVG line M/L commands; source slider counts remain unchanged.
 
 At 4× **page CPU** slowdown (worker CPU is not equivalently throttled):
 
-| Input | Load before → after ms | Largest main task before → after ms | Keyboard selection before → after ms |
-| --- | ---: | ---: | ---: |
-| Complete private | 1,178–1,189 → 855–890 | 677–691 → 370–373 | 271–285 → 170–184 |
-| 50,000 points | 2,942–3,026 → 1,372–1,423 | 2,111–2,168 → 522–551 | 964–993 → 186–201 |
-| 100,000 points | 5,265–5,337 → 2,076–2,120 | 3,920–3,958 → 679–726 | 1,813–1,869 → 192–204 |
-| 250,000 points | 14,851–14,900 → 4,253–4,323 | 11,754–11,864 → 1,205–1,222 | 4,307–4,355 → 198–202 |
+| Input            |      Load before → after ms | Largest main task before → after ms | Keyboard selection before → after ms |
+| ---------------- | --------------------------: | ----------------------------------: | -----------------------------------: |
+| Complete private |       1,178–1,189 → 855–890 |                   677–691 → 370–373 |                    271–285 → 170–184 |
+| 50,000 points    |   2,942–3,026 → 1,372–1,423 |               2,111–2,168 → 522–551 |                    964–993 → 186–201 |
+| 100,000 points   |   5,265–5,337 → 2,076–2,120 |               3,920–3,958 → 679–726 |                1,813–1,869 → 192–204 |
+| 250,000 points   | 14,851–14,900 → 4,253–4,323 |         11,754–11,864 → 1,205–1,222 |                4,307–4,355 → 198–202 |
 
 New interaction measurements at 250k: desktop chart click 119–123 ms native /
 273–288 ms at 4×; smoothing 116–117 / 350–366 ms. These include Playwright action
@@ -80,12 +80,12 @@ them. Import CPU profiles and Long Tasks finish before these interactions.
 
 Phone viewport 390×844, one fresh page per case/rate on the same Mac:
 
-| Input | Native load ms | Native selection ms | 4× load ms | 4× selection ms | Drawn vertices |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Complete private | 347 | 64 | 796 | 173 | 1,813 |
-| Complete sanitised | 271 | 60 | 738 | 154 | 1,755 |
-| 100,000 points | 1,316 | 60 | 1,948 | 184 | 1,820 |
-| 250,000 points | 2,509 | 71 | 4,880 | 174 | 1,824 |
+| Input              | Native load ms | Native selection ms | 4× load ms | 4× selection ms | Drawn vertices |
+| ------------------ | -------------: | ------------------: | ---------: | --------------: | -------------: |
+| Complete private   |            347 |                  64 |        796 |             173 |          1,813 |
+| Complete sanitised |            271 |                  60 |        738 |             154 |          1,755 |
+| 100,000 points     |          1,316 |                  60 |      1,948 |             184 |          1,820 |
+| 250,000 points     |          2,509 |                  71 |      4,880 |             174 |          1,824 |
 
 The phone 250k trial had a 290 ms native / 1,303 ms slowed main task. Chart click
 was 103 / 253 ms and smoothing 99 / 383 ms. A single trial is a layout probe,

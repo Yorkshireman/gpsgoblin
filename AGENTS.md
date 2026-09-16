@@ -54,6 +54,10 @@ Run non-mutating static checks such as typechecking and linting yourself when th
 
 Before completing an implementation request, run `pnpm knip` and require it to exit successfully with no findings. Resolve findings within the authorised scope; report any out-of-scope findings or execution blockers as outstanding verification failures.
 
+## Formatting
+
+During authorised implementation, keep `pnpm format:watch` running (it also runs with `pnpm dev`). After each edit batch, run `pnpm exec prettier --write --ignore-unknown` with the paths you changed and wait for completion before reading them again or running checks. Editor save hooks do not run for agent filesystem writes. Before completing implementation or merging, require `pnpm format:check` to exit successfully across the repository.
+
 ## TypeScript conventions
 
 Use PascalCase for React component filenames. Use camelCase for other TypeScript and TSX filenames, except framework-mandated filenames such as `page.tsx` and `layout.tsx`.
