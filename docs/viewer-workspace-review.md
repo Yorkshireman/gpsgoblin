@@ -4,7 +4,7 @@ Reviewed on 16 September 2026 against issue #10 and the owner's added request fo
 
 ## Approved controls follow-up — 16 September 2026
 
-The owner retained stop exclusion after reviewing Pen-y-Ghent, and approved hiding it when no candidates exist. **Advanced Controls** now replaces Chart options in both speed and pace. Its full-width neutral background, border, sliders icon and chevron distinguish it from explanatory disclosures. **Review possible stops** lives inside it. The Stops selector and empty stop-review messages are absent for recordings with no candidates; recording-gap controls remain independently available. No calculation policy changed.
+The owner retained stop exclusion after reviewing Pen-y-Ghent, and approved hiding it when no candidates exist. **Advanced Controls** now replaces Chart options in both speed and pace. Its full-width neutral background, border, sliders icon and chevron distinguish it from explanatory disclosures. **Review possible stops** lives inside it. The Stops selector and empty stop-review messages are absent for recordings with no candidates; recording-gap inspection remains available even without possible stops (its final placement is inside Advanced Controls, as recorded below). No calculation policy changed.
 
 Browser regression coverage now opens the disclosure with Enter, closes it with Space, verifies nested stop review is hidden while closed, and checks return focus after stop inspection. Synthetic sparse and gapped recordings verify that both speed and pace omit unavailable stop controls while retaining the Time axis and gap markers. The local lunch-ride regression replaces an actively filtered recording and verifies that its stop controls and filtered basis disappear. Pen-y-Ghent still supports confirming and restoring its summit interval. Private recordings remain git-ignored and were not published.
 
@@ -21,6 +21,20 @@ GPSGOBLIN_LUNCH_FILE=private-recordings/StravaLunchRide.gpx PLAYWRIGHT_PORT=4197
 
 Inspected expanded-controls screenshots at 1440×900, 1280×720, 390×844 and 375×667, plus the short-phone selected state and the local lunch ride at desktop/mobile sizes. Keyboard focus remains visible. At scroll position zero, expanding the controls pushes part of the chart below the fold on short screens; after closing and aligning the chart, selected values and smoothing still fit together. On 375×667 the View on map button is near the lower edge and may need a small scroll to expose fully. The map dialog's return action remains fully visible. These later observations supersede the exact fold descriptions below. Chrome emulation and blocked external tiles remain the evidence boundary.
 
+## Recording-gap follow-up — 16 September 2026
+
+The owner approved moving the recording-gap inspector into **Advanced Controls** for both speed and pace, alongside possible-stop review. Its disclosure uses Chakra `mt={2}` for separation. Chart gap markers and active calculation explanations remain visible with the advanced section closed. The product specification now records this grouping.
+
+The gap-inspection browser test caught a regression at 375×667: selecting the visible marker inserted a 138px details panel above the chart, moving the marker from y=528 to y=672 while scrollY remained zero. The fix keeps gap location and duration visible and makes the longer distance/uncertainty explanation expandable. The original viewport assertion now passes without automatic scrolling or weakening the assertion. The test also verifies unchanged phone scroll position and expands the explanation to confirm it remains accessible.
+
+Verification: `pnpm test --runInBand` passed 176 tests; `pnpm build`, `pnpm lint`, `pnpm knip` and `git diff --check` passed. The following browser run passed 15 cases, including gap inspection, stop review and workspace interactions at 1440×900, 1280×720, 390×844 and 375×667, plus the local lunch-ride regression. Two optional private-recording cases were skipped because their environment variables were not supplied.
+
+```sh
+PLAYWRIGHT_PORT=4197 GPSGOBLIN_LUNCH_FILE=private-recordings/StravaLunchRide.gpx pnpm exec playwright test tests/browser/recordingGaps.spec.ts tests/browser/workspace.spec.ts tests/browser/movingMeasurements.spec.ts --project=desktop --output=/tmp/gap-fixed
+```
+
+The selected-gap screenshot at 375×667 was visually inspected: the summary and full marker target remain visible together; most of the plot still requires scrolling from this initial page position. This establishes the specific gap-selection fix, not that the entire chart fits above the fold. Screenshots and personal recordings remain local. The earlier implementation was committed as `123ae62`; this follow-up remains uncommitted at the time of this review. Issue #10 remains open, with no PR publication, merge or deployment performed.
+
 ## Findings and changes
 
 ### Final owner-approved layout and reset follow-up
@@ -33,7 +47,7 @@ The selection hint now appears beneath the chart, disappears while a point is se
 
 Final verification after the spacing changes: `pnpm test --runInBand` passed all 176 tests; `pnpm build`, `pnpm lint`, `pnpm knip` and `git diff --check` passed. `PLAYWRIGHT_PORT=4197 pnpm exec playwright test tests/browser/workspace.spec.ts --project=desktop --output=/tmp/gpsgoblin-spacing` passed four cases, covering 1440×900, 1280×720, 390×844 and 375×667 with touch enabled for phone contexts. These exercise chart selection, units, smoothing, overlay, mobile map return, reset, disclosures and enlarged text. Reset assertions cover metric units, speed chart, default smoothing, cleared selection/overlay and collapsed File details. They do not independently assert every reset state, such as map camera or confirmed-stop selections.
 
-Final reset screenshots were visually inspected at 1440×900 and 375×667. The phone screenshot is scrolled to the chart hint and lower controls; the desktop screenshot includes file actions, totals and the chart/map panels. Local artifacts are in `/tmp/gpsgoblin-spacing`. Earlier exact fold observations below are historical; the additional spacing can require more scrolling. External tiles remain blocked in these checks, and no physical-device or cross-browser claim is made. No commit, publication, deployment or issue closure was performed.
+Final reset screenshots were visually inspected at 1440×900 and 375×667. The phone screenshot is scrolled to the chart hint and lower controls; the desktop screenshot includes file actions, totals and the chart/map panels. Local artifacts are in `/tmp/gpsgoblin-spacing`. Earlier exact fold observations below are historical; the additional spacing can require more scrolling. External tiles remain blocked in these checks, and no physical-device or cross-browser claim is made. At that verification stage, no commit, publication, deployment or issue closure had been performed.
 
 The existing workspace already supplied compact loaded-file controls, a desktop chart/map layout, nearby chart controls and a mobile map dialog. Baseline workspace checks passed at all four required sizes. Repeated introductory and calculation copy, plus a long always-expanded help section, remained the main simplification opportunity.
 

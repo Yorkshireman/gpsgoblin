@@ -147,6 +147,11 @@ export const MeasurementExplorer = ({
           />
         </Box>
       ) : null}
+      <RecordingGapControl
+        points={analysis.points}
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+      />
     </>
   );
   const selectedChartPoint = data.find(point => {
@@ -336,21 +341,7 @@ export const MeasurementExplorer = ({
               {options}
             </PaceRangeControls>
           ) : chart !== 'elevation' ? (
-            <Stack gap={2}>
-              <AdvancedControls>{options}</AdvancedControls>
-              <RecordingGapControl
-                points={analysis.points}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
-            </Stack>
-          ) : null}
-          {activeChart === 'pace' ? (
-            <RecordingGapControl
-              points={analysis.points}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-            />
+            <AdvancedControls>{options}</AdvancedControls>
           ) : null}
           {chart !== 'elevation' && selectedStop ? (
             <StopDialog

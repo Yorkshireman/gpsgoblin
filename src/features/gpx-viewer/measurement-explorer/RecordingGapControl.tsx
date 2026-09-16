@@ -11,7 +11,7 @@ type RecordingGapControlProps = Readonly<{
 export const RecordingGapControl = ({ points, selectedId, onSelect }: RecordingGapControlProps) => {
   const gaps = points.filter(point => { return Boolean(point.recordingGap); });
   if (!gaps.length) return null;
-  return <Box as='details' fontSize='sm'>
+  return <Box as='details' fontSize='sm' mt={2}>
     <Box as='summary' cursor='pointer' color='fg.muted'>{gaps.length} recording {gaps.length === 1 ? 'gap' : 'gaps'}</Box>
     <NativeSelect.Root size='sm' minW={0} mt={2}>
       <NativeSelect.Field aria-label='Inspect recording gap' value={gaps.some(point => { return point.sample.id === selectedId; }) ? selectedId : ''}
