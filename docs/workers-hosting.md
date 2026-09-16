@@ -8,16 +8,36 @@ OpenNext adapter, server-side GPX handling or asset binding. Worker observabilit
 is disabled; verified platform behaviour and dashboard evidence are recorded in
 [hosting privacy](hosting-privacy.md).
 
-## Local validation
+## Reproducible release verification
 
 Use Node 24.20.0 and pnpm 12.3.4 (the package manager is pinned in package.json).
 Wrangler is pinned in the lockfile. Its esbuild/workerd installation scripts are
 explicitly allowed in pnpm-workspace.yaml; other existing restrictions remain.
 
-- `pnpm build`: produces `out/` and generates CSP hashes and preview headers.
-- `WRANGLER_SEND_METRICS=false pnpm deploy:check`: validates the asset configuration without uploading.
-- `pnpm test:browser:hosting --workers=2`: starts an isolated local Workers emulator and runs security/hydration checks; stops it on completion.
-- `WRANGLER_SEND_METRICS=false pnpm preview:hosting`: optional manual localhost preview on port 4186; stop with Ctrl+C.
+Run the release sequence from a clean checkout of the candidate commit:
+
+1. `pnpm install --frozen-lockfile`
+2. `pnpm tsc --incremental false`
+3. `pnpm lint`
+4. `pnpm test --runInBand --silent`
+5. `pnpm build`
+6. `pnpm test:browser:hosting --workers=2`
+7. `pnpm knip`
+8. `WRANGLER_SEND_METRICS=false pnpm deploy:check`
+
+`pnpm build` produces `out/` and generates its exact CSP hashes and preview
+headers. Inspect that directory as the deployment artifact: it must contain the
+exported site and `_headers`, must not contain `.next/cache/` or other compiler
+caches, and must remain ignored by Git. Record its measured size as diagnostic
+evidence, not an acceptance threshold. The Cloudflare GitHub integration installs
+from the committed lockfile and runs the build/deploy commands below; the complete
+release sequence remains the reviewable candidate verification before merge.
+
+`pnpm test:browser:hosting --workers=2` starts an isolated local Workers emulator
+and runs security/hydration checks, then stops it. `pnpm deploy:check` validates
+the asset configuration without uploading. `WRANGLER_SEND_METRICS=false pnpm
+preview:hosting` is an optional manual localhost preview on port 4186; stop it
+with Ctrl+C.
 
 The hosting test uses the actual Workers asset emulator. The ordinary browser
 suite retains its small Python server, which recognises only our two header rules.
@@ -51,19 +71,25 @@ The generated `_headers` includes Cloudflare's documented host pattern
 covers the default worker URL as well as version/branch-alias URLs; it does not
 match gpsgoblin.com. Noindex does not prevent someone opening a shared URL.
 
-Before release, verify real HTTPS responses for the default worker URL, an
-immutable version preview and a branch alias: CSP and noindex, direct nested
-URLs, custom 404s, chart/map/import workers, and no prohibited outbound activity
-contents. Keep canonical/sitemap metadata at https://gpsgoblin.com.
+Release verification covered an immutable version preview and a branch alias:
+CSP and noindex, direct nested URLs, custom 404s, chart/map/import workers, and
+prohibited outbound activity canaries. The public domain was separately verified
+without noindex, the default workers.dev route is disabled, and preview URLs remain
+available with noindex. Canonical and sitemap metadata stay fixed to
+https://gpsgoblin.com.
 
-Custom-domain cutover is a separate authorised action after release gates pass.
-Attach gpsgoblin.com, set `workers_dev: false` in the committed configuration,
-and verify the public domain has no preview noindex header, the default route is
-disabled, and preview URLs still work with noindex. This replaces the earlier
-Pages-specific redirect requirement. No Pages project exists to redirect.
-Keep a known-good deployed version for rollback; account-specific rollback and
-build-branch settings still need confirmation on the actual host. Contact details
-remain indefinitely deferred; this configuration does not declare release readiness.
+This Workers custom-domain design replaces the earlier Pages-specific redirect
+requirement. No Pages project or pages.dev deployment exists, so there is no
+pages.dev hostname to redirect. The dashboard www redirect is the only alternate
+public-host redirect and is documented below.
+
+For an application regression, use Cloudflare deployment rollback to a recorded
+known-good Worker version, then repeat public-host verification. A reviewed pull
+request and its immutable commit identify each release candidate; successful
+production builds are retained in the GitHub check and Cloudflare deployment
+history. Restoring the former GoDaddy placeholder is a separate DNS/routing
+rollback described in the historical cutover plan below. Contact details remain
+indefinitely deferred and are not a release gate.
 
 ## Sources
 
