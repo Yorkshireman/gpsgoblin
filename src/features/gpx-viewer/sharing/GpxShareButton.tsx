@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Dialog,
   HStack,
@@ -9,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
-const copySuccessDuration = 2_000;
+const copySuccessDuration = 1_000;
 
 type GpxShareButtonProps = Readonly<{
   createLink: () => Promise<string>;
@@ -57,7 +58,6 @@ export const GpxShareButton = ({
 
   const useShareSheet =
     Boolean(navigator.share) && window.matchMedia('(max-width: 767px)').matches;
-  const actionColorPalette = copySuccess ? 'green' : undefined;
   const actionLabel = copySuccess
     ? 'Link copied'
     : isSharing
@@ -223,14 +223,37 @@ export const GpxShareButton = ({
                 <Button asChild type="button" variant="outline">
                   <Dialog.ActionTrigger>Cancel</Dialog.ActionTrigger>
                 </Button>
-                <Button
-                  colorPalette={actionColorPalette}
-                  disabled={copySuccess || isSharing}
-                  onClick={share}
-                  type="button"
-                >
-                  {actionLabel}
-                </Button>
+                {copySuccess ? (
+                  <Box
+                    alignItems="center"
+                    aria-live="polite"
+                    bg="green.solid"
+                    borderRadius="l2"
+                    color="green.contrast"
+                    display="inline-flex"
+                    flexShrink="0"
+                    fontWeight="medium"
+                    h="10"
+                    justifyContent="center"
+                    lineHeight="1.2"
+                    minW="108px"
+                    px="4"
+                    role="status"
+                    textStyle="sm"
+                    whiteSpace="nowrap"
+                  >
+                    {actionLabel}
+                  </Box>
+                ) : (
+                  <Button
+                    disabled={isSharing}
+                    minW="108px"
+                    onClick={share}
+                    type="button"
+                  >
+                    {actionLabel}
+                  </Button>
+                )}
               </HStack>
             </Dialog.Footer>
           </Dialog.Content>

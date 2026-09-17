@@ -6,6 +6,8 @@ const fixture =
   '<gpx version="1.1"><wpt lat="53.8" lon="-1.5"><name>Share link fixture</name></wpt></gpx>';
 
 type ButtonPosition = Readonly<{
+  height: number;
+  width: number;
   x: number;
   y: number;
 }>;
@@ -13,6 +15,7 @@ type ButtonPosition = Readonly<{
 test.describe('when someone copies a share link for an opened GPX file', () => {
   let cancelButtonPosition: ButtonPosition;
   let context: BrowserContext;
+  let copiedLinkPosition: ButtonPosition;
   let copyLinkPosition: ButtonPosition;
   let link: string;
   let outbound: string[];
@@ -87,16 +90,40 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
       throw new Error('Expected both sharing actions to have visible bounds.');
     }
 
-    cancelButtonPosition = { x: cancelBounds.x, y: cancelBounds.y };
-    copyLinkPosition = { x: copyLinkBounds.x, y: copyLinkBounds.y };
+    cancelButtonPosition = {
+      height: cancelBounds.height,
+      width: cancelBounds.width,
+      x: cancelBounds.x,
+      y: cancelBounds.y
+    };
+    copyLinkPosition = {
+      height: copyLinkBounds.height,
+      width: copyLinkBounds.width,
+      x: copyLinkBounds.x,
+      y: copyLinkBounds.y
+    };
 
     await copyLink.click();
 
     await expect(confirmation).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: 'Link copied' })
-    ).toBeVisible();
+    const copiedLink = confirmation.getByRole('status');
+
+    await expect(copiedLink).toHaveText('Link copied');
+    await expect(copiedLink).toBeVisible();
     await expect(page.getByText('Share link copied.')).toBeInViewport();
+
+    const copiedLinkBounds = await copiedLink.boundingBox();
+
+    if (!copiedLinkBounds) {
+      throw new Error('Expected the copied-link confirmation to be visible.');
+    }
+
+    copiedLinkPosition = {
+      height: copiedLinkBounds.height,
+      width: copiedLinkBounds.width,
+      x: copiedLinkBounds.x,
+      y: copiedLinkBounds.y
+    };
 
     link =
       (await page.evaluate(() => sessionStorage.getItem('shared-link'))) ?? '';
@@ -122,6 +149,10 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
   test('keeps Cancel next to Copy link', () => {
     expect(cancelButtonPosition.x).toBeLessThan(copyLinkPosition.x);
     expect(cancelButtonPosition.y).toBe(copyLinkPosition.y);
+  });
+
+  test('keeps the copied-link confirmation in the Copy link button position', () => {
+    expect(copiedLinkPosition).toEqual(copyLinkPosition);
   });
 
   test.describe('when the copy confirmation period ends', () => {
