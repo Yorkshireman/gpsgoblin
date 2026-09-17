@@ -71,6 +71,8 @@ For all new or updated runtime and test code:
 - Use blank lines between substantial declarations, such as route definitions,
   and distinct steps, such as fixture setup, rendering, user interactions, and
   waiting for results.
+- Add a blank line after a multiline block before the following statement,
+  unless it continues the same expression or control-flow construct.
 - Split long assertions and interactions across lines using the root Prettier
   configuration and nearby formatting as the guide.
 

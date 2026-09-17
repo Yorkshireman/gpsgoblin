@@ -89,6 +89,7 @@ export const GpxFilePicker = ({
           await file.arrayBuffer(),
           `${window.location.origin}${window.location.pathname}`
         );
+
       if (sharePreparation.current === preparation)
         setShare(
           linkUnavailableReason
@@ -121,14 +122,17 @@ export const GpxFilePicker = ({
 
       try {
         const result = await openGpxFile(file, controller.signal);
+
         if (activeImport.current !== controller || controller.signal.aborted) {
           if (result.ok) result.measurements.dispose();
           return;
         }
+
         if (!result.ok) {
           setError(result.error);
           return false;
         }
+
         activeMeasurements.current?.dispose();
         activeMeasurements.current = result.measurements;
 
@@ -236,7 +240,9 @@ export const GpxFilePicker = ({
   const handleFileReject = (details: FileUpload.FileRejectDetails) => {
     cancelPending();
     setNotice(undefined);
+
     const errors = details.files.flatMap((rejected) => rejected.errors);
+
     setError(
       errors.some((error) => error === 'TOO_MANY_FILES')
         ? oneFileMessage

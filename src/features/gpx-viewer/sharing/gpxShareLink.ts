@@ -38,6 +38,7 @@ const fromBase64Url = (value: string) => {
       value.replaceAll('-', '+').replaceAll('_', '/') +
         '='.repeat((4 - (value.length % 4)) % 4)
     );
+
     return Uint8Array.from(binary, (character) => character.charCodeAt(0))
       .buffer;
   } catch {
@@ -52,6 +53,7 @@ const readStream = async (
   const chunks: Uint8Array[] = [];
   const reader = stream.getReader();
   let size = 0;
+
   try {
     while (true) {
       const next = await reader.read();
@@ -70,6 +72,7 @@ const readStream = async (
   } finally {
     reader.releaseLock();
   }
+
   const result = new Uint8Array(size);
   let offset = 0;
   for (const chunk of chunks) {
@@ -104,6 +107,7 @@ export const getGpxShareLinkLengthUnavailableReason = async (
     version.length +
     1 +
     Math.ceil((compressed.byteLength * 4) / 3);
+
   if (baseUrl.length + fragmentLength > SHARE_LINK_MAX_URL_LENGTH)
     return fileTooBigToShare;
   return undefined;
@@ -125,10 +129,12 @@ export const decodeGpxShareLink = async (fragment: string) => {
   const [payloadVersion, encoded, ...rest] = fragment
     .slice(prefix.length)
     .split('.');
+
   if (payloadVersion !== version) throw new Error(unknownVersion);
   if (!encoded || rest.length) throw new Error(damagedLink);
   if (!isCompressionSupported()) throw new Error(sharingUnavailable);
   let decoded: ArrayBuffer;
+
   try {
     decoded = await readStream(
       new Blob([fromBase64Url(encoded)])
@@ -141,6 +147,7 @@ export const decodeGpxShareLink = async (fragment: string) => {
       throw error;
     throw new Error(damagedLink);
   }
+
   try {
     new TextDecoder('utf-8', { fatal: true }).decode(decoded);
     return decoded;

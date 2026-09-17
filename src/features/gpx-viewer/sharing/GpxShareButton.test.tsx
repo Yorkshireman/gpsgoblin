@@ -13,6 +13,7 @@ const renderButton = (
       <GpxShareButton createLink={createLink} onNotice={onNotice} />
     </ChakraProvider>
   );
+
   return onNotice;
 };
 
@@ -37,6 +38,7 @@ describe('when a phone user opens the sharing confirmation', () => {
       configurable: true,
       value: share
     });
+
     jest
       .spyOn(window, 'matchMedia')
       .mockReturnValue({ matches: true } as MediaQueryList);
@@ -66,6 +68,7 @@ describe('when a phone user opens the sharing confirmation', () => {
         title: 'Shared GPX file',
         url: link
       });
+
       expect(onNotice).toHaveBeenCalledWith('Share link sent.');
     });
   });
@@ -76,6 +79,7 @@ describe('when sharing is unavailable', () => {
 
   beforeEach(async () => {
     user = userEvent.setup();
+
     render(
       <ChakraProvider value={defaultSystem}>
         <GpxShareButton
@@ -118,6 +122,7 @@ describe('when a desktop user confirms sharing', () => {
       configurable: true,
       value: share
     });
+
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: { writeText }

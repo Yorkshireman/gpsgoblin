@@ -12,6 +12,7 @@ const copyLink = async (link: string) => {
     await navigator.clipboard.writeText(link);
     return;
   }
+
   const input = document.createElement('textarea');
   input.value = link;
   input.setAttribute('readonly', '');
@@ -66,6 +67,7 @@ export const GpxShareButton = ({
       setIsSharing(false);
       return;
     }
+
     if (useShareSheet && navigator.share) {
       try {
         await navigator.share({ title: 'Shared GPX file', url: link });
@@ -82,6 +84,7 @@ export const GpxShareButton = ({
         }
       }
     }
+
     try {
       await copyLink(link);
       setOpen(false);

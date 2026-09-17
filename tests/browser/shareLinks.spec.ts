@@ -55,6 +55,7 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
     await expect(confirmation).toContainText(
       'Sending it is like sending the file itself.'
     );
+
     await expect(confirmation).toBeInViewport();
 
     const copyLink = page.getByRole('button', { name: 'Copy link' });
@@ -98,6 +99,7 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
       await expect(
         recipient.getByText('Share link fixture', { exact: true })
       ).toBeVisible();
+
       await expect(
         recipient.getByText('shared-route.gpx', { exact: true })
       ).toBeVisible();
@@ -116,6 +118,7 @@ test.describe('when a recipient opens an unknown share-link version', () => {
     await expect(
       page.getByText('This shared file uses a newer link format.')
     ).toBeInViewport();
+
     await expect(
       page.getByRole('button', { name: 'Choose GPX file' })
     ).toBeVisible();
@@ -134,6 +137,7 @@ test.describe('when a file is too large to share', () => {
             viewport: { width: 390, height: 844 }
           })
         : undefined;
+
     target = touchContext ? await touchContext.newPage() : page;
     if (touchContext) await blockExternalTiles(touchContext);
 
