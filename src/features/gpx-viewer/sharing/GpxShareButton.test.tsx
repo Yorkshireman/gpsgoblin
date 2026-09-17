@@ -63,7 +63,10 @@ describe('when a phone user opens the sharing confirmation', () => {
     });
 
     test('closes the sharing confirmation', () => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toHaveAttribute(
+        'data-state',
+        'closed'
+      );
     });
   });
 
@@ -148,5 +151,7 @@ describe('when a desktop user confirms sharing', () => {
     expect(writeText).toHaveBeenCalledWith(link);
     expect(share).not.toHaveBeenCalled();
     expect(onNotice).toHaveBeenCalledWith('Share link copied.');
+    expect(screen.getByRole('button', { name: 'Link copied' })).toBeVisible();
+    expect(screen.getByRole('dialog')).toBeVisible();
   });
 });

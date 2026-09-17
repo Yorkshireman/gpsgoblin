@@ -91,6 +91,11 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
     copyLinkPosition = { x: copyLinkBounds.x, y: copyLinkBounds.y };
 
     await copyLink.click();
+
+    await expect(confirmation).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Link copied' })
+    ).toBeVisible();
     await expect(page.getByText('Share link copied.')).toBeInViewport();
 
     link =
@@ -117,6 +122,16 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
   test('keeps Cancel next to Copy link', () => {
     expect(cancelButtonPosition.x).toBeLessThan(copyLinkPosition.x);
     expect(cancelButtonPosition.y).toBe(copyLinkPosition.y);
+  });
+
+  test.describe('when the copy confirmation period ends', () => {
+    test.beforeEach(async () => {
+      await expect(page.getByRole('dialog')).toBeHidden({ timeout: 3_000 });
+    });
+
+    test('closes the sharing confirmation', () => {
+      expect(page.getByRole('dialog')).not.toBeVisible();
+    });
   });
 
   test.describe('when the recipient opens the copied link', () => {

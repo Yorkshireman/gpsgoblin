@@ -7,7 +7,9 @@ import {
   Text,
   Tooltip
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+const copySuccessDuration = 2_000;
 
 type GpxShareButtonProps = Readonly<{
   createLink: () => Promise<string>;
@@ -39,13 +41,30 @@ export const GpxShareButton = ({
   unavailableReason
 }: GpxShareButtonProps) => {
   const [copyError, setCopyError] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [open, setOpen] = useState(false);
   const [unavailableTooltipOpen, setUnavailableTooltipOpen] = useState(false);
+  const closeTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current !== undefined) {
+        window.clearTimeout(closeTimer.current);
+      }
+    };
+  }, []);
 
   const useShareSheet =
     Boolean(navigator.share) && window.matchMedia('(max-width: 767px)').matches;
-  const actionLabel = useShareSheet ? 'Share link' : 'Copy link';
+  const actionColorPalette = copySuccess ? 'green' : undefined;
+  const actionLabel = copySuccess
+    ? 'Link copied'
+    : isSharing
+      ? 'Creating link…'
+      : useShareSheet
+        ? 'Share link'
+        : 'Copy link';
   const icon = (
     <svg
       aria-hidden="true"
@@ -65,7 +84,13 @@ export const GpxShareButton = ({
   );
 
   const closeDialog = () => {
+    if (closeTimer.current !== undefined) {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = undefined;
+    }
+
     setCopyError(false);
+    setCopySuccess(false);
     setOpen(false);
     return;
   };
@@ -85,13 +110,13 @@ export const GpxShareButton = ({
     if (useShareSheet && navigator.share) {
       try {
         await navigator.share({ title: 'Shared GPX file', url: link });
-        setOpen(false);
+        closeDialog();
         setIsSharing(false);
         onNotice('Share link sent.');
         return;
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {
-          setOpen(false);
+          closeDialog();
           setIsSharing(false);
           onNotice('Sharing cancelled.');
           return;
@@ -101,9 +126,14 @@ export const GpxShareButton = ({
 
     try {
       await copyLink(link);
-      setOpen(false);
+      setCopySuccess(true);
       setIsSharing(false);
       onNotice('Share link copied.');
+      closeTimer.current = window.setTimeout(() => {
+        closeTimer.current = undefined;
+        setCopySuccess(false);
+        setOpen(false);
+      }, copySuccessDuration);
     } catch {
       setCopyError(true);
       setIsSharing(false);
@@ -152,8 +182,8 @@ export const GpxShareButton = ({
     <Dialog.Root
       motionPreset="none"
       onOpenChange={(details) => {
-        setOpen(details.open);
-        if (!details.open) setCopyError(false);
+        if (details.open) setOpen(true);
+        else closeDialog();
       }}
       open={open}
       placement="center"
@@ -190,11 +220,16 @@ export const GpxShareButton = ({
             </Dialog.Body>
             <Dialog.Footer>
               <HStack gap={2}>
-                <Button onClick={closeDialog} type="button" variant="outline">
-                  Cancel
+                <Button asChild type="button" variant="outline">
+                  <Dialog.ActionTrigger>Cancel</Dialog.ActionTrigger>
                 </Button>
-                <Button disabled={isSharing} type="button" onClick={share}>
-                  {isSharing ? 'Creating link…' : actionLabel}
+                <Button
+                  colorPalette={actionColorPalette}
+                  disabled={copySuccess || isSharing}
+                  onClick={share}
+                  type="button"
+                >
+                  {actionLabel}
                 </Button>
               </HStack>
             </Dialog.Footer>
