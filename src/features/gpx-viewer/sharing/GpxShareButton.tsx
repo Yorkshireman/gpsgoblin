@@ -1,4 +1,12 @@
-import { Button, Dialog, Portal, Stack, Text, Tooltip } from '@chakra-ui/react';
+import {
+  Button,
+  Dialog,
+  HStack,
+  Portal,
+  Stack,
+  Text,
+  Tooltip
+} from '@chakra-ui/react';
 import { useState } from 'react';
 
 type GpxShareButtonProps = Readonly<{
@@ -55,6 +63,12 @@ export const GpxShareButton = ({
       />
     </svg>
   );
+
+  const closeDialog = () => {
+    setCopyError(false);
+    setOpen(false);
+    return;
+  };
 
   const share = async () => {
     setCopyError(false);
@@ -175,14 +189,14 @@ export const GpxShareButton = ({
               </Stack>
             </Dialog.Body>
             <Dialog.Footer>
-              <Dialog.CloseTrigger asChild>
-                <Button type="button" variant="outline">
+              <HStack gap={2}>
+                <Button onClick={closeDialog} type="button" variant="outline">
                   Cancel
                 </Button>
-              </Dialog.CloseTrigger>
-              <Button disabled={isSharing} type="button" onClick={share}>
-                {isSharing ? 'Creating link…' : actionLabel}
-              </Button>
+                <Button disabled={isSharing} type="button" onClick={share}>
+                  {isSharing ? 'Creating link…' : actionLabel}
+                </Button>
+              </HStack>
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>

@@ -57,6 +57,16 @@ describe('when a phone user opens the sharing confirmation', () => {
     ).toBeVisible();
   });
 
+  describe('when they cancel', () => {
+    beforeEach(async () => {
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    });
+
+    test('closes the sharing confirmation', () => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
+
   describe('when they share the link', () => {
     beforeEach(async () => {
       await user.click(screen.getByRole('button', { name: 'Share link' }));

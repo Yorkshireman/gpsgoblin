@@ -5,16 +5,32 @@ import { expect, test, blockExternalTiles } from './browserTest';
 const fixture =
   '<gpx version="1.1"><wpt lat="53.8" lon="-1.5"><name>Share link fixture</name></wpt></gpx>';
 
+type ButtonPosition = Readonly<{
+  x: number;
+  y: number;
+}>;
+
 test.describe('when someone copies a share link for an opened GPX file', () => {
+  let cancelButtonPosition: ButtonPosition;
   let context: BrowserContext;
+  let copyLinkPosition: ButtonPosition;
   let link: string;
   let outbound: string[];
   let page: Page;
 
-  test.beforeEach(async ({ browser, baseURL }) => {
-    context = await browser.newContext({
-      permissions: ['clipboard-read', 'clipboard-write']
-    });
+  test.beforeEach(async ({ browser, baseURL }, testInfo) => {
+    context = await browser.newContext(
+      testInfo.project.name === 'mobile'
+        ? {
+            hasTouch: true,
+            permissions: ['clipboard-read', 'clipboard-write'],
+            viewport: { height: 844, width: 390 }
+          }
+        : {
+            permissions: ['clipboard-read', 'clipboard-write'],
+            viewport: { height: 900, width: 1440 }
+          }
+    );
 
     await context.addInitScript(() => {
       Object.defineProperty(navigator, 'share', { value: undefined });
@@ -58,9 +74,22 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
 
     await expect(confirmation).toBeInViewport();
 
+    const cancel = page.getByRole('button', { name: 'Cancel' });
     const copyLink = page.getByRole('button', { name: 'Copy link' });
 
+    await expect(cancel).toBeInViewport();
     await expect(copyLink).toBeInViewport();
+
+    const cancelBounds = await cancel.boundingBox();
+    const copyLinkBounds = await copyLink.boundingBox();
+
+    if (!cancelBounds || !copyLinkBounds) {
+      throw new Error('Expected both sharing actions to have visible bounds.');
+    }
+
+    cancelButtonPosition = { x: cancelBounds.x, y: cancelBounds.y };
+    copyLinkPosition = { x: copyLinkBounds.x, y: copyLinkBounds.y };
+
     await copyLink.click();
     await expect(page.getByText('Share link copied.')).toBeInViewport();
 
@@ -83,6 +112,11 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
         );
       })
     ).toBe(true);
+  });
+
+  test('keeps Cancel next to Copy link', () => {
+    expect(cancelButtonPosition.x).toBeLessThan(copyLinkPosition.x);
+    expect(cancelButtonPosition.y).toBe(copyLinkPosition.y);
   });
 
   test.describe('when the recipient opens the copied link', () => {
@@ -134,7 +168,7 @@ test.describe('when a file is too large to share', () => {
       testInfo.project.name === 'mobile'
         ? await browser.newContext({
             hasTouch: true,
-            viewport: { width: 390, height: 844 }
+            viewport: { height: 844, width: 390 }
           })
         : undefined;
 
