@@ -70,6 +70,47 @@ const foobar = () => {
 };
 ```
 
+## Test structure and setup
+
+Use scenario-based `describe('when ...')` blocks. Put setup and user
+interactions in scoped `beforeEach` blocks so each `test` body is thin and
+focuses on one expected outcome.
+
+- Put common defaults in the outer `beforeEach`; override them in the relevant
+  scenario before rendering.
+- Nest scenarios for natural next steps, such as clearing a filter or a request
+  finishing. Keep the setup chain easy to follow.
+- Give distinct outcomes separate, descriptive `test` blocks. Keep related
+  assertions together when they establish one outcome.
+- Await asynchronous setup and interactions in `beforeEach` so each test starts
+  in the stated situation.
+- Mount the actual component under test with its required providers.
+- For simple rendering and pending-state checks, mock the relevant hooks with
+  explicit values such as `isPending: true`. Use real hooks and controlled
+  service responses when testing transitions or concurrent requests that static
+  mocks would only assume work.
+
+```tsx
+describe('when caches are loading', () => {
+  beforeEach(() => {
+    jest.mocked(useGetCaches).mockReturnValue({
+      isPending: true,
+      isError: false
+    });
+
+    renderCaches();
+  });
+
+  test('shows a loader', () => {
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeVisible();
+  });
+
+  test('does not show the cache list', () => {
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+});
+```
+
 ## Module interfaces
 
 When multiple files in a directory implement one coherent module, use `index.ts` as its external seam. Export only the intended public interface from that entry point. Callers outside the directory import from the directory entry point; implementation files use relative imports within the directory. Leave directories that merely group unrelated files without an entry point.
