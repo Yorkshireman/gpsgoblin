@@ -58,7 +58,7 @@ it('keeps the share icon unavailable and reveals the reason when tapped', async 
     <ChakraProvider value={defaultSystem}>
       <GpxShareButton
         createLink={jest.fn()}
-        unavailableReason="This file is too large to share as a link."
+        unavailableReason="File too big to share."
         onNotice={jest.fn()}
       />
     </ChakraProvider>
@@ -67,9 +67,7 @@ it('keeps the share icon unavailable and reveals the reason when tapped', async 
   const control = screen.getByRole('button', { name: 'Sharing unavailable' });
   expect(control).toHaveAttribute('aria-disabled', 'true');
   await user.click(control);
-  expect(
-    screen.getByText('This file is too large to share as a link.')
-  ).toBeVisible();
+  expect(screen.getByText('File too big to share.')).toBeVisible();
 });
 
 it('copies the link on desktop even when the browser exposes a share sheet', async () => {

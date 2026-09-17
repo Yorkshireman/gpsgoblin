@@ -13,6 +13,7 @@ const linkTooLong =
   'This share link is too long to open safely. Ask the sender to share the file another way.';
 const decodedContentTooLarge =
   'This shared file is too large to open safely. Ask the sender to share the file another way.';
+const fileTooBigToShare = 'File too big to share.';
 
 const isCompressionSupported = () => {
   return (
@@ -89,8 +90,7 @@ const compress = async (contents: ArrayBuffer) => {
 
 export const getGpxShareLinkUnavailableReason = (file: File) => {
   if (!isCompressionSupported()) return sharingUnavailable;
-  if (file.size > SHARE_LINK_MAX_DECODED_BYTES)
-    return 'This file is too large to share as a link. You can still send the GPX file itself.';
+  if (file.size > SHARE_LINK_MAX_DECODED_BYTES) return fileTooBigToShare;
   return undefined;
 };
 
@@ -105,7 +105,7 @@ export const getGpxShareLinkLengthUnavailableReason = async (
     1 +
     Math.ceil((compressed.byteLength * 4) / 3);
   if (baseUrl.length + fragmentLength > SHARE_LINK_MAX_URL_LENGTH)
-    return linkTooLong;
+    return fileTooBigToShare;
   return undefined;
 };
 

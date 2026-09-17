@@ -116,10 +116,6 @@ test('shows the oversized-file reason from the unavailable Share icon', async ({
   await expect(share).toHaveAttribute('aria-disabled', 'true');
   if (touchContext) await share.tap();
   else await share.hover();
-  await expect(
-    target.getByText(
-      'This file is too large to share as a link. You can still send the GPX file itself.'
-    )
-  ).toBeInViewport();
+  await expect(target.getByText('File too big to share.')).toBeInViewport();
   await touchContext?.close();
 });
