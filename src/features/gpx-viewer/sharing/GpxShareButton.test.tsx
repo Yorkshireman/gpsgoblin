@@ -52,7 +52,8 @@ it('waits for the confirmation before creating a link and uses the platform shar
   expect(onNotice).toHaveBeenCalledWith('Share link sent.');
 });
 
-it('keeps the share button visible and explains when sharing is unavailable', () => {
+it('keeps the share icon unavailable and reveals the reason when tapped', async () => {
+  const user = userEvent.setup();
   render(
     <ChakraProvider value={defaultSystem}>
       <GpxShareButton
@@ -63,7 +64,12 @@ it('keeps the share button visible and explains when sharing is unavailable', ()
     </ChakraProvider>
   );
 
-  expect(screen.getByRole('button', { name: 'Share GPX file' })).toBeDisabled();
+  const control = screen.getByRole('button', { name: 'Sharing unavailable' });
+  expect(control).toHaveAttribute('aria-disabled', 'true');
+  await user.click(control);
+  expect(
+    screen.getByText('This file is too large to share as a link.')
+  ).toBeVisible();
 });
 
 it('copies the link on desktop even when the browser exposes a share sheet', async () => {

@@ -74,20 +74,7 @@ export const GpxFileControls = ({
             {filename ? 'Change GPX file' : 'Choose GPX file'}
           </Button>
         </FileUpload.Trigger>
-        {share ? (
-          <>
-            <GpxShareButton {...share} />
-            {share.unavailableReason ? (
-              <Text
-                id="gpx-share-unavailable-reason"
-                color="fg.muted"
-                fontSize="sm"
-              >
-                {share.unavailableReason}
-              </Text>
-            ) : null}
-          </>
-        ) : null}
+        {share ? <GpxShareButton {...share} /> : null}
         {onReset ? (
           <Button
             type="button"

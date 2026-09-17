@@ -83,11 +83,26 @@ test('explains a damaged or unknown share link on the normal upload view', async
   ).toBeVisible();
 });
 
-test('keeps Share visible and explains why an oversized file cannot use a link', async ({
-  page
-}) => {
-  await page.goto('/tools/gpx-file-viewer.html');
-  await page.getByLabel('GPX file', { exact: true }).setInputFiles({
+test('shows the oversized-file reason from the unavailable Share icon', async ({
+  browser,
+  page,
+  baseURL
+}, testInfo) => {
+  const touchContext =
+    testInfo.project.name === 'mobile'
+      ? await browser.newContext({
+          hasTouch: true,
+          viewport: { width: 390, height: 844 }
+        })
+      : undefined;
+  const target = touchContext ? await touchContext.newPage() : page;
+  if (touchContext) await blockExternalTiles(touchContext);
+  await target.goto(
+    touchContext
+      ? `${baseURL}/tools/gpx-file-viewer.html`
+      : '/tools/gpx-file-viewer.html'
+  );
+  await target.getByLabel('GPX file', { exact: true }).setInputFiles({
     name: 'large-route.gpx',
     mimeType: 'application/gpx+xml',
     buffer: Buffer.from(
@@ -95,14 +110,16 @@ test('keeps Share visible and explains why an oversized file cannot use a link',
     )
   });
   await expect(
-    page.getByText('Large share fixture', { exact: true })
+    target.getByText('Large share fixture', { exact: true })
   ).toBeVisible();
+  const share = target.getByRole('button', { name: 'Sharing unavailable' });
+  await expect(share).toHaveAttribute('aria-disabled', 'true');
+  if (touchContext) await share.tap();
+  else await share.hover();
   await expect(
-    page.getByRole('button', { name: 'Share GPX file' })
-  ).toBeDisabled();
-  await expect(
-    page.getByText(
+    target.getByText(
       'This file is too large to share as a link. You can still send the GPX file itself.'
     )
   ).toBeInViewport();
+  await touchContext?.close();
 });

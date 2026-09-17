@@ -1,4 +1,4 @@
-import { Button, Dialog, Portal, Stack, Text } from '@chakra-ui/react';
+import { Button, Dialog, Portal, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useState } from 'react';
 
 type GpxShareButtonProps = Readonly<{
@@ -32,9 +32,27 @@ export const GpxShareButton = ({
   const [open, setOpen] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [unavailableTooltipOpen, setUnavailableTooltipOpen] = useState(false);
   const useShareSheet =
     Boolean(navigator.share) && window.matchMedia('(max-width: 767px)').matches;
   const actionLabel = useShareSheet ? 'Share link' : 'Copy link';
+  const icon = (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="20"
+      viewBox="0 0 24 24"
+      width="20"
+    >
+      <path
+        d="M12 3v12m0-12 4 4m-4-4L8 7M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+    </svg>
+  );
 
   const share = async () => {
     setCopyError(false);
@@ -75,6 +93,43 @@ export const GpxShareButton = ({
     return;
   };
 
+  const shareControl = unavailableReason ? (
+    <Tooltip.Root
+      open={unavailableTooltipOpen}
+      positioning={{ placement: 'bottom' }}
+      onOpenChange={(details) => {
+        setUnavailableTooltipOpen(details.open);
+      }}
+    >
+      <Tooltip.Trigger asChild>
+        <Button
+          aria-disabled="true"
+          aria-label="Sharing unavailable"
+          cursor="not-allowed"
+          opacity="0.5"
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setUnavailableTooltipOpen(true);
+          }}
+        >
+          {icon}
+        </Button>
+      </Tooltip.Trigger>
+      <Portal>
+        <Tooltip.Positioner>
+          <Tooltip.Content>{unavailableReason}</Tooltip.Content>
+        </Tooltip.Positioner>
+      </Portal>
+    </Tooltip.Root>
+  ) : (
+    <Dialog.Trigger asChild>
+      <Button aria-label="Share GPX file" type="button" variant="outline">
+        {icon}
+      </Button>
+    </Dialog.Trigger>
+  );
+
   return (
     <Dialog.Root
       open={open}
@@ -85,34 +140,7 @@ export const GpxShareButton = ({
         if (!details.open) setCopyError(false);
       }}
     >
-      <Dialog.Trigger asChild>
-        <Button
-          aria-label="Share GPX file"
-          aria-describedby={
-            unavailableReason ? 'gpx-share-unavailable-reason' : undefined
-          }
-          disabled={Boolean(unavailableReason)}
-          title={unavailableReason}
-          type="button"
-          variant="outline"
-        >
-          <svg
-            aria-hidden="true"
-            fill="none"
-            height="20"
-            viewBox="0 0 24 24"
-            width="20"
-          >
-            <path
-              d="M12 3v12m0-12 4 4m-4-4L8 7M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-            />
-          </svg>
-        </Button>
-      </Dialog.Trigger>
+      {shareControl}
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner padding={2}>
