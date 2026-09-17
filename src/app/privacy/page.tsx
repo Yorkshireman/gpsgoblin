@@ -24,6 +24,12 @@ const PrivacyPage = () => {
         choices. GPSGoblin does not save activity files in browser storage or
         offer cloud storage. Your original file is unchanged.
       </Text>
+      <Text>
+        If you choose to make a share link, the link contains a compressed copy
+        of your GPX file. GPSGoblin does not receive or store that copy, but
+        anyone you send the link to can open it and pass it on. Do not create a
+        share link for a route you would not send as a file.
+      </Text>
       <Heading as="h2" size="xl">
         Online maps
       </Heading>

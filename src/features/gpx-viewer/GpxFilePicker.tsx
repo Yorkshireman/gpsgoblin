@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, FileUpload, Stack, Text } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DragEvent, ReactNode } from 'react';
 
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
@@ -11,6 +11,12 @@ import { GpxFileControls } from './components/GpxFileControls';
 import { openGpxFile } from './import-processing';
 import type { MeasurementSession } from './import-processing';
 import type { SelectedGpxItem } from './selectedGpxItem';
+import {
+  decodeGpxShareLink,
+  encodeGpxShareLink,
+  getGpxShareLinkLengthUnavailableReason,
+  getGpxShareLinkUnavailableReason
+} from './sharing';
 
 const oneFileMessage =
   'Open one GPX file at a time. Choose a single file to replace the current file.';
@@ -44,8 +50,14 @@ export const GpxFilePicker = ({
   const document = workspace?.document;
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<SelectedGpxItem>();
+  const [sourceFile, setSourceFile] = useState<File>();
+  const [share, setShare] = useState<{
+    unavailableReason?: string;
+  }>();
   const activeImport = useRef<AbortController | undefined>(undefined);
   const activeMeasurements = useRef<MeasurementSession | undefined>(undefined);
+  const sharePreparation = useRef(0);
+  const sharedImportAttempted = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -61,50 +73,126 @@ export const GpxFilePicker = ({
     return;
   };
 
+  const prepareShareAvailability = useCallback(async (file: File) => {
+    const unavailableReason = getGpxShareLinkUnavailableReason(file);
+    const preparation = ++sharePreparation.current;
+    if (unavailableReason) {
+      setShare({ unavailableReason });
+      return;
+    }
+    setShare({ unavailableReason: 'Preparing a share link…' });
+    try {
+      const linkUnavailableReason =
+        await getGpxShareLinkLengthUnavailableReason(
+          await file.arrayBuffer(),
+          `${window.location.origin}${window.location.pathname}`
+        );
+      if (sharePreparation.current === preparation)
+        setShare(
+          linkUnavailableReason
+            ? { unavailableReason: linkUnavailableReason }
+            : {}
+        );
+    } catch (error) {
+      if (sharePreparation.current !== preparation) return;
+      setShare({
+        unavailableReason:
+          error instanceof Error
+            ? error.message
+            : 'This file cannot be shared as a link. You can still send the GPX file itself.'
+      });
+    }
+    return;
+  }, []);
+
+  const openFile = useCallback(
+    async (file: File, successNotice?: string) => {
+      cancelPending();
+      const controller = new AbortController();
+      activeImport.current = controller;
+      setIsLoading(true);
+      setError(undefined);
+      setNotice(undefined);
+      try {
+        const result = await openGpxFile(file, controller.signal);
+        if (activeImport.current !== controller || controller.signal.aborted) {
+          if (result.ok) result.measurements.dispose();
+          return;
+        }
+        if (!result.ok) {
+          setError(result.error);
+          return false;
+        }
+        activeMeasurements.current?.dispose();
+        activeMeasurements.current = result.measurements;
+        setWorkspace((previous) => {
+          return {
+            document: result.document,
+            measurements: result.measurements,
+            revision: (previous?.revision ?? 0) + 1
+          };
+        });
+        setFilename(file.name);
+        setSourceFile(file);
+        setSelectedItem(initialItem(result.document));
+        void prepareShareAvailability(file);
+        if (successNotice) setNotice(successNotice);
+        return true;
+      } catch {
+        if (activeImport.current === controller && !controller.signal.aborted) {
+          setError(
+            'The file could not be read. Try again or choose another GPX file.'
+          );
+        }
+        return false;
+      } finally {
+        if (activeImport.current === controller) {
+          activeImport.current = undefined;
+          setIsLoading(false);
+        }
+      }
+      return;
+    },
+    [prepareShareAvailability]
+  );
+
   const handleFileAccept = async (details: FileUpload.FileAcceptDetails) => {
     const file = details.files[0];
     if (!file) return;
-    cancelPending();
-    const controller = new AbortController();
-    activeImport.current = controller;
-    setIsLoading(true);
-    setError(undefined);
-    setNotice(undefined);
-    try {
-      const result = await openGpxFile(file, controller.signal);
-      if (activeImport.current !== controller || controller.signal.aborted) {
-        if (result.ok) result.measurements.dispose();
-        return;
-      }
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      activeMeasurements.current?.dispose();
-      activeMeasurements.current = result.measurements;
-      setWorkspace((previous) => {
-        return {
-          document: result.document,
-          measurements: result.measurements,
-          revision: (previous?.revision ?? 0) + 1
-        };
-      });
-      setFilename(file.name);
-      setSelectedItem(initialItem(result.document));
-    } catch {
-      if (activeImport.current === controller && !controller.signal.aborted) {
-        setError(
-          'The file could not be read. Try again or choose another GPX file.'
-        );
-      }
-    } finally {
-      if (activeImport.current === controller) {
-        activeImport.current = undefined;
-        setIsLoading(false);
-      }
-    }
+    await openFile(file);
     return;
   };
+
+  useEffect(() => {
+    if (sharedImportAttempted.current) return;
+    sharedImportAttempted.current = true;
+    const fragment = window.location.hash;
+    if (!fragment.startsWith('#gpx-share=')) return;
+    const openSharedFile = async () => {
+      try {
+        const contents = await decodeGpxShareLink(fragment);
+        const opened = await openFile(
+          new File([contents], 'shared-route.gpx', {
+            type: 'application/gpx+xml'
+          }),
+          'Shared GPX file opened.'
+        );
+        if (opened)
+          window.history.replaceState(
+            window.history.state,
+            '',
+            `${window.location.pathname}${window.location.search}`
+          );
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : 'This share link could not be opened. Ask the sender to make a new one.'
+        );
+      }
+    };
+    void openSharedFile();
+  }, [openFile]);
 
   const resetView = () => {
     if (!workspace) return;
@@ -123,7 +211,10 @@ export const GpxFilePicker = ({
     activeMeasurements.current = undefined;
     setWorkspace(undefined);
     setFilename(undefined);
+    setSourceFile(undefined);
     setSelectedItem(undefined);
+    sharePreparation.current += 1;
+    setShare(undefined);
     setError(undefined);
     setNotice('File closed.');
     return;
@@ -192,6 +283,24 @@ export const GpxFilePicker = ({
           setNotice('Import cancelled.');
           return;
         }}
+        share={
+          document
+            ? {
+                ...share,
+                createLink: async () => {
+                  if (!sourceFile)
+                    throw new Error(
+                      'This file is no longer open. Choose it again to share it.'
+                    );
+                  return encodeGpxShareLink(
+                    await sourceFile.arrayBuffer(),
+                    `${window.location.origin}${window.location.pathname}`
+                  );
+                },
+                onNotice: setNotice
+              }
+            : undefined
+        }
       />
       {notice ? (
         <Text role="status" fontSize="sm">

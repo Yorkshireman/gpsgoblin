@@ -8,6 +8,8 @@ import {
 } from '@chakra-ui/react';
 import { useRef } from 'react';
 
+import { GpxShareButton } from '../sharing';
+
 type GpxFileControlsProps = Readonly<{
   canClear: boolean;
   showDropzone: boolean;
@@ -16,6 +18,11 @@ type GpxFileControlsProps = Readonly<{
   onReset?: () => void;
   onClear: () => void;
   onCancel: () => void;
+  share?: Readonly<{
+    unavailableReason?: string;
+    createLink: () => Promise<string>;
+    onNotice: (notice: string) => void;
+  }>;
 }>;
 
 export const GpxFileControls = ({
@@ -25,7 +32,8 @@ export const GpxFileControls = ({
   filename,
   onReset,
   onClear,
-  onCancel
+  onCancel,
+  share
 }: GpxFileControlsProps) => {
   const chooser = useRef<HTMLButtonElement>(null);
 
@@ -66,6 +74,20 @@ export const GpxFileControls = ({
             {filename ? 'Change GPX file' : 'Choose GPX file'}
           </Button>
         </FileUpload.Trigger>
+        {share ? (
+          <>
+            <GpxShareButton {...share} />
+            {share.unavailableReason ? (
+              <Text
+                id="gpx-share-unavailable-reason"
+                color="fg.muted"
+                fontSize="sm"
+              >
+                {share.unavailableReason}
+              </Text>
+            ) : null}
+          </>
+        ) : null}
         {onReset ? (
           <Button
             type="button"
