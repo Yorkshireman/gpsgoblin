@@ -134,7 +134,7 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
   });
 
   test('keeps the GPX payload out of the URL query and outbound requests', () => {
-    expect(link).toContain('#gpx-share=v1.');
+    expect(link).toContain('#gpx-share=v2.');
     expect(link).not.toContain('?');
     expect(link).not.toContain('Share%20link%20fixture');
     expect(
@@ -190,7 +190,7 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
 
 test.describe('when a recipient opens an unknown share-link version', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/tools/gpx-file-viewer.html#gpx-share=v2.invalid');
+    await page.goto('/tools/gpx-file-viewer.html#gpx-share=v3.invalid');
   });
 
   test('explains the problem on the normal upload view', async ({ page }) => {
@@ -242,7 +242,7 @@ test.describe('when a file is too large to share', () => {
     const share = target.getByRole('button', { name: 'Sharing unavailable' });
 
     await expect(share).toHaveAttribute('aria-disabled', 'true');
-    if (touchContext) await share.tap();
+    if (touchContext) await share.tap({ force: true });
     else await share.hover();
   });
 

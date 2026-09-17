@@ -1,8 +1,11 @@
+import { decompressBrotli } from './brotliCodec';
+import { compressShareBytes } from './compressShareBytes';
+
 export const SHARE_LINK_MAX_DECODED_BYTES = 8_000_000;
 export const SHARE_LINK_MAX_URL_LENGTH = 192_000;
 
 const prefix = '#gpx-share=';
-const version = 'v1';
+const version = 'v2';
 
 const damagedLink =
   'This share link is damaged. Ask the sender to make a new one.';
@@ -86,9 +89,8 @@ const compress = async (contents: ArrayBuffer) => {
   if (!isCompressionSupported()) throw new Error(sharingUnavailable);
   if (contents.byteLength > SHARE_LINK_MAX_DECODED_BYTES)
     throw new Error(decodedContentTooLarge);
-  return readStream(
-    new Blob([contents]).stream().pipeThrough(new CompressionStream('gzip'))
-  );
+  const compressed = await compressShareBytes(contents);
+  return compressed;
 };
 
 export const getGpxShareLinkUnavailableReason = (file: File) => {
@@ -118,7 +120,7 @@ export const encodeGpxShareLink = async (
   baseUrl: string
 ) => {
   const compressed = await compress(contents);
-  const link = `${baseUrl}${prefix}${version}.${toBase64Url(new Uint8Array(compressed))}`;
+  const link = `${baseUrl}${prefix}${version}.${toBase64Url(compressed)}`;
   if (link.length > SHARE_LINK_MAX_URL_LENGTH) throw new Error(linkTooLong);
   return link;
 };
@@ -130,18 +132,28 @@ export const decodeGpxShareLink = async (fragment: string) => {
     .slice(prefix.length)
     .split('.');
 
-  if (payloadVersion !== version) throw new Error(unknownVersion);
+  if (payloadVersion !== 'v1' && payloadVersion !== version)
+    throw new Error(unknownVersion);
   if (!encoded || rest.length) throw new Error(damagedLink);
   if (!isCompressionSupported()) throw new Error(sharingUnavailable);
   let decoded: ArrayBuffer;
 
   try {
-    decoded = await readStream(
-      new Blob([fromBase64Url(encoded)])
-        .stream()
-        .pipeThrough(new DecompressionStream('gzip')),
-      SHARE_LINK_MAX_DECODED_BYTES
-    );
+    const compressed = fromBase64Url(encoded);
+
+    decoded =
+      payloadVersion === 'v1'
+        ? await readStream(
+            new Blob([compressed])
+              .stream()
+              .pipeThrough(new DecompressionStream('gzip')),
+            SHARE_LINK_MAX_DECODED_BYTES
+          )
+        : await decompressBrotli(
+            compressed,
+            SHARE_LINK_MAX_DECODED_BYTES,
+            decodedContentTooLarge
+          );
   } catch (error) {
     if (error instanceof Error && error.message === decodedContentTooLarge)
       throw error;
