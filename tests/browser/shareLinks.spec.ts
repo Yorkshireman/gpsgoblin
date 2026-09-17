@@ -15,6 +15,7 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
     context = await browser.newContext({
       permissions: ['clipboard-read', 'clipboard-write']
     });
+
     await context.addInitScript(() => {
       Object.defineProperty(navigator, 'share', { value: undefined });
       Object.defineProperty(navigator, 'clipboard', {
@@ -25,33 +26,43 @@ test.describe('when someone copies a share link for an opened GPX file', () => {
         }
       });
     });
+
     await blockExternalTiles(context);
-    page = await context.newPage();
     outbound = [];
+    page = await context.newPage();
+
     page.on('request', (request) => {
       if (new URL(request.url()).origin !== baseURL) {
         outbound.push(request.url());
       }
     });
+
     await page.goto('/tools/gpx-file-viewer.html');
     await page.getByLabel('GPX file', { exact: true }).setInputFiles({
-      name: 'private-name.gpx',
+      buffer: Buffer.from(fixture),
       mimeType: 'application/gpx+xml',
-      buffer: Buffer.from(fixture)
+      name: 'private-name.gpx'
     });
+
     const share = page.getByRole('button', { name: 'Share GPX file' });
+
     await expect(share).toBeEnabled();
     await expect(share).toBeInViewport();
     await share.click();
+
     const confirmation = page.getByRole('dialog');
+
     await expect(confirmation).toContainText(
       'Sending it is like sending the file itself.'
     );
     await expect(confirmation).toBeInViewport();
+
     const copyLink = page.getByRole('button', { name: 'Copy link' });
+
     await expect(copyLink).toBeInViewport();
     await copyLink.click();
     await expect(page.getByText('Share link copied.')).toBeInViewport();
+
     link =
       (await page.evaluate(() => sessionStorage.getItem('shared-link'))) ?? '';
   });
@@ -125,22 +136,27 @@ test.describe('when a file is too large to share', () => {
         : undefined;
     target = touchContext ? await touchContext.newPage() : page;
     if (touchContext) await blockExternalTiles(touchContext);
+
     await target.goto(
       touchContext
         ? `${baseURL}/tools/gpx-file-viewer.html`
         : '/tools/gpx-file-viewer.html'
     );
+
     await target.getByLabel('GPX file', { exact: true }).setInputFiles({
-      name: 'large-route.gpx',
-      mimeType: 'application/gpx+xml',
       buffer: Buffer.from(
         `<gpx version="1.1"><wpt lat="53.8" lon="-1.5"><name>Large share fixture</name></wpt><!--${'x'.repeat(8_000_001)}--></gpx>`
-      )
+      ),
+      mimeType: 'application/gpx+xml',
+      name: 'large-route.gpx'
     });
+
     await expect(
       target.getByText('Large share fixture', { exact: true })
     ).toBeVisible();
+
     const share = target.getByRole('button', { name: 'Sharing unavailable' });
+
     await expect(share).toHaveAttribute('aria-disabled', 'true');
     if (touchContext) await share.tap();
     else await share.hover();

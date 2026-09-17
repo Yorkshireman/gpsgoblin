@@ -12,28 +12,28 @@ import { GpxShareButton } from '../sharing';
 
 type GpxFileControlsProps = Readonly<{
   canClear: boolean;
-  showDropzone: boolean;
-  isLoading: boolean;
   filename?: string;
-  onReset?: () => void;
-  onClear: () => void;
+  isLoading: boolean;
   onCancel: () => void;
+  onClear: () => void;
+  onReset?: () => void;
   share?: Readonly<{
-    unavailableReason?: string;
     createLink: () => Promise<string>;
     onNotice: (notice: string) => void;
+    unavailableReason?: string;
   }>;
+  showDropzone: boolean;
 }>;
 
 export const GpxFileControls = ({
   canClear,
-  showDropzone,
-  isLoading,
   filename,
-  onReset,
-  onClear,
+  isLoading,
   onCancel,
-  share
+  onClear,
+  onReset,
+  share,
+  showDropzone
 }: GpxFileControlsProps) => {
   const chooser = useRef<HTMLButtonElement>(null);
 
@@ -54,17 +54,17 @@ export const GpxFileControls = ({
           </FileUpload.DropzoneContent>
         </FileUpload.Dropzone>
       ) : null}
-      <Flex gap={2} align="center" wrap="wrap" width="full">
+      <Flex align="center" gap={2} width="full" wrap="wrap">
         {filename ? (
           <Text
+            flex={{ base: '1 1 100%', md: '1 1 6rem' }}
             fontWeight="medium"
             minW={0}
-            title={filename}
-            flex={{ base: '1 1 100%', md: '1 1 6rem' }}
-            whiteSpace={{ base: 'normal', md: 'nowrap' }}
             overflow={{ base: 'visible', md: 'hidden' }}
-            textOverflow={{ base: 'clip', md: 'ellipsis' }}
             overflowWrap="anywhere"
+            textOverflow={{ base: 'clip', md: 'ellipsis' }}
+            title={filename}
+            whiteSpace={{ base: 'normal', md: 'nowrap' }}
           >
             {filename}
           </Text>
@@ -77,11 +77,11 @@ export const GpxFileControls = ({
         {share ? <GpxShareButton {...share} /> : null}
         {onReset ? (
           <Button
-            type="button"
-            variant="outline"
             colorPalette="orange"
             disabled={isLoading}
             onClick={onReset}
+            type="button"
+            variant="outline"
           >
             Reset view
           </Button>
@@ -89,13 +89,13 @@ export const GpxFileControls = ({
         {canClear ? (
           <Button
             colorPalette="gray"
-            type="button"
-            variant="outline"
             onClick={() => {
               onClear();
               chooser.current?.focus();
               return;
             }}
+            type="button"
+            variant="outline"
           >
             Clear file
           </Button>
@@ -108,13 +108,13 @@ export const GpxFileControls = ({
             <Alert.Title>Opening GPX file</Alert.Title>
           </Alert.Content>
           <Button
-            type="button"
-            variant="outline"
             onClick={() => {
               onCancel();
               chooser.current?.focus();
               return;
             }}
+            type="button"
+            variant="outline"
           >
             Cancel import
           </Button>

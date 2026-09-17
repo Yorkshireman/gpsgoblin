@@ -2,9 +2,9 @@ import { Button, Dialog, Portal, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useState } from 'react';
 
 type GpxShareButtonProps = Readonly<{
-  unavailableReason?: string;
   createLink: () => Promise<string>;
   onNotice: (notice: string) => void;
+  unavailableReason?: string;
 }>;
 
 const copyLink = async (link: string) => {
@@ -25,14 +25,15 @@ const copyLink = async (link: string) => {
 };
 
 export const GpxShareButton = ({
-  unavailableReason,
   createLink,
-  onNotice
+  onNotice,
+  unavailableReason
 }: GpxShareButtonProps) => {
-  const [open, setOpen] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [open, setOpen] = useState(false);
   const [unavailableTooltipOpen, setUnavailableTooltipOpen] = useState(false);
+
   const useShareSheet =
     Boolean(navigator.share) && window.matchMedia('(max-width: 767px)').matches;
   const actionLabel = useShareSheet ? 'Share link' : 'Copy link';
@@ -95,23 +96,23 @@ export const GpxShareButton = ({
 
   const shareControl = unavailableReason ? (
     <Tooltip.Root
-      open={unavailableTooltipOpen}
-      positioning={{ placement: 'bottom' }}
       onOpenChange={(details) => {
         setUnavailableTooltipOpen(details.open);
       }}
+      open={unavailableTooltipOpen}
+      positioning={{ placement: 'bottom' }}
     >
       <Tooltip.Trigger asChild>
         <Button
           aria-disabled="true"
           aria-label="Sharing unavailable"
           cursor="not-allowed"
-          opacity="0.5"
-          type="button"
-          variant="outline"
           onClick={() => {
             setUnavailableTooltipOpen(true);
           }}
+          opacity="0.5"
+          type="button"
+          variant="outline"
         >
           {icon}
         </Button>
@@ -132,13 +133,13 @@ export const GpxShareButton = ({
 
   return (
     <Dialog.Root
-      open={open}
-      placement="center"
       motionPreset="none"
       onOpenChange={(details) => {
         setOpen(details.open);
         if (!details.open) setCopyError(false);
       }}
+      open={open}
+      placement="center"
     >
       {shareControl}
       <Portal>

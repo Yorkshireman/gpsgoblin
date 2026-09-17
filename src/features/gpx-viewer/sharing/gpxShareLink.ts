@@ -1,19 +1,19 @@
-export const SHARE_LINK_MAX_URL_LENGTH = 192_000;
 export const SHARE_LINK_MAX_DECODED_BYTES = 8_000_000;
+export const SHARE_LINK_MAX_URL_LENGTH = 192_000;
 
 const prefix = '#gpx-share=';
 const version = 'v1';
 
-const sharingUnavailable =
-  'This browser cannot create share links. You can still send the GPX file itself.';
 const damagedLink =
   'This share link is damaged. Ask the sender to make a new one.';
-const unknownVersion = 'This shared file uses a newer link format.';
-const linkTooLong =
-  'This share link is too long to open safely. Ask the sender to share the file another way.';
 const decodedContentTooLarge =
   'This shared file is too large to open safely. Ask the sender to share the file another way.';
 const fileTooBigToShare = 'File too big to share.';
+const linkTooLong =
+  'This share link is too long to open safely. Ask the sender to share the file another way.';
+const sharingUnavailable =
+  'This browser cannot create share links. You can still send the GPX file itself.';
+const unknownVersion = 'This shared file uses a newer link format.';
 
 const isCompressionSupported = () => {
   return (
@@ -49,8 +49,8 @@ const readStream = async (
   stream: ReadableStream<Uint8Array>,
   limit?: number
 ) => {
-  const reader = stream.getReader();
   const chunks: Uint8Array[] = [];
+  const reader = stream.getReader();
   let size = 0;
   try {
     while (true) {

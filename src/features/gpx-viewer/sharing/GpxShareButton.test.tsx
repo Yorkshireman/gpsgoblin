@@ -22,15 +22,17 @@ afterEach(() => {
 
 describe('when a phone user opens the sharing confirmation', () => {
   const link = 'https://gpsgoblin.com/#gpx-share=v1.test';
-  let user: ReturnType<typeof userEvent.setup>;
   let createLink: jest.Mock<Promise<string>, []>;
-  let share: jest.Mock<Promise<void>, []>;
   let onNotice: jest.Mock;
+  let share: jest.Mock<Promise<void>, []>;
+  let user: ReturnType<typeof userEvent.setup>;
 
   beforeEach(async () => {
     user = userEvent.setup();
+
     createLink = jest.fn().mockResolvedValue(link);
     share = jest.fn().mockResolvedValue(undefined);
+
     Object.defineProperty(navigator, 'share', {
       configurable: true,
       value: share
@@ -38,6 +40,7 @@ describe('when a phone user opens the sharing confirmation', () => {
     jest
       .spyOn(window, 'matchMedia')
       .mockReturnValue({ matches: true } as MediaQueryList);
+
     onNotice = renderButton(createLink);
 
     await user.click(screen.getByRole('button', { name: 'Share GPX file' }));
@@ -77,8 +80,8 @@ describe('when sharing is unavailable', () => {
       <ChakraProvider value={defaultSystem}>
         <GpxShareButton
           createLink={jest.fn()}
-          unavailableReason="File too big to share."
           onNotice={jest.fn()}
+          unavailableReason="File too big to share."
         />
       </ChakraProvider>
     );
@@ -98,17 +101,19 @@ describe('when sharing is unavailable', () => {
 
 describe('when a desktop user confirms sharing', () => {
   const link = 'https://gpsgoblin.com/#gpx-share=v1.test';
-  let user: ReturnType<typeof userEvent.setup>;
   let createLink: jest.Mock<Promise<string>, []>;
-  let share: jest.Mock<Promise<void>, []>;
-  let writeText: jest.Mock<Promise<void>, [string]>;
   let onNotice: jest.Mock;
+  let share: jest.Mock<Promise<void>, []>;
+  let user: ReturnType<typeof userEvent.setup>;
+  let writeText: jest.Mock<Promise<void>, [string]>;
 
   beforeEach(async () => {
     user = userEvent.setup();
+
     createLink = jest.fn().mockResolvedValue(link);
     share = jest.fn().mockResolvedValue(undefined);
     writeText = jest.fn().mockResolvedValue(undefined);
+
     Object.defineProperty(navigator, 'share', {
       configurable: true,
       value: share
@@ -117,6 +122,7 @@ describe('when a desktop user confirms sharing', () => {
       configurable: true,
       value: { writeText }
     });
+
     onNotice = renderButton(createLink);
 
     await user.click(screen.getByRole('button', { name: 'Share GPX file' }));

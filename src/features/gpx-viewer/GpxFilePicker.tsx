@@ -50,10 +50,10 @@ export const GpxFilePicker = ({
   const document = workspace?.document;
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<SelectedGpxItem>();
-  const [sourceFile, setSourceFile] = useState<File>();
   const [share, setShare] = useState<{
     unavailableReason?: string;
   }>();
+  const [sourceFile, setSourceFile] = useState<File>();
   const activeImport = useRef<AbortController | undefined>(undefined);
   const activeMeasurements = useRef<MeasurementSession | undefined>(undefined);
   const sharePreparation = useRef(0);
@@ -80,7 +80,9 @@ export const GpxFilePicker = ({
       setShare({ unavailableReason });
       return;
     }
+
     setShare({ unavailableReason: 'Preparing a share link…' });
+
     try {
       const linkUnavailableReason =
         await getGpxShareLinkLengthUnavailableReason(
@@ -95,6 +97,7 @@ export const GpxFilePicker = ({
         );
     } catch (error) {
       if (sharePreparation.current !== preparation) return;
+
       setShare({
         unavailableReason:
           error instanceof Error
@@ -108,11 +111,14 @@ export const GpxFilePicker = ({
   const openFile = useCallback(
     async (file: File, successNotice?: string) => {
       cancelPending();
+
       const controller = new AbortController();
       activeImport.current = controller;
+
       setIsLoading(true);
       setError(undefined);
       setNotice(undefined);
+
       try {
         const result = await openGpxFile(file, controller.signal);
         if (activeImport.current !== controller || controller.signal.aborted) {
@@ -125,6 +131,7 @@ export const GpxFilePicker = ({
         }
         activeMeasurements.current?.dispose();
         activeMeasurements.current = result.measurements;
+
         setWorkspace((previous) => {
           return {
             document: result.document,
@@ -132,9 +139,11 @@ export const GpxFilePicker = ({
             revision: (previous?.revision ?? 0) + 1
           };
         });
+
         setFilename(file.name);
-        setSourceFile(file);
         setSelectedItem(initialItem(result.document));
+        setSourceFile(file);
+
         void prepareShareAvailability(file);
         if (successNotice) setNotice(successNotice);
         return true;
@@ -168,15 +177,18 @@ export const GpxFilePicker = ({
     sharedImportAttempted.current = true;
     const fragment = window.location.hash;
     if (!fragment.startsWith('#gpx-share=')) return;
+
     const openSharedFile = async () => {
       try {
         const contents = await decodeGpxShareLink(fragment);
+
         const opened = await openFile(
           new File([contents], 'shared-route.gpx', {
             type: 'application/gpx+xml'
           }),
           'Shared GPX file opened.'
         );
+
         if (opened)
           window.history.replaceState(
             window.history.state,
@@ -191,6 +203,7 @@ export const GpxFilePicker = ({
         );
       }
     };
+
     void openSharedFile();
   }, [openFile]);
 
@@ -211,10 +224,10 @@ export const GpxFilePicker = ({
     activeMeasurements.current = undefined;
     setWorkspace(undefined);
     setFilename(undefined);
-    setSourceFile(undefined);
     setSelectedItem(undefined);
     sharePreparation.current += 1;
     setShare(undefined);
+    setSourceFile(undefined);
     setError(undefined);
     setNotice('File closed.');
     return;
@@ -249,19 +262,19 @@ export const GpxFilePicker = ({
       accept={{ 'application/gpx+xml': ['.gpx'], 'application/xml': ['.gpx'] }}
       // The picker is transient; only successful imports become workspace data.
       acceptedFiles={[]}
+      bg={document ? undefined : 'bg'}
+      borderColor="border.subtle"
+      borderWidth={document ? 0 : '1px'}
       colorPalette="green"
+      gap={3}
+      maxFiles={1}
+      maxW={document ? 'full' : '2xl'}
       onFileAccept={handleFileAccept}
       onFileReject={handleFileReject}
       onDropCapture={handleDropCapture}
-      maxFiles={1}
-      width="full"
-      maxW={document ? 'full' : '2xl'}
-      bg={document ? undefined : 'bg'}
       p={document ? 0 : { base: 3, md: 5 }}
-      borderWidth={document ? 0 : '1px'}
-      borderColor="border.subtle"
       rounded="xl"
-      gap={3}
+      width="full"
     >
       {!document ? (
         <Stack gap={3} maxW="prose">
@@ -272,17 +285,16 @@ export const GpxFilePicker = ({
         </Stack>
       ) : null}
       <GpxFileControls
-        filename={filename}
-        showDropzone={!document && !isLoading && !error}
         canClear={Boolean(document || error || isLoading)}
+        filename={filename}
         isLoading={isLoading}
-        onReset={workspace ? resetView : undefined}
-        onClear={clearFile}
         onCancel={() => {
           cancelPending();
           setNotice('Import cancelled.');
           return;
         }}
+        onClear={clearFile}
+        onReset={workspace ? resetView : undefined}
         share={
           document
             ? {
@@ -301,6 +313,7 @@ export const GpxFilePicker = ({
               }
             : undefined
         }
+        showDropzone={!document && !isLoading && !error}
       />
       {notice ? (
         <Text role="status" fontSize="sm">
@@ -321,10 +334,10 @@ export const GpxFilePicker = ({
       ) : null}
       {workspace ? (
         <GpxDocumentResults
-          key={workspace.revision}
           document={workspace.document}
-          measurements={workspace.measurements}
           filename={filename}
+          key={workspace.revision}
+          measurements={workspace.measurements}
           onItemChange={setSelectedItem}
           selectedItem={selectedItem}
         >
