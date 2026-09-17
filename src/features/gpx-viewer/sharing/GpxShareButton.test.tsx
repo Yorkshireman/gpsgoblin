@@ -30,6 +30,9 @@ it('waits for the confirmation before creating a link and uses the platform shar
     configurable: true,
     value: share
   });
+  jest
+    .spyOn(window, 'matchMedia')
+    .mockReturnValue({ matches: true } as MediaQueryList);
   const onNotice = renderButton(createLink);
 
   await user.click(screen.getByRole('button', { name: 'Share GPX file' }));
@@ -61,4 +64,31 @@ it('keeps the share button visible and explains when sharing is unavailable', ()
   );
 
   expect(screen.getByRole('button', { name: 'Share GPX file' })).toBeDisabled();
+});
+
+it('copies the link on desktop even when the browser exposes a share sheet', async () => {
+  const user = userEvent.setup();
+  const createLink = jest
+    .fn()
+    .mockResolvedValue('https://gpsgoblin.com/#gpx-share=v1.test');
+  const share = jest.fn().mockResolvedValue(undefined);
+  const writeText = jest.fn().mockResolvedValue(undefined);
+  Object.defineProperty(navigator, 'share', {
+    configurable: true,
+    value: share
+  });
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: { writeText }
+  });
+  const onNotice = renderButton(createLink);
+
+  await user.click(screen.getByRole('button', { name: 'Share GPX file' }));
+  await user.click(screen.getByRole('button', { name: 'Copy link' }));
+
+  expect(writeText).toHaveBeenCalledWith(
+    'https://gpsgoblin.com/#gpx-share=v1.test'
+  );
+  expect(share).not.toHaveBeenCalled();
+  expect(onNotice).toHaveBeenCalledWith('Share link copied.');
 });

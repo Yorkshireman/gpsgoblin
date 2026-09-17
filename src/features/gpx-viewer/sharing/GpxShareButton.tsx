@@ -32,6 +32,9 @@ export const GpxShareButton = ({
   const [open, setOpen] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const useShareSheet =
+    Boolean(navigator.share) && window.matchMedia('(max-width: 767px)').matches;
+  const actionLabel = useShareSheet ? 'Share link' : 'Copy link';
 
   const share = async () => {
     setCopyError(false);
@@ -44,7 +47,7 @@ export const GpxShareButton = ({
       setIsSharing(false);
       return;
     }
-    if (navigator.share) {
+    if (useShareSheet && navigator.share) {
       try {
         await navigator.share({ title: 'Shared GPX file', url: link });
         setOpen(false);
@@ -146,7 +149,7 @@ export const GpxShareButton = ({
                 </Button>
               </Dialog.CloseTrigger>
               <Button disabled={isSharing} type="button" onClick={share}>
-                {isSharing ? 'Creating link…' : 'Share link'}
+                {isSharing ? 'Creating link…' : actionLabel}
               </Button>
             </Dialog.Footer>
           </Dialog.Content>

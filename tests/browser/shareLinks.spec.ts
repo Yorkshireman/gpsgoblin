@@ -41,9 +41,9 @@ test('shares a GPX file from a fragment link without sending its contents outbou
     'Sending it is like sending the file itself.'
   );
   await expect(confirmation).toBeInViewport();
-  const shareLink = page.getByRole('button', { name: 'Share link' });
-  await expect(shareLink).toBeInViewport();
-  await shareLink.click();
+  const copyLink = page.getByRole('button', { name: 'Copy link' });
+  await expect(copyLink).toBeInViewport();
+  await copyLink.click();
   await expect(page.getByText('Share link copied.')).toBeInViewport();
   const link = await page.evaluate(() => sessionStorage.getItem('shared-link'));
   if (!link) throw new Error('Expected the copied share link.');
@@ -91,7 +91,7 @@ test('keeps Share visible and explains why an oversized file cannot use a link',
     name: 'large-route.gpx',
     mimeType: 'application/gpx+xml',
     buffer: Buffer.from(
-      `<gpx version="1.1"><wpt lat="53.8" lon="-1.5"><name>Large share fixture</name></wpt><!--${'x'.repeat(1_000_001)}--></gpx>`
+      `<gpx version="1.1"><wpt lat="53.8" lon="-1.5"><name>Large share fixture</name></wpt><!--${'x'.repeat(8_000_001)}--></gpx>`
     )
   });
   await expect(

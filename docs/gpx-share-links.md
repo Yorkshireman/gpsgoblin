@@ -6,10 +6,10 @@ that loads the viewer.
 
 The initial limits are deliberately conservative:
 
-| Constraint          |             Limit | Purpose                                                          |
-| ------------------- | ----------------: | ---------------------------------------------------------------- |
-| Complete URL length | 48,000 characters | Keep copied links below the common 64 KB compatibility boundary. |
-| Decoded GPX content |   1,000,000 bytes | Bound decompression work before the normal GPX import begins.    |
+| Constraint          |              Limit | Purpose                                                                       |
+| ------------------- | -----------------: | ----------------------------------------------------------------------------- |
+| Complete URL length | 192,000 characters | Leave a substantial compatibility margin while admitting ordinary recordings. |
+| Decoded GPX content |    8,000,000 bytes | Bound decompression work before the normal GPX import begins.                 |
 
 These are sharing limits only. They do not restrict opening a GPX file through
 the normal picker. Compression is checked before the Share button becomes
@@ -23,6 +23,7 @@ browser work before the normal importer starts.
 
 The limits have focused codec coverage for valid round trips, damaged data,
 unknown versions, URL length and decoded-content size. Local byte-level checks
-against the ignored `private-recordings/` files confirmed that a 223 KB recording
-fits the URL limit, while two 2–5 MB recordings are rejected by the decoded-size
-limit. Those recordings remain uncommitted.
+against the ignored `private-recordings/` files confirmed that the 223 KB and
+2.06 MB recordings fit the link limits. The 4.68 MB recording fits the decoded
+limit but its compressed URL exceeds the URL limit, so it remains available for
+direct file sharing. Those recordings remain uncommitted.

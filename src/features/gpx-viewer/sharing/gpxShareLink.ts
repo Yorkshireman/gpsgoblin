@@ -1,5 +1,5 @@
-export const SHARE_LINK_MAX_URL_LENGTH = 48_000;
-export const SHARE_LINK_MAX_DECODED_BYTES = 1_000_000;
+export const SHARE_LINK_MAX_URL_LENGTH = 192_000;
+export const SHARE_LINK_MAX_DECODED_BYTES = 8_000_000;
 
 const prefix = '#gpx-share=';
 const version = 'v1';
