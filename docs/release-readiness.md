@@ -16,14 +16,14 @@ record. It does not ask for the owner-reported checks below to be repeated.
 
 ## Release gates
 
-| Gate | Evidence and remaining boundary |
-| --- | --- |
-| O2 basemap | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Six real tile requests on workers.dev passed with the expected origin-only referrer. The owner confirmed the map works on the public domain; public-host automated tests blocked tiles, so that evidence does not establish a new public-host tile-referrer sample. |
-| O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages. |
-| O4 | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified. |
-| O5 | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Contact optional and indefinitely deferred**. Public-host hydration/security/privacy checks passed with synthetic activity canaries; see cutover evidence below. |
-| Actual hosts | Public apex HTTPS, root/nested routes, canonical/indexing and privacy checks passed; the default workers.dev URL is disabled and preview noindex remains verified. Apex and www HTTP redirect to the canonical HTTPS origin while preserving path/query. PRs #20/#21 are merged and production builds use master; non-production branch previews remain enabled. |
-| O6–O11 | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification. |
+| Gate            | Evidence and remaining boundary                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| O2 basemap      | Resolved supplier choice: [basemap assessment](basemap.md). Synthetic tile success, failure and local route fallback are exercised. Six real tile requests on workers.dev passed with the expected origin-only referrer. The owner confirmed the map works on the public domain; public-host automated tests blocked tiles, so that evidence does not establish a new public-host tile-referrer sample.                                                                    |
+| O3, GPX portion | ISC-licensed saxes 6.0.0; GPX 1.1 tracks, routes and waypoints, explicit rejection and extension policy in [GPX support](gpx-support.md). [Fixture provenance](../tests/fixtures/gpx/README.md) distinguishes synthetic, sanitised Strava and Bikerouter examples. FIT/TCX remain later stages.                                                                                                                                                                            |
+| O4              | [Large-file evidence](large-file-support.md) and the public limitations page distinguish desktop engines and emulated phones from physical devices. The owner confirmed the basic workflow on an iPhone 16 Pro Max in Brave; see the physical-device check below. Broader device coverage and measured physical-phone performance remain unverified.                                                                                                                       |
+| O5              | Local and workers.dev header/CSP/privacy checks passed. [Hosting assessment](hosting-privacy.md) records disabled Worker logs/traces, no bindings and owner-provided evidence supporting inactive Web Analytics. Ordinary hosting/NEL processing remains disclosed; no fixed retention promise is made. **Contact optional and indefinitely deferred**. Public-host hydration/security/privacy checks passed with synthetic activity canaries; see cutover evidence below. |
+| Actual hosts    | Public apex HTTPS, root/nested routes, canonical/indexing and privacy checks passed; the default workers.dev URL is disabled and preview noindex remains verified. Apex and www HTTP redirect to the canonical HTTPS origin while preserving path/query. PRs #20/#21 are merged and production builds use master; non-production branch previews remain enabled.                                                                                                           |
+| O6–O11          | Analytics and ads remain disabled; later format, merge, comparison and efficiency decisions are outside this Stage 1 verification.                                                                                                                                                                                                                                                                                                                                         |
 
 ## Issue #8 acceptance audit — 14 September 2026
 
@@ -34,16 +34,16 @@ ticket's Pages pipeline maps to the Workers static-export pipeline. Its pages.de
 redirect criterion is not applicable because no Pages project or pages.dev
 deployment ever existed.
 
-| Issue #8 criterion | Result and evidence |
-| --- | --- |
-| Reproducible static-export pipeline | Satisfied for Workers Static Assets. Node 24.20.0, pnpm 12.3.4 and Wrangler 4.131.1 are recorded. The hosting guide now gives the frozen-lockfile install, typecheck, lint, Jest, build, Workers-emulator browser checks, Knip and Wrangler dry-run sequence. Cloudflare's GitHub build settings are recorded there. |
-| Rollback and reviewable candidate | Satisfied. PRs #20/#21 supplied the reviewed release candidate. Cloudflare retains known-good versions, including the tested pre-cutover version `4342ec3a-9cac-4a0b-b833-874d5773ad49`; application and DNS/placeholder rollback paths are distinct and documented in the hosting guide. No rollback was performed as a test. |
-| Publication authorization | Satisfied. Issue #7 records the owner's explicit deployment authorization, Free-plan selection, DNS changes, custom-domain attachment and final production-build-branch change. Issue creation alone was not treated as authorization. |
+| Issue #8 criterion                           | Result and evidence                                                                                                                                                                                                                                                                                                                                  |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Reproducible static-export pipeline          | Satisfied for Workers Static Assets. Node 24.20.0, pnpm 12.3.4 and Wrangler 4.131.1 are recorded. The hosting guide now gives the frozen-lockfile install, typecheck, lint, Jest, build, Workers-emulator browser checks, Knip and Wrangler dry-run sequence. Cloudflare's GitHub build settings are recorded there.                                 |
+| Rollback and reviewable candidate            | Satisfied. PRs #20/#21 supplied the reviewed release candidate. Cloudflare retains known-good versions, including the tested pre-cutover version `4342ec3a-9cac-4a0b-b833-874d5773ad49`; application and DNS/placeholder rollback paths are distinct and documented in the hosting guide. No rollback was performed as a test.                       |
+| Publication authorization                    | Satisfied. Issue #7 records the owner's explicit deployment authorization, Free-plan selection, DNS changes, custom-domain attachment and final production-build-branch change. Issue creation alone was not treated as authorization.                                                                                                               |
 | Production deployment and real-file workflow | Satisfied. The apex cutover deployed version `d32d4f69-5a85-40da-8991-105d1ce8c7f3`; the owner confirmed the public viewer's summary, chart and map on their phone. Earlier owner-reported phone and desktop import/inspect/replace/clear checks remain valid with their stated browser/version, recording, performance and observation limitations. |
-| Branding, metadata and indexing | Satisfied. Public root, viewer, privacy and limitations returned 200; canonical/Open Graph metadata, sitemap entries and the robots sitemap reference use `https://gpsgoblin.com`; production had no noindex. GPSGoblin branding was covered by the released candidate and discovery review. |
-| pages.dev redirects | Not applicable under the approved architecture. No Pages project or pages.dev deployment exists. The actual alternate public hostname, `www.gpsgoblin.com`, redirects to the canonical HTTPS apex with nested path and query preserved; apex HTTP upgrades with a 308 and www uses a 301. |
-| Preview noindex | Satisfied. The immutable version preview and branch alias returned 200 with `X-Robots-Tag: noindex`; the default production workers.dev route returned 404 after cutover. Preview usability, direct nested routes and hosted browser workflows were verified independently of production. |
-| Evidence, limitations and Stage 1 scope | Satisfied by this record and its linked hosting/privacy/support documents. O2, GPX-relevant O3, O4 and O5 passed within their recorded boundaries. Later formats and Stages 2–6 remain outside this release; no broader device, assistive-technology, retention, telemetry or performance claim is inferred. |
+| Branding, metadata and indexing              | Satisfied. Public root, viewer, privacy and limitations returned 200; canonical/Open Graph metadata, sitemap entries and the robots sitemap reference use `https://gpsgoblin.com`; production had no noindex. GPSGoblin branding was covered by the released candidate and discovery review.                                                         |
+| pages.dev redirects                          | Not applicable under the approved architecture. No Pages project or pages.dev deployment exists. The actual alternate public hostname, `www.gpsgoblin.com`, redirects to the canonical HTTPS apex with nested path and query preserved; apex HTTP upgrades with a 308 and www uses a 301.                                                            |
+| Preview noindex                              | Satisfied. The immutable version preview and branch alias returned 200 with `X-Robots-Tag: noindex`; the default production workers.dev route returned 404 after cutover. Preview usability, direct nested routes and hosted browser workflows were verified independently of production.                                                            |
+| Evidence, limitations and Stage 1 scope      | Satisfied by this record and its linked hosting/privacy/support documents. O2, GPX-relevant O3, O4 and O5 passed within their recorded boundaries. Later formats and Stages 2–6 remain outside this release; no broader device, assistive-technology, retention, telemetry or performance claim is inferred.                                         |
 
 The deployed artifact is `out/`, not the repository root or `.next/`. The verified
 build produced six HTML files and generated seven inline-script hashes. Issue #8's
@@ -54,17 +54,17 @@ commit and its Cloudflare check identify the deployed release.
 
 Completion verification on Node 24.20.0 and pnpm 12.3.4 passed:
 
-| Command | Issue #8 result |
-| --- | --- |
-| `pnpm install --frozen-lockfile` | Passed; lockfile current, 828 packages restored from the pnpm store |
-| `pnpm tsc --incremental false` | Passed |
-| `pnpm lint` | Passed |
-| `pnpm test --runInBand --silent` | 176 passed in 15 suites |
-| `pnpm build` | Passed; six HTML files and seven inline-script hashes generated |
-| `pnpm test:browser:hosting --workers=2` | 12 passed across desktop/mobile Chrome projects against the local Workers emulator |
-| `pnpm knip` | Passed with no findings |
+| Command                                         | Issue #8 result                                                                           |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile`                | Passed; lockfile current, 828 packages restored from the pnpm store                       |
+| `pnpm tsc --incremental false`                  | Passed                                                                                    |
+| `pnpm lint`                                     | Passed                                                                                    |
+| `pnpm test --runInBand --silent`                | 176 passed in 15 suites                                                                   |
+| `pnpm build`                                    | Passed; six HTML files and seven inline-script hashes generated                           |
+| `pnpm test:browser:hosting --workers=2`         | 12 passed across desktop/mobile Chrome projects against the local Workers emulator        |
+| `pnpm knip`                                     | Passed with no findings                                                                   |
 | `WRANGLER_SEND_METRICS=false pnpm deploy:check` | Passed; Wrangler 4.131.1 read 76 asset entries, found no bindings and performed no upload |
-| `git diff --check` | Passed |
+| `git diff --check`                              | Passed                                                                                    |
 
 The rebuilt `out/` measured 9.3 MB with 64 files. It contained `_headers`, no
 `.next` or cache directory, and remained ignored by Git. These checks add fresh
@@ -127,14 +127,14 @@ remain indefinitely deferred.
 The owner confirmed the following on the deployed workers.dev testing site in
 Brave with Shields enabled, following deployment of commit `5d13b06`:
 
-| Interaction | Reported result |
-| --- | --- |
-| Open the HTTPS testing URL with Shields enabled | Site loaded successfully. |
-| Load a GPX recording | Summary, chart and map background appeared correctly. |
-| Click a chart point | Details appeared and the map marked the corresponding location. |
-| Close the blue details box | Details disappeared and the selected-point marker cleared from the chart and map. |
-| Change GPX file to a different recording | Summary, chart and map updated to the new recording. |
-| Clear file | Summary, chart and map disappeared and the file chooser returned. |
+| Interaction                                     | Reported result                                                                   |
+| ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| Open the HTTPS testing URL with Shields enabled | Site loaded successfully.                                                         |
+| Load a GPX recording                            | Summary, chart and map background appeared correctly.                             |
+| Click a chart point                             | Details appeared and the map marked the corresponding location.                   |
+| Close the blue details box                      | Details disappeared and the selected-point marker cleared from the chart and map. |
+| Change GPX file to a different recording        | Summary, chart and map updated to the new recording.                              |
+| Clear file                                      | Summary, chart and map disappeared and the file chooser returned.                 |
 
 These are owner-reported step-by-step confirmations, separate from the eight
 agent-run hosted browser checks. The live map-background result adds evidence
@@ -331,27 +331,27 @@ do not replace visual, keyboard, touch or assistive-technology testing.
 Verification on 14 September 2026 used macOS 26.6.2, Node 24.20.0, pnpm 12.3.4
 and Python 3.14.3. All runs served `out/` with the generated headers enforced.
 
-| Browser | Desktop viewport | Emulated phone viewport | Focused workflow/security result |
-| --- | --- | --- | --- |
-| Chrome 153.0.8010.36 | 1280×720 | 390×844, touch | 18 passed |
-| Playwright Firefox 155.0 | 1280×720 | 390×844, touch | 18 passed |
-| Playwright WebKit 26.6 | 1280×720 | 390×844, touch | 18 passed |
+| Browser                  | Desktop viewport | Emulated phone viewport | Focused workflow/security result |
+| ------------------------ | ---------------- | ----------------------- | -------------------------------- |
+| Chrome 153.0.8010.36     | 1280×720         | 390×844, touch          | 18 passed                        |
+| Playwright Firefox 155.0 | 1280×720         | 390×844, touch          | 18 passed                        |
+| Playwright WebKit 26.6   | 1280×720         | 390×844, touch          | 18 passed                        |
 
 The focused matrix covers hydration in both route orders, successful replacement
 and recovery from a real worker error, chart/map coordination, responsive map
 lifecycle, enforced CSP, outbound canaries and the asset scan. These are browser
 engine results on a Mac, not native Safari or physical iOS/Android certification.
 
-| Command | Result |
-| --- | --- |
-| `pnpm test --runInBand --silent` | 176 passed in 15 suites |
-| `pnpm tsc --incremental false` | Passed |
-| `pnpm lint` | Passed |
-| `pnpm knip` | Passed, no findings |
-| `pnpm build` | Passed; six exported HTML files, seven unique inline-script hashes |
-| `PLAYWRIGHT_PORT=4187 pnpm test:browser --workers=2` | 114 passed; 10 conditional skips |
-| `PLAYWRIGHT_PORT=4189 pnpm test:browser:compatibility tests/browser/releaseSecurity.spec.ts tests/browser/measurements.spec.ts tests/browser/measurementReplacement.spec.ts tests/browser/mapLifecycle.spec.ts tests/browser/hydration.spec.ts --output=/private/tmp/gpsgoblin-release-engine-results` | 54 passed |
-| `git diff --check` | Passed |
+| Command                                                                                                                                                                                                                                                                                                | Result                                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `pnpm test --runInBand --silent`                                                                                                                                                                                                                                                                       | 176 passed in 15 suites                                            |
+| `pnpm tsc --incremental false`                                                                                                                                                                                                                                                                         | Passed                                                             |
+| `pnpm lint`                                                                                                                                                                                                                                                                                            | Passed                                                             |
+| `pnpm knip`                                                                                                                                                                                                                                                                                            | Passed, no findings                                                |
+| `pnpm build`                                                                                                                                                                                                                                                                                           | Passed; six exported HTML files, seven unique inline-script hashes |
+| `PLAYWRIGHT_PORT=4187 pnpm test:browser --workers=2`                                                                                                                                                                                                                                                   | 114 passed; 10 conditional skips                                   |
+| `PLAYWRIGHT_PORT=4189 pnpm test:browser:compatibility tests/browser/releaseSecurity.spec.ts tests/browser/measurements.spec.ts tests/browser/measurementReplacement.spec.ts tests/browser/mapLifecycle.spec.ts tests/browser/hydration.spec.ts --output=/private/tmp/gpsgoblin-release-engine-results` | 54 passed                                                          |
+| `git diff --check`                                                                                                                                                                                                                                                                                     | Passed                                                             |
 
 The ten skips are the two operator-disabled-basemap cases (this is an enabled
 build) and eight cases requiring optional private recordings that were not supplied
@@ -432,13 +432,13 @@ hosting or Brave with its default Shields settings.
 
 The owner confirmed each of these results in the conversation:
 
-| Interaction | Reported result |
-| --- | --- |
-| Open a GPX recording from the iPhone | File loaded; distance summary and chart appeared. |
-| Display the map | Map worked. |
-| Tap a chart point, then close its blue details box | Details closed and the point became unselected. |
-| Change to a different GPX recording | New summary and chart appeared; previous selection was cleared. |
-| Clear the file | Summary, chart and map disappeared; Choose GPX file was available again. |
+| Interaction                                        | Reported result                                                          |
+| -------------------------------------------------- | ------------------------------------------------------------------------ |
+| Open a GPX recording from the iPhone               | File loaded; distance summary and chart appeared.                        |
+| Display the map                                    | Map worked.                                                              |
+| Tap a chart point, then close its blue details box | Details closed and the point became unselected.                          |
+| Change to a different GPX recording                | New summary and chart appeared; previous selection was cleared.          |
+| Clear the file                                     | Summary, chart and map disappeared; Choose GPX file was available again. |
 
 These are successful owner-reported basic workflow checks on a physical phone,
 not agent-observed screenshots or automated device tests. iOS/Brave versions,
@@ -489,13 +489,13 @@ The owner tested the updated local production preview on their Mac in Brave,
 following the rotation fix recorded in `c69a83f`. They confirmed each step in
 the conversation:
 
-| Interaction | Reported result |
-| --- | --- |
-| Load a GPX recording | Summary, chart and map appeared correctly. |
-| Click a chart point | Point details appeared and the map marked the corresponding location. |
-| Close the blue details box | Details disappeared and the selected-point marker cleared from the chart and map. |
-| Change GPX file to a different recording | Summary, chart and map updated to the new recording. |
-| Clear file | Summary, chart and map disappeared and the file chooser returned. |
+| Interaction                              | Reported result                                                                   |
+| ---------------------------------------- | --------------------------------------------------------------------------------- |
+| Load a GPX recording                     | Summary, chart and map appeared correctly.                                        |
+| Click a chart point                      | Point details appeared and the map marked the corresponding location.             |
+| Close the blue details box               | Details disappeared and the selected-point marker cleared from the chart and map. |
+| Change GPX file to a different recording | Summary, chart and map updated to the new recording.                              |
+| Clear file                               | Summary, chart and map disappeared and the file chooser returned.                 |
 
 This is successful owner-reported basic workflow evidence, not an agent-observed
 browser session. The exact Brave version, viewport, recording provenance, file
@@ -509,13 +509,13 @@ remaining release gates are unchanged and #7 remains open.
 The owner tested the local production preview on their Mac in Brave following
 commit `57f76bd`, confirming these guided keyboard checks in the conversation:
 
-| Interaction | Reported result |
-| --- | --- |
-| Tab to Choose GPX file, then press Enter | Focus was clearly visible and the file picker opened. |
-| Choose a GPX recording | Recording loaded with the summary, chart and map. |
-| Tab to Position on route, then press Right Arrow | Focus was visible; selected-point details and the map marker updated. |
+| Interaction                                                               | Reported result                                                          |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Tab to Choose GPX file, then press Enter                                  | Focus was clearly visible and the file picker opened.                    |
+| Choose a GPX recording                                                    | Recording loaded with the summary, chart and map.                        |
+| Tab to Position on route, then press Right Arrow                          | Focus was visible; selected-point details and the map marker updated.    |
 | Tab or Shift+Tab to the blue details box's close button, then press Enter | Focus was visible; the box closed and the selected-point marker cleared. |
-| Tab or Shift+Tab to Clear file, then press Enter | Focus was visible and the file chooser returned. |
+| Tab or Shift+Tab to Clear file, then press Enter                          | Focus was visible and the file chooser returned.                         |
 
 These are successful owner-reported checks, not an agent-observed browser session
 or a full keyboard/accessibility audit. Exact Brave version, viewport and recording
@@ -579,7 +579,6 @@ configure its HTTPS redirect to the apex and verify path/query preservation.
 Production Builds still uses feat/7-release-verification; do not select master
 until the reviewed hosting code is merged there. No merge was authorised or
 performed in this cutover follow-up.
-
 
 ### WWW redirect — 14 September 2026
 

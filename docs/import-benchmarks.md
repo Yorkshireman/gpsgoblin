@@ -79,14 +79,14 @@ count is not a reliable measure of activity duration with variable sampling.
 
 Native CPU, ranges across three runs, milliseconds except heap:
 
-| Input | Bytes | Worker → painted | Worker round trip | After delivery → painted | Largest main task | Selection | Page heap MiB |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Complete private recording, 8,142 points | 2,058,874 | 414–472 | 174–192 | 239–280 | 162–169 | 86–102 | 29–33 |
-| Complete sanitised recording, 8,142 points | 944,846 | 354–367 | 116–127 | 238–249 | 161–163 | 79–89 | 27–31 |
-| 10,000 synthetic points | 880,095 | 369–384 | 117–118 | 252–267 | 177–179 | 90–105 | 32–34 |
-| 50,000 synthetic points | 4,400,095 | 1,083–1,128 | 416–446 | 665–682 | 531–558 | 241–273 | 127–132 |
-| 100,000 synthetic points | 8,800,095 | 1,916–1,949 | 758–783 | 1,146–1,191 | 985–1,007 | 431–525 | 251 |
-| 250,000 synthetic points | 22,000,095 | 5,052–5,144 | 1,844–1,892 | 3,208–3,289 | 2,907–2,978 | 1,076–1,095 | 532–537 |
+| Input                                      |      Bytes | Worker → painted | Worker round trip | After delivery → painted | Largest main task |   Selection | Page heap MiB |
+| ------------------------------------------ | ---------: | ---------------: | ----------------: | -----------------------: | ----------------: | ----------: | ------------: |
+| Complete private recording, 8,142 points   |  2,058,874 |          414–472 |           174–192 |                  239–280 |           162–169 |      86–102 |         29–33 |
+| Complete sanitised recording, 8,142 points |    944,846 |          354–367 |           116–127 |                  238–249 |           161–163 |       79–89 |         27–31 |
+| 10,000 synthetic points                    |    880,095 |          369–384 |           117–118 |                  252–267 |           177–179 |      90–105 |         32–34 |
+| 50,000 synthetic points                    |  4,400,095 |      1,083–1,128 |           416–446 |                  665–682 |           531–558 |     241–273 |       127–132 |
+| 100,000 synthetic points                   |  8,800,095 |      1,916–1,949 |           758–783 |              1,146–1,191 |         985–1,007 |     431–525 |           251 |
+| 250,000 synthetic points                   | 22,000,095 |      5,052–5,144 |       1,844–1,892 |              3,208–3,289 |       2,907–2,978 | 1,076–1,095 |       532–537 |
 
 Worker-to-painted totals are the sum of the rounded worker and post-delivery
 stages (up to 1 ms rounding difference from the direct interval). The initial
@@ -95,14 +95,14 @@ used as the start of the reported total.
 
 4× page CPU slowdown, same desktop viewport and three runs:
 
-| Input | Worker → painted ms | Largest main task ms | Selection ms |
-| --- | ---: | ---: | ---: |
-| Complete private recording | 1,178–1,189 | 677–691 | 271–285 |
-| Complete sanitised recording | 1,092–1,099 | 676–681 | 268–297 |
-| 10,000 points | 1,187–1,198 | 734–743 | 305–333 |
-| 50,000 points | 2,942–3,026 | 2,111–2,168 | 964–993 |
-| 100,000 points | 5,265–5,337 | 3,920–3,958 | 1,813–1,869 |
-| 250,000 points | 14,851–14,900 | 11,754–11,864 | 4,307–4,355 |
+| Input                        | Worker → painted ms | Largest main task ms | Selection ms |
+| ---------------------------- | ------------------: | -------------------: | -----------: |
+| Complete private recording   |         1,178–1,189 |              677–691 |      271–285 |
+| Complete sanitised recording |         1,092–1,099 |              676–681 |      268–297 |
+| 10,000 points                |         1,187–1,198 |              734–743 |      305–333 |
+| 50,000 points                |         2,942–3,026 |          2,111–2,168 |      964–993 |
+| 100,000 points               |         5,265–5,337 |          3,920–3,958 |  1,813–1,869 |
+| 250,000 points               |       14,851–14,900 |        11,754–11,864 |  4,307–4,355 |
 
 These pauses are usability failures to address, not acceptable operating limits.
 The file itself remains complete; simply rendering every sample is expensive.
@@ -111,12 +111,12 @@ A separate phone-viewport probe used 390×844 on the same Mac/Chrome, one fresh
 page per case/rate. It changes layout, not device hardware or input capability.
 All four cases opened at native CPU and 4× page slowdown:
 
-| Input | Native worker → painted ms | Native selection ms | 4× worker → painted ms | 4× selection ms |
-| --- | ---: | ---: | ---: | ---: |
-| Complete private recording | 412 | 87 | 1,096 | 273 |
-| Complete sanitised recording | 355 | 80 | 1,055 | 279 |
-| 100,000 points | 1,932 | 484 | 5,244 | 1,809 |
-| 250,000 points | 5,107 | 1,104 | 14,834 | 4,319 |
+| Input                        | Native worker → painted ms | Native selection ms | 4× worker → painted ms | 4× selection ms |
+| ---------------------------- | -------------------------: | ------------------: | ---------------------: | --------------: |
+| Complete private recording   |                        412 |                  87 |                  1,096 |             273 |
+| Complete sanitised recording |                        355 |                  80 |                  1,055 |             279 |
+| 100,000 points               |                      1,932 |                 484 |                  5,244 |           1,809 |
+| 250,000 points               |                      5,107 |               1,104 |                 14,834 |           4,319 |
 
 These measurements do not establish physical-phone performance or touch usability.
 
@@ -127,13 +127,13 @@ process and times the actual parser, structured clone, analysis and chart-data
 conversion. Parser methods are instrumented only in that process; no production
 source files are instrumented. Three runs, milliseconds:
 
-| Input | XML validation | XML DOM construction | Adapter/extraction remainder | Clone | Analysis | Smoothing + display conversion |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Complete private recording | 22–36 | 195–292 | 45–61 | 6 | 7–9 | 3–4 |
-| 10,000 points | 13 | 107–108 | 41–44 | 6–7 | 7–8 | 3–4 |
-| 50,000 points | 49–53 | 493–507 | 199–219 | 32–36 | 36–41 | 7–10 |
-| 100,000 points | 99–104 | 989–1,020 | 411–416 | 62–65 | 79–87 | 12–15 |
-| 250,000 points | 252–261 | 2,547–2,614 | 981–989 | 179–204 | 187–215 | 22–38 |
+| Input                      | XML validation | XML DOM construction | Adapter/extraction remainder |   Clone | Analysis | Smoothing + display conversion |
+| -------------------------- | -------------: | -------------------: | ---------------------------: | ------: | -------: | -----------------------------: |
+| Complete private recording |          22–36 |              195–292 |                        45–61 |       6 |      7–9 |                            3–4 |
+| 10,000 points              |             13 |              107–108 |                        41–44 |     6–7 |      7–8 |                            3–4 |
+| 50,000 points              |          49–53 |              493–507 |                      199–219 |   32–36 |    36–41 |                           7–10 |
+| 100,000 points             |         99–104 |            989–1,020 |                      411–416 |   62–65 |    79–87 |                          12–15 |
+| 250,000 points             |        252–261 |          2,547–2,614 |                      981–989 | 179–204 |  187–215 |                          22–38 |
 
 This is phase isolation, **not Chrome timing**: Node's DOM construction is notably
 slower than the browser worker round trip. Do not add these values to browser

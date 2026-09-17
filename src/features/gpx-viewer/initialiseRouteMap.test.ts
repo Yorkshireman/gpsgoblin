@@ -9,7 +9,10 @@ const mockMap = {
   fitBounds: jest.fn(),
   jumpTo: jest.fn(),
   once: jest.fn<void, [string, () => void]>(),
-  on: jest.fn<void, [string, (event?: { sourceId?: string; isSourceLoaded?: boolean }) => void]>(),
+  on: jest.fn<
+    void,
+    [string, (event?: { sourceId?: string; isSourceLoaded?: boolean }) => void]
+  >(),
   getLayer: jest.fn(),
   getSource: jest.fn(),
   removeLayer: jest.fn(),
@@ -52,8 +55,14 @@ const emitMapLoad = () => {
 
 describe('initialiseRouteMap', () => {
   const originalBasemapDisabled = process.env.NEXT_PUBLIC_BASEMAP_DISABLED;
-  const originalWebGl = Object.getOwnPropertyDescriptor(globalThis, 'WebGLRenderingContext');
-  const originalScroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+  const originalWebGl = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'WebGLRenderingContext'
+  );
+  const originalScroll = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    'scrollIntoView'
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -81,7 +90,11 @@ describe('initialiseRouteMap', () => {
       Reflect.deleteProperty(globalThis, 'WebGLRenderingContext');
     }
     if (originalScroll) {
-      Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalScroll);
+      Object.defineProperty(
+        HTMLElement.prototype,
+        'scrollIntoView',
+        originalScroll
+      );
     } else {
       Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
     }
@@ -95,14 +108,24 @@ describe('initialiseRouteMap', () => {
       const onStatusChange = jest.fn();
       const onBasemapStatusChange = jest.fn();
       const { dispose } = initialiseRouteMap({
-        container: document.createElement('div'), paths: [], routeColor: 'green',
-        onStatusChange, onBasemapStatusChange
+        container: document.createElement('div'),
+        paths: [],
+        routeColor: 'green',
+        onStatusChange,
+        onBasemapStatusChange
       });
-      await waitFor(() => { expect(MapLibreMap).toHaveBeenCalledTimes(1); });
+      await waitFor(() => {
+        expect(MapLibreMap).toHaveBeenCalledTimes(1);
+      });
       emitMapLoad();
       const handleError = () => {
-        mockMap.on.mock.calls.filter(([event]) => { return event === 'error'; })
-          .forEach(([, handler]) => { handler({ sourceId: 'basemap' }); });
+        mockMap.on.mock.calls
+          .filter(([event]) => {
+            return event === 'error';
+          })
+          .forEach(([, handler]) => {
+            handler({ sourceId: 'basemap' });
+          });
         return;
       };
       handleError();
@@ -120,13 +143,21 @@ describe('initialiseRouteMap', () => {
     it('reports disabled backgrounds without adding an external source', async () => {
       const onBasemapStatusChange = jest.fn();
       const { dispose } = initialiseRouteMap({
-        container: document.createElement('div'), paths: [], routeColor: 'green',
+        container: document.createElement('div'),
+        paths: [],
+        routeColor: 'green',
         onBasemapStatusChange
       });
-      await waitFor(() => { expect(MapLibreMap).toHaveBeenCalledTimes(1); });
+      await waitFor(() => {
+        expect(MapLibreMap).toHaveBeenCalledTimes(1);
+      });
       emitMapLoad();
       expect(onBasemapStatusChange).toHaveBeenLastCalledWith('disabled');
-      expect(mockMap.addSource.mock.calls.map(([id]) => { return id; })).toEqual(['route']);
+      expect(
+        mockMap.addSource.mock.calls.map(([id]) => {
+          return id;
+        })
+      ).toEqual(['route']);
       dispose();
     });
 
@@ -136,10 +167,14 @@ describe('initialiseRouteMap', () => {
       try {
         const onBasemapStatusChange = jest.fn();
         const { dispose } = initialiseRouteMap({
-          container: document.createElement('div'), paths: [], routeColor: 'green',
+          container: document.createElement('div'),
+          paths: [],
+          routeColor: 'green',
           onBasemapStatusChange
         });
-        await waitFor(() => { expect(MapLibreMap).toHaveBeenCalledTimes(1); });
+        await waitFor(() => {
+          expect(MapLibreMap).toHaveBeenCalledTimes(1);
+        });
         emitMapLoad();
         // Source metadata can arrive before any viewport tiles have loaded.
         mockMap.on.mock.calls.find(([event]) => {
@@ -165,18 +200,25 @@ describe('initialiseRouteMap', () => {
         expect(MapLibreMap).toHaveBeenCalledTimes(1);
       });
       emitMapLoad();
-      expect(mockMap.addSource).toHaveBeenCalledWith('basemap', expect.objectContaining({
-        type: 'raster',
-        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-        tileSize: 256,
-        attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
-      }));
-      expect(mockMap.addLayer).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'basemap', type: 'raster' }), 'route-casing'
+      expect(mockMap.addSource).toHaveBeenCalledWith(
+        'basemap',
+        expect.objectContaining({
+          type: 'raster',
+          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          attribution:
+            '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
+        })
       );
-      expect(MapLibreMap).toHaveBeenCalledWith(expect.objectContaining({
-        attributionControl: { compact: false }
-      }));
+      expect(mockMap.addLayer).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'basemap', type: 'raster' }),
+        'route-casing'
+      );
+      expect(MapLibreMap).toHaveBeenCalledWith(
+        expect.objectContaining({
+          attributionControl: { compact: false }
+        })
+      );
       dispose();
     });
   });
@@ -296,7 +338,9 @@ describe('initialiseRouteMap', () => {
         },
         {
           id: 'segment-2',
-          samples: [{ id: 'sample-4', longitudeDegrees: -5, latitudeDegrees: 57 }]
+          samples: [
+            { id: 'sample-4', longitudeDegrees: -5, latitudeDegrees: 57 }
+          ]
         }
       ]
     });
@@ -306,7 +350,9 @@ describe('initialiseRouteMap', () => {
     });
     emitMapLoad();
 
-    expect(setWorkerUrl).toHaveBeenCalledWith('/maplibre/maplibre-gl-worker.mjs');
+    expect(setWorkerUrl).toHaveBeenCalledWith(
+      '/maplibre/maplibre-gl-worker.mjs'
+    );
     expect(MapLibreMap).toHaveBeenCalledWith(
       expect.objectContaining({ container, cooperativeGestures: true })
     );
@@ -341,7 +387,9 @@ describe('initialiseRouteMap', () => {
       }
     });
     expect(mockMap.addLayer).toHaveBeenCalledWith({
-      id: 'route-casing', type: 'line', source: 'route',
+      id: 'route-casing',
+      type: 'line',
+      source: 'route',
       paint: { 'line-color': '#ffffff', 'line-width': 7 }
     });
     expect(mockMap.addLayer).toHaveBeenCalledWith(
@@ -362,7 +410,10 @@ describe('initialiseRouteMap', () => {
       [[-4, 56]],
       [[-5, 57]]
     ]);
-    expect(mockMap.fitBounds).toHaveBeenCalledWith(mockBounds, { duration: 0, padding: 32 });
+    expect(mockMap.fitBounds).toHaveBeenCalledWith(mockBounds, {
+      duration: 0,
+      padding: 32
+    });
 
     dispose();
     expect(mockMap.remove).toHaveBeenCalledTimes(1);
@@ -397,7 +448,10 @@ describe('initialiseRouteMap', () => {
         type: 'circle'
       })
     );
-    expect(mockMap.jumpTo).toHaveBeenCalledWith({ center: [-1.2, 53.1], zoom: 14 });
+    expect(mockMap.jumpTo).toHaveBeenCalledWith({
+      center: [-1.2, 53.1],
+      zoom: 14
+    });
     expect(mockMap.fitBounds).not.toHaveBeenCalled();
 
     dispose();

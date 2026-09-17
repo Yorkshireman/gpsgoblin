@@ -48,8 +48,8 @@ Final checks:
 - `pnpm tsc --incremental false`, `pnpm lint`, `pnpm knip`: passed; no Knip findings.
 - `pnpm build`: static production export passed.
 - `pnpm exec playwright test tests/browser/hydration.spec.ts
-  tests/browser/chartSelection.spec.ts --config
-  /private/tmp/gpsgoblin-discovery-playwright.config.ts --workers=2`: seven passed.
+tests/browser/chartSelection.spec.ts --config
+/private/tmp/gpsgoblin-discovery-playwright.config.ts --workers=2`: seven passed.
   The temporary config serves the production export on port 4178. Checks cover
   both initial page orders and point inspection/dismissal at the four baseline
   viewport sizes. External map tiles are blocked. No layout or copy changed.

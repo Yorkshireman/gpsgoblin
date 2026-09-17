@@ -68,9 +68,13 @@ export const addBasemap = (
       tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
       tileSize: 256,
       maxzoom: 19,
-      attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
+      attribution:
+        '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
     });
-    map.addLayer({ id: 'basemap', type: 'raster', source: 'basemap' }, beforeLayer);
+    map.addLayer(
+      { id: 'basemap', type: 'raster', source: 'basemap' },
+      beforeLayer
+    );
   } catch {
     fail();
   }

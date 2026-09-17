@@ -53,14 +53,18 @@ describe('RouteMap segment selection', () => {
     );
 
     expect(screen.getByText('No line to display')).toBeVisible();
-    expect(screen.getByText(/Each separate section needs at least two/)).toBeVisible();
+    expect(
+      screen.getByText(/Each separate section needs at least two/)
+    ).toBeVisible();
     expect(initialiseRouteMap).not.toHaveBeenCalled();
   });
 
   it('explains a route with only one point', () => {
     render(
       <ChakraProvider value={defaultSystem}>
-        <RouteMap route={{ id: 'route-0', points: firstSegment.samples.slice(0, 1) }} />
+        <RouteMap
+          route={{ id: 'route-0', points: firstSegment.samples.slice(0, 1) }}
+        />
       </ChakraProvider>
     );
     expect(screen.getByText('No line to display')).toBeVisible();
@@ -68,10 +72,17 @@ describe('RouteMap segment selection', () => {
   });
 
   it('warns about short segments while retaining drawable segments', () => {
-    jest.mocked(initialiseRouteMap).mockReturnValue({ dispose: jest.fn(), selectPoint: jest.fn() });
+    jest
+      .mocked(initialiseRouteMap)
+      .mockReturnValue({ dispose: jest.fn(), selectPoint: jest.fn() });
     render(
       <ChakraProvider value={defaultSystem}>
-        <RouteMap track={{ ...track, segments: [firstSegment, { id: 'empty', samples: [] }] }} />
+        <RouteMap
+          track={{
+            ...track,
+            segments: [firstSegment, { id: 'empty', samples: [] }]
+          }}
+        />
       </ChakraProvider>
     );
     expect(screen.getByText('Some sections cannot be drawn')).toBeVisible();
@@ -79,10 +90,12 @@ describe('RouteMap segment selection', () => {
   });
 
   it('keeps the item summary visible on failure and clears the warning for a new selection', () => {
-    jest.mocked(initialiseRouteMap).mockImplementationOnce(({ onStatusChange }) => {
-      onStatusChange?.('failed');
-      return { dispose: jest.fn(), selectPoint: jest.fn() };
-    });
+    jest
+      .mocked(initialiseRouteMap)
+      .mockImplementationOnce(({ onStatusChange }) => {
+        onStatusChange?.('failed');
+        return { dispose: jest.fn(), selectPoint: jest.fn() };
+      });
     const { rerender } = render(
       <ChakraProvider value={defaultSystem}>
         <RouteMap track={track} />
@@ -92,11 +105,13 @@ describe('RouteMap segment selection', () => {
     expect(screen.getByText('Map unavailable')).toBeVisible();
     expect(screen.getByText('Segmented walk')).toBeVisible();
 
-    jest.mocked(initialiseRouteMap).mockImplementationOnce(({ onStatusChange }) => {
-      onStatusChange?.('loading');
-      onStatusChange?.('ready');
-      return { dispose: jest.fn(), selectPoint: jest.fn() };
-    });
+    jest
+      .mocked(initialiseRouteMap)
+      .mockImplementationOnce(({ onStatusChange }) => {
+        onStatusChange?.('loading');
+        onStatusChange?.('ready');
+        return { dispose: jest.fn(), selectPoint: jest.fn() };
+      });
     rerender(
       <ChakraProvider value={defaultSystem}>
         <RouteMap track={track} segment={secondSegment} />
@@ -107,8 +122,14 @@ describe('RouteMap segment selection', () => {
   });
 
   it('redraws only the selected segment and restores all segments with cleanup', () => {
-    const originalWebGl = Object.getOwnPropertyDescriptor(globalThis, 'WebGLRenderingContext');
-    const originalScroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+    const originalWebGl = Object.getOwnPropertyDescriptor(
+      globalThis,
+      'WebGLRenderingContext'
+    );
+    const originalScroll = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      'scrollIntoView'
+    );
     const dispose = jest.fn();
     const controller = { dispose, selectPoint: jest.fn() };
     jest.mocked(initialiseRouteMap).mockReturnValue(controller);
@@ -162,12 +183,20 @@ describe('RouteMap segment selection', () => {
       expect(dispose).toHaveBeenCalledTimes(3);
     } finally {
       if (originalWebGl) {
-        Object.defineProperty(globalThis, 'WebGLRenderingContext', originalWebGl);
+        Object.defineProperty(
+          globalThis,
+          'WebGLRenderingContext',
+          originalWebGl
+        );
       } else {
         Reflect.deleteProperty(globalThis, 'WebGLRenderingContext');
       }
       if (originalScroll) {
-        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalScroll);
+        Object.defineProperty(
+          HTMLElement.prototype,
+          'scrollIntoView',
+          originalScroll
+        );
       } else {
         Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
       }
@@ -175,22 +204,42 @@ describe('RouteMap segment selection', () => {
   });
 });
 
-
 describe('RouteMap background notices', () => {
-  it.each(['unavailable', 'disabled'] as const)('keeps the map visible when the background is %s', async (basemapStatus) => {
-    jest.mocked(initialiseRouteMap).mockImplementation(({ onStatusChange, onBasemapStatusChange }) => {
-      onStatusChange?.('ready');
-      onBasemapStatusChange?.(basemapStatus);
-      return { dispose: jest.fn(), selectPoint: jest.fn() };
-    });
-    render(<ChakraProvider value={defaultSystem}><RouteMap track={track} /></ChakraProvider>);
-    expect(screen.getByRole('status')).toHaveTextContent(
-      basemapStatus === 'disabled' ? 'Background map is turned off' : 'Background map unavailable'
-    );
-    expect(screen.getByLabelText('Interactive route map')).toBeVisible();
-    expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
-    expect(screen.getByText(/OpenStreetMap receives the area you view to load the background map/)).not.toBeVisible();
-    await userEvent.click(screen.getByText('Map privacy', { selector: 'summary' }));
-    expect(screen.getByText(/OpenStreetMap receives the area you view to load the background map/)).toBeVisible();
-  });
+  it.each(['unavailable', 'disabled'] as const)(
+    'keeps the map visible when the background is %s',
+    async (basemapStatus) => {
+      jest
+        .mocked(initialiseRouteMap)
+        .mockImplementation(({ onStatusChange, onBasemapStatusChange }) => {
+          onStatusChange?.('ready');
+          onBasemapStatusChange?.(basemapStatus);
+          return { dispose: jest.fn(), selectPoint: jest.fn() };
+        });
+      render(
+        <ChakraProvider value={defaultSystem}>
+          <RouteMap track={track} />
+        </ChakraProvider>
+      );
+      expect(screen.getByRole('status')).toHaveTextContent(
+        basemapStatus === 'disabled'
+          ? 'Background map is turned off'
+          : 'Background map unavailable'
+      );
+      expect(screen.getByLabelText('Interactive route map')).toBeVisible();
+      expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /OpenStreetMap receives the area you view to load the background map/
+        )
+      ).not.toBeVisible();
+      await userEvent.click(
+        screen.getByText('Map privacy', { selector: 'summary' })
+      );
+      expect(
+        screen.getByText(
+          /OpenStreetMap receives the area you view to load the background map/
+        )
+      ).toBeVisible();
+    }
+  );
 });

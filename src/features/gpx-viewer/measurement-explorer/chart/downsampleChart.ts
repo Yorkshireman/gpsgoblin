@@ -31,15 +31,20 @@ export const downsampleChart = (data: ChartMeasurement[], width: number) => {
   for (let index = 0; index < data.length; index += 1) {
     const point = data[index];
     const previous = data[index - 1];
-    if (point.recordingGap || point.possibleStop || point.stopBoundary) retained.add(index);
-    const beginsFragment = previous && (
-      point.sampleId === null || previous.sampleId === null ||
-      point.zeroSpeed !== previous.zeroSpeed ||
-      metrics.some(metric => {
-        return (point[metric] === null) !== (previous[metric] === null);
-      })
-    );
-    const nextBucket = span > 0 ? Math.floor(((chartPosition(point) - start) / span) * width) : 0;
+    if (point.recordingGap || point.possibleStop || point.stopBoundary)
+      retained.add(index);
+    const beginsFragment =
+      previous &&
+      (point.sampleId === null ||
+        previous.sampleId === null ||
+        point.zeroSpeed !== previous.zeroSpeed ||
+        metrics.some((metric) => {
+          return (point[metric] === null) !== (previous[metric] === null);
+        }));
+    const nextBucket =
+      span > 0
+        ? Math.floor(((chartPosition(point) - start) / span) * width)
+        : 0;
     // Separate fragments must not erase each other's peaks within one pixel.
     if (nextBucket !== bucket || beginsFragment) {
       if (bucket >= 0) flush();
@@ -62,7 +67,7 @@ export const downsampleChart = (data: ChartMeasurement[], width: number) => {
     .sort((left, right) => {
       return left - right;
     })
-    .map(index => {
+    .map((index) => {
       return data[index];
     });
 };

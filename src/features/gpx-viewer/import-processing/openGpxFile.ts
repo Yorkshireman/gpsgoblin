@@ -6,10 +6,15 @@ import type { MeasurementSession } from './measurementSession';
 
 let nextRequestId = 0;
 
-type OpenGpxResult = Extract<GpxParseResult, { ok: false }> |
-  (Extract<GpxParseResult, { ok: true }> & Readonly<{ measurements: MeasurementSession }>);
+type OpenGpxResult =
+  | Extract<GpxParseResult, { ok: false }>
+  | (Extract<GpxParseResult, { ok: true }> &
+      Readonly<{ measurements: MeasurementSession }>);
 
-export const openGpxFile = (file: File, signal: AbortSignal): Promise<OpenGpxResult> => {
+export const openGpxFile = (
+  file: File,
+  signal: AbortSignal
+): Promise<OpenGpxResult> => {
   return new Promise((resolve, reject) => {
     if (signal.aborted) {
       reject(new DOMException('Import cancelled', 'AbortError'));
@@ -21,7 +26,8 @@ export const openGpxFile = (file: File, signal: AbortSignal): Promise<OpenGpxRes
     } catch {
       resolve({
         ok: false,
-        error: 'This browser could not open the file. Update your browser or try a different one, then choose the file again.'
+        error:
+          'This browser could not open the file. Update your browser or try a different one, then choose the file again.'
       });
       return;
     }
@@ -41,17 +47,27 @@ export const openGpxFile = (file: File, signal: AbortSignal): Promise<OpenGpxRes
     };
     signal.addEventListener('abort', abort, { once: true });
     worker.onmessage = (event: MessageEvent<ImportResponse>) => {
-      if (!('result' in event.data) || event.data.requestId !== requestId || signal.aborted) return;
+      if (
+        !('result' in event.data) ||
+        event.data.requestId !== requestId ||
+        signal.aborted
+      )
+        return;
       const result = event.data.result;
       cleanup(!result.ok);
-      resolve(result.ok ? { ...result, measurements: createMeasurementSession(worker) } : result);
+      resolve(
+        result.ok
+          ? { ...result, measurements: createMeasurementSession(worker) }
+          : result
+      );
       return;
     };
     const fail = () => {
       cleanup();
       resolve({
         ok: false,
-        error: 'The file could not be processed. Try again or choose another GPX file.'
+        error:
+          'The file could not be processed. Try again or choose another GPX file.'
       });
       return;
     };

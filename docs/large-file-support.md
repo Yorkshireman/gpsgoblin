@@ -89,13 +89,13 @@ loaded successfully with complete source counts. Three desktop trials per case
 and CPU rate are retained in [raw desktop results](benchmarks/finalImportsDesktop.jsonl).
 Ranges below are milliseconds, except sampled page heap.
 
-| Input | Worker → chart painted | Worker round trip | Largest main task | Keyboard selection | Smoothing completed | Page heap MiB |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Complete private, 8,142 points | 216–254 | 59–66 | 76–82 | 67–73 | 82–100 | 21–22 |
-| Complete sanitised, 8,142 | 205–218 | 45–47 | 77 | 67–70 | 83–84 | 20–21 |
-| 10,000 points | 204–219 | 47–48 | 75–76 | 55–71 | 83–84 | 21 |
-| 100,000 points | 831–833 | 254–258 | 93–94 | 59–67 | 100–117 | 68–80 |
-| 250,000 points | 1,053–1,071 | 619–624 | 127–129 | 69–83 | 150 | 152–163 |
+| Input                          | Worker → chart painted | Worker round trip | Largest main task | Keyboard selection | Smoothing completed | Page heap MiB |
+| ------------------------------ | ---------------------: | ----------------: | ----------------: | -----------------: | ------------------: | ------------: |
+| Complete private, 8,142 points |                216–254 |             59–66 |             76–82 |              67–73 |              82–100 |         21–22 |
+| Complete sanitised, 8,142      |                205–218 |             45–47 |                77 |              67–70 |               83–84 |         20–21 |
+| 10,000 points                  |                204–219 |             47–48 |             75–76 |              55–71 |               83–84 |            21 |
+| 100,000 points                 |                831–833 |           254–258 |             93–94 |              59–67 |             100–117 |         68–80 |
+| 250,000 points                 |            1,053–1,071 |           619–624 |           127–129 |              69–83 |                 150 |       152–163 |
 
 At 250,000 points, the previous chart-optimised slice loaded in 2,514–2,646 ms,
 with a 298–315 ms largest main task. This final slice reduces those to about
@@ -118,12 +118,12 @@ that every interaction became faster.
 
 At 4× **page** CPU slowdown:
 
-| Input | Worker → chart painted | Largest main task | Keyboard selection | Smoothing completed |
-| --- | ---: | ---: | ---: | ---: |
-| Complete private | 747–781 | 329–350 | 187–196 | 267–285 |
-| 10,000 points | 711–736 | 316–320 | 170–177 | 266–267 |
-| 100,000 points | 1,308–1,366 | 395–430 | 204–218 | 365–367 |
-| 250,000 points | 2,312–2,400 | 512–532 | 200–217 | 482–483 |
+| Input            | Worker → chart painted | Largest main task | Keyboard selection | Smoothing completed |
+| ---------------- | ---------------------: | ----------------: | -----------------: | ------------------: |
+| Complete private |                747–781 |           329–350 |            187–196 |             267–285 |
+| 10,000 points    |                711–736 |           316–320 |            170–177 |             266–267 |
+| 100,000 points   |            1,308–1,366 |           395–430 |            204–218 |             365–367 |
+| 250,000 points   |            2,312–2,400 |           512–532 |            200–217 |             482–483 |
 
 The earlier 250,000-point chart slice took 4,253–4,323 ms to load with a
 1,205–1,222 ms main task at this slowdown. Remaining pauses are still material
@@ -134,12 +134,12 @@ and 1,634–1,714 ms slowed, including the asynchronous initial view and renderi
 The [phone-layout probe](benchmarks/finalImportsPhone.jsonl) used one trial per
 case/rate on the same Mac, not a physical phone:
 
-| Input | Native load | Native largest main task | Native selection | 4× load | 4× largest main task |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Complete private | 207 | 80 | 72 | 473 | 285 |
-| Complete sanitised | 146 | 72 | 62 | 403 | 254 |
-| 100,000 points | 833 | 83 | 61 | 973 | 344 |
-| 250,000 points | 930 | 112 | 59 | 1,733 | 463 |
+| Input              | Native load | Native largest main task | Native selection | 4× load | 4× largest main task |
+| ------------------ | ----------: | -----------------------: | ---------------: | ------: | -------------------: |
+| Complete private   |         207 |                       80 |               72 |     473 |                  285 |
+| Complete sanitised |         146 |                       72 |               62 |     403 |                  254 |
+| 100,000 points     |         833 |                       83 |               61 |     973 |                  344 |
+| 250,000 points     |         930 |                      112 |               59 |   1,733 |                  463 |
 
 Phone-layout 250,000-point smoothing took 133 ms native / 417 ms slowed; chart
 clicks took 108 / 226 ms. The position slider retained all 250,000 source samples,
@@ -152,12 +152,12 @@ These are single probes, not distributions or physical-phone measurements.
 The final [Node phase isolation](benchmarks/finalImportsPipeline.jsonl) runs the
 actual modules without browser rendering, three trials per case:
 
-| Input | GPX parsing | Structured clone | Analysis + packing | Initial view preparation | Heap just after parsing MiB |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Complete private | 36–42 | 6–7 | 9–12 | 1–3 | 26–54 |
-| 10,000 points | 65–67 | 8–10 | 10–12 | 3–7 | 55 |
-| 100,000 points | 633–704 | 62–65 | 86–90 | 6–9 | 98–153 |
-| 250,000 points | 1,621–1,775 | 163–177 | 209–231 | 20–31 | 209–304 |
+| Input            | GPX parsing | Structured clone | Analysis + packing | Initial view preparation | Heap just after parsing MiB |
+| ---------------- | ----------: | ---------------: | -----------------: | -----------------------: | --------------------------: |
+| Complete private |       36–42 |              6–7 |               9–12 |                      1–3 |                       26–54 |
+| 10,000 points    |       65–67 |             8–10 |              10–12 |                      3–7 |                          55 |
+| 100,000 points   |     633–704 |            62–65 |              86–90 |                      6–9 |                      98–153 |
+| 250,000 points   | 1,621–1,775 |          163–177 |            209–231 |                    20–31 |                     209–304 |
 
 The original Node pipeline parsed 250,000 points in 3,789–3,850 ms and sampled
 1,128–1,285 MiB immediately afterwards. Eliminating the temporary DOM substantially
@@ -183,12 +183,12 @@ map marker. [Desktop trials](benchmarks/browserMemoryDesktop.jsonl) and
 [structured-input trials](benchmarks/browserMemoryStructured.jsonl) use three runs
 per mode; these precede the final phone-only map correction. Normal-map ranges:
 
-| Input | Chart readiness ms | Largest main task ms | Peak sampled aggregate RSS MiB |
-| --- | ---: | ---: | ---: |
-| Complete private | 203–251 | — | 1,111–1,117 |
-| Plain 250,000 points | 1,028–1,036 | 121–124 | 1,550–1,594 |
-| Extensions, 50,000 points / 25,200,139 bytes | 821–825 | 81–89 | 1,282–1,329 |
-| Fragmented, 50,000 points / 2,500 segments | 504–559 | 205–239 | 1,284–1,321 |
+| Input                                        | Chart readiness ms | Largest main task ms | Peak sampled aggregate RSS MiB |
+| -------------------------------------------- | -----------------: | -------------------: | -----------------------------: |
+| Complete private                             |            203–251 |                    — |                    1,111–1,117 |
+| Plain 250,000 points                         |        1,028–1,036 |              121–124 |                    1,550–1,594 |
+| Extensions, 50,000 points / 25,200,139 bytes |            821–825 |                81–89 |                    1,282–1,329 |
+| Fragmented, 50,000 points / 2,500 segments   |            504–559 |              205–239 |                    1,284–1,321 |
 
 At 250,000 points, sampled RSS growth above the fresh-browser baseline was
 565–609 MiB with the map. WebGL-disabled pairs reached chart readiness in
@@ -202,11 +202,11 @@ preserving many separate fragments.
 The original phone probe exposed the duplicate map allocation. After correcting
 it, [three final phone trials per mode](benchmarks/browserMemoryPhone.jsonl) gave:
 
-| Input | Chart readiness ms | Keyboard selection ms | Explicit map opening → marker ms | Peak sampled aggregate RSS MiB |
-| --- | ---: | ---: | ---: | ---: |
-| Complete private | 137–163 | 65–66 | 171–201 | 1,102–1,106 |
-| Complete sanitised | 123–129 | 48–49 | 152–187 | 1,099–1,104 |
-| Plain 250,000 points | 898–1,321 | 80–82 | 267–285 | 1,534–1,540 |
+| Input                | Chart readiness ms | Keyboard selection ms | Explicit map opening → marker ms | Peak sampled aggregate RSS MiB |
+| -------------------- | -----------------: | --------------------: | -------------------------------: | -----------------------------: |
+| Complete private     |            137–163 |                 65–66 |                          171–201 |                    1,102–1,106 |
+| Complete sanitised   |            123–129 |                 48–49 |                          152–187 |                    1,099–1,104 |
+| Plain 250,000 points |          898–1,321 |                 80–82 |                          267–285 |                    1,534–1,540 |
 
 One 250,000-point trial in each mode took approximately 1.3 seconds; the full ranges
 are retained. Since the map is now created only after the button is used, normal
@@ -250,12 +250,12 @@ Final engine checks use Chrome 153.0.8010.36, Playwright Firefox 155 and WebKit
 loaded with their complete source sample counts in all six engine/viewport
 combinations:
 
-| Synthetic recording | Points | Bytes | Additional coverage |
-| --- | ---: | ---: | --- |
-| 12 hours at 1 Hz | 43,201 | 3,801,870 | Failed replacement preserves the file |
-| 48 hours at 1 Hz | 172,801 | 15,206,670 | Complete position range |
-| Structured extensions | 24,001 | 13,464,743 | Unknown fields ignored; embedded URL never fetched |
-| Fragmented track | 50,000 | 4,315,165 | 2,500 segments, missing data, 5,000 elevation fragments |
+| Synthetic recording   |  Points |      Bytes | Additional coverage                                     |
+| --------------------- | ------: | ---------: | ------------------------------------------------------- |
+| 12 hours at 1 Hz      |  43,201 |  3,801,870 | Failed replacement preserves the file                   |
+| 48 hours at 1 Hz      | 172,801 | 15,206,670 | Complete position range                                 |
+| Structured extensions |  24,001 | 13,464,743 | Unknown fields ignored; embedded URL never fetched      |
+| Fragmented track      |  50,000 |  4,315,165 | 2,500 segments, missing data, 5,000 elevation fragments |
 
 The complete private recording also passed both final Chrome browser projects;
 its permitted sanitised fixture remains complete at 8,142 points. See
@@ -295,8 +295,8 @@ functional lifecycle checks, not garbage-collection measurements.
 - `GPX_VERIFY_FILE=… pnpm test:browser --workers=2`: 66 passed, including both
   complete-private-recording checks; no skips.
 - `pnpm test:browser:compatibility tests/browser/largeImportCompatibility.spec.ts
-  tests/browser/measurementWorker.spec.ts tests/browser/measurementReplacement.spec.ts
-  tests/browser/largeChart.spec.ts`: 54 passed across all six projects.
+tests/browser/measurementWorker.spec.ts tests/browser/measurementReplacement.spec.ts
+tests/browser/largeChart.spec.ts`: 54 passed across all six projects.
 - Additional recovery checks passed in all three engines; targeted whole-workspace
   and edge-selection follow-up passed 10 cases in Chrome/Firefox.
 - After the final map correction, compatibility checks for `mapLifecycle.spec.ts`

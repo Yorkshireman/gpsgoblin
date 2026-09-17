@@ -1,4 +1,12 @@
-import { Box, Button, Grid, Heading, Stack, Text, useBreakpointValue } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Grid,
+  Heading,
+  Stack,
+  Text,
+  useBreakpointValue
+} from '@chakra-ui/react';
 import { useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { SPEED_AVERAGE_SECONDS } from '@/analysis/measurements';
@@ -45,16 +53,25 @@ export const MeasurementExplorer = ({
   children
 }: MeasurementExplorerProps) => {
   const showDesktopMap = useBreakpointValue({ base: false, lg: true });
-  const [activeChart, setActiveChart] = useState<'speed' | 'pace' | 'elevation'>('speed');
-  const requestedMotion: MotionDisplay = activeChart === 'pace' ? 'pace' : 'speed';
+  const [activeChart, setActiveChart] = useState<
+    'speed' | 'pace' | 'elevation'
+  >('speed');
+  const requestedMotion: MotionDisplay =
+    activeChart === 'pace' ? 'pace' : 'speed';
   const [axis, setAxis] = useState<'distance' | 'time'>('distance');
   const [stopMode, setStopMode] = useState<'include' | 'exclude'>('include');
-  const [confirmedStopIds, setConfirmedStopIds] = useState<readonly string[]>([]);
+  const [confirmedStopIds, setConfirmedStopIds] = useState<readonly string[]>(
+    []
+  );
   const [showElevation, setShowElevation] = useState(false);
-  const [paceRange, setPaceRange] = useState<'suggested' | 'full' | 'custom'>('suggested');
+  const [paceRange, setPaceRange] = useState<'suggested' | 'full' | 'custom'>(
+    'suggested'
+  );
   const [paceMaximumPerKm, setPaceMaximumPerKm] = useState<number>();
   const [hasChosenCustomMaximum, setHasChosenCustomMaximum] = useState(false);
-  const [smoothingSeconds, setSmoothingSeconds] = useState(SPEED_AVERAGE_SECONDS);
+  const [smoothingSeconds, setSmoothingSeconds] = useState(
+    SPEED_AVERAGE_SECONDS
+  );
   const segments = useMemo(() => {
     return track
       ? segment
@@ -72,14 +89,28 @@ export const MeasurementExplorer = ({
       stopMode,
       confirmedStopIds
     };
-  }, [track, route, segment, units, requestedMotion, smoothingSeconds, stopMode, confirmedStopIds]);
+  }, [
+    track,
+    route,
+    segment,
+    units,
+    requestedMotion,
+    smoothingSeconds,
+    stopMode,
+    confirmedStopIds
+  ]);
   const prepared = useMeasurementView(measurements, segments, settings);
   const useTime =
-    axis === 'time' && Boolean(prepared.snapshot?.timeAvailable) && activeChart !== 'elevation';
+    axis === 'time' &&
+    Boolean(prepared.snapshot?.timeAvailable) &&
+    activeChart !== 'elevation';
   const plotData = useMemo(() => {
     return (
-      prepared.snapshot?.data.map(point => {
-        return { ...point, position: useTime ? (point.timeMinutes ?? 0) : point.distance };
+      prepared.snapshot?.data.map((point) => {
+        return {
+          ...point,
+          position: useTime ? (point.timeMinutes ?? 0) : point.distance
+        };
       }) ?? []
     );
   }, [prepared.snapshot?.data, useTime]);
@@ -88,9 +119,12 @@ export const MeasurementExplorer = ({
     id: string;
     kind: 'point' | 'stop';
   }>();
-  const selectedId = selection?.segments === segments ? selection.id : undefined;
+  const selectedId =
+    selection?.segments === segments ? selection.id : undefined;
   const setSelectedId = (id: string | undefined) => {
-    setSelection(id === undefined ? undefined : { segments, id, kind: 'point' });
+    setSelection(
+      id === undefined ? undefined : { segments, id, kind: 'point' }
+    );
     return;
   };
   const stopTrigger = useRef<HTMLElement | null>(null);
@@ -98,16 +132,19 @@ export const MeasurementExplorer = ({
   const setSelectedStopId = (id: string | undefined, trigger?: HTMLElement) => {
     if (id && selection?.kind !== 'stop')
       stopTrigger.current =
-        trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+        trigger ??
+        (document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null);
     setSelection(id === undefined ? undefined : { segments, id, kind: 'stop' });
     return;
   };
   if (!prepared.snapshot) {
     return (
-      <Stack gap={2} role='status'>
+      <Stack gap={2} role="status">
         <Text>{prepared.error ?? 'Preparing your charts…'}</Text>
         {prepared.error ? (
-          <Button onClick={prepared.retry} alignSelf='start'>
+          <Button onClick={prepared.retry} alignSelf="start">
             Try again
           </Button>
         ) : null}
@@ -117,14 +154,17 @@ export const MeasurementExplorer = ({
   const { analysis, data, hasMotion, hasElevation, basis } = prepared.snapshot;
   const motion = prepared.snapshot.settings.motion;
   const labels = displayUnits(prepared.snapshot.settings.units);
-  const selectedIndex = analysis.points.findIndex(point => {
+  const selectedIndex = analysis.points.findIndex((point) => {
     return point.sample.id === selectedId;
   });
   const selected = analysis.points[selectedIndex];
   const selectedStop =
     selection?.kind === 'stop'
-      ? analysis.stops.candidates.find(candidate => {
-          return selectedIndex >= candidate.startIndex && selectedIndex <= candidate.endIndex;
+      ? analysis.stops.candidates.find((candidate) => {
+          return (
+            selectedIndex >= candidate.startIndex &&
+            selectedIndex <= candidate.endIndex
+          );
         })
       : undefined;
   const isMoving = basis.mode === 'exclude';
@@ -154,7 +194,7 @@ export const MeasurementExplorer = ({
       />
     </>
   );
-  const selectedChartPoint = data.find(point => {
+  const selectedChartPoint = data.find((point) => {
     return point.sampleId === selectedId;
   });
   const selectedMotion = selectedChartPoint?.motion ?? null;
@@ -185,10 +225,14 @@ export const MeasurementExplorer = ({
     <>
       {' '}
       {track ? (
-        <RouteMap track={track} segment={segment} selectedPoint={selected?.sample} />
+        <RouteMap
+          track={track}
+          segment={segment}
+          selectedPoint={selected?.sample}
+        />
       ) : (
-        <Stack as='section' aria-label='Planned route' gap={3}>
-          <Heading as='h3' size='lg'>
+        <Stack as="section" aria-label="Planned route" gap={3}>
+          <Heading as="h3" size="lg">
             Planned route
           </Heading>
           <RouteMap route={route} selectedPoint={selected?.sample} />
@@ -198,7 +242,7 @@ export const MeasurementExplorer = ({
   );
 
   const activeBasis = (
-    <Stack gap={1} fontSize='xs' aria-label='Active calculation'>
+    <Stack gap={1} fontSize="xs" aria-label="Active calculation">
       <CalculationBasis
         mode={motion}
         excludedSeconds={basis.excludedSeconds}
@@ -209,18 +253,22 @@ export const MeasurementExplorer = ({
       {analysis.stops.candidates.length > 0 && !selectedStop ? (
         <Text>A stop is left out only when you tick its box.</Text>
       ) : null}
-      {basis.partialCoverage ? <Text>Some of the trip is missing from this average.</Text> : null}
-      {!analysis.stops.candidates.length ? <StopSearchResult evidence={analysis.stops} /> : null}
+      {basis.partialCoverage ? (
+        <Text>Some of the trip is missing from this average.</Text>
+      ) : null}
+      {!analysis.stops.candidates.length ? (
+        <StopSearchResult evidence={analysis.stops} />
+      ) : null}
       {basis.gapSeconds > 0 ? (
         <Text>
-          Recording gaps: {formatDuration(basis.gapSeconds)} left out. Their time and distance
-          don&apos;t count towards the average.
+          Recording gaps: {formatDuration(basis.gapSeconds)} left out. Their
+          time and distance don&apos;t count towards the average.
         </Text>
       ) : null}
     </Stack>
   );
   const selectionTip = !selected ? (
-    <Text aria-label='Chart selection tip' fontSize='sm' color='fg.muted'>
+    <Text aria-label="Chart selection tip" fontSize="sm" color="fg.muted">
       {showDesktopMap
         ? 'Select a point on the chart to see it on the map.'
         : 'Select a point on the chart, then tap View on map to see its location.'}
@@ -229,7 +277,7 @@ export const MeasurementExplorer = ({
   const motionChart = (
     <MeasurementChart
       data={plotData}
-      metric='motion'
+      metric="motion"
       elevationOverlay={
         hasElevation
           ? {
@@ -239,11 +287,15 @@ export const MeasurementExplorer = ({
             }
           : undefined
       }
-      title={isMoving ? `Moving ${motion}` : motion === 'speed' ? 'Speed' : 'Pace'}
+      title={
+        isMoving ? `Moving ${motion}` : motion === 'speed' ? 'Speed' : 'Pace'
+      }
       basisLabel={!isMoving && analysis.recorded ? 'Includes stops' : undefined}
       onStopSelect={setSelectedStopId}
       axisLabel={
-        useTime ? `${isMoving ? 'Estimated moving time' : 'Elapsed time'} (min)` : undefined
+        useTime
+          ? `${isMoving ? 'Estimated moving time' : 'Elapsed time'} (min)`
+          : undefined
       }
       reference={
         (motion === 'speed' || isMoving) &&
@@ -252,8 +304,11 @@ export const MeasurementExplorer = ({
           ? {
               value:
                 motion === 'speed'
-                  ? (basis.averageSpeedMetresPerSecond * 3600) / labels.metresPerDistance
-                  : labels.metresPerDistance / basis.averageSpeedMetresPerSecond / 60,
+                  ? (basis.averageSpeedMetresPerSecond * 3600) /
+                    labels.metresPerDistance
+                  : labels.metresPerDistance /
+                    basis.averageSpeedMetresPerSecond /
+                    60,
               label: `Average ${isMoving ? 'moving ' : ''}${motion}${!isMoving && basis.gapSeconds > 0 ? ' (including gaps)' : ''}`
             }
           : undefined
@@ -267,25 +322,32 @@ export const MeasurementExplorer = ({
   );
 
   return (
-    <Stack gap={3} width='full' minW={0}>
-      <MeasurementSummary analysis={analysis} labels={labels} plannedRoute={Boolean(route)} />
+    <Stack gap={3} width="full" minW={0}>
+      <MeasurementSummary
+        analysis={analysis}
+        labels={labels}
+        plannedRoute={Boolean(route)}
+      />
       <Grid
-        templateColumns={{ base: 'minmax(0, 1fr)', lg: 'minmax(0, 3fr) minmax(0, 2fr)' }}
+        templateColumns={{
+          base: 'minmax(0, 1fr)',
+          lg: 'minmax(0, 3fr) minmax(0, 2fr)'
+        }}
         gap={5}
-        alignItems='start'
+        alignItems="start"
       >
         <Stack
           ref={chartRegion}
           tabIndex={-1}
           gap={1.5}
           minW={0}
-          as='section'
-          bg='bg'
-          borderWidth='1px'
-          borderColor='border.subtle'
-          rounded='xl'
+          as="section"
+          bg="bg"
+          borderWidth="1px"
+          borderColor="border.subtle"
+          rounded="xl"
           p={{ base: 2, md: 4 }}
-          aria-label='Measurement chart'
+          aria-label="Measurement chart"
           aria-busy={prepared.pending}
         >
           <ChartControls
@@ -304,20 +366,22 @@ export const MeasurementExplorer = ({
             pending={prepared.pending}
           />
           {prepared.error ? (
-            <Text role='status' fontSize='xs'>
+            <Text role="status" fontSize="xs">
               {prepared.error}
             </Text>
           ) : null}
           {prepared.error ? (
-            <Button size='sm' onClick={prepared.retry}>
+            <Button size="sm" onClick={prepared.retry}>
               Try again
             </Button>
           ) : null}
-          {!selectedStop && chart !== 'elevation' && isMoving ? activeBasis : null}
+          {!selectedStop && chart !== 'elevation' && isMoving
+            ? activeBasis
+            : null}
           {activeChart === 'pace' && hasTimedMotion ? (
             <PaceRangeControls
               mode={paceRange}
-              onModeChange={mode => {
+              onModeChange={(mode) => {
                 if (mode === 'custom' && !hasChosenCustomMaximum) {
                   const suggested = prepared.snapshot?.suggestedPaceMaximum;
                   setPaceMaximumPerKm(
@@ -332,9 +396,11 @@ export const MeasurementExplorer = ({
               suggestedMaximum={prepared.snapshot.suggestedPaceMaximum}
               maximum={paceMaximum}
               unit={labels.pace}
-              onMaximumChange={value => {
+              onMaximumChange={(value) => {
                 setPaceMaximumPerKm(
-                  value === undefined ? undefined : value / (labels.metresPerDistance / 1000)
+                  value === undefined
+                    ? undefined
+                    : value / (labels.metresPerDistance / 1000)
                 );
               }}
             >
@@ -349,7 +415,9 @@ export const MeasurementExplorer = ({
                 setSelectedId(undefined);
               }}
               returnFocus={() => {
-                return stopTrigger.current?.isConnected ? stopTrigger.current : chartRegion.current;
+                return stopTrigger.current?.isConnected
+                  ? stopTrigger.current
+                  : chartRegion.current;
               }}
             >
               <SelectedStop
@@ -357,21 +425,23 @@ export const MeasurementExplorer = ({
                 points={analysis.points}
                 labels={labels}
                 confirmed={confirmedStopIds.includes(selectedStop.id)}
-                excluded={isMoving && confirmedStopIds.includes(selectedStop.id)}
+                excluded={
+                  isMoving && confirmedStopIds.includes(selectedStop.id)
+                }
                 pending={prepared.pending}
                 onClear={() => {
                   setSelectedId(undefined);
                 }}
-                onConfirm={confirmed => {
-                  setConfirmedStopIds(ids => {
+                onConfirm={(confirmed) => {
+                  setConfirmedStopIds((ids) => {
                     return confirmed
                       ? [
-                          ...ids.filter(id => {
+                          ...ids.filter((id) => {
                             return id !== selectedStop.id;
                           }),
                           selectedStop.id
                         ]
-                      : ids.filter(id => {
+                      : ids.filter((id) => {
                           return id !== selectedStop.id;
                         });
                   });
@@ -379,9 +449,9 @@ export const MeasurementExplorer = ({
                 }}
               />
               {prepared.error ? (
-                <Text role='status' fontSize='xs'>
+                <Text role="status" fontSize="xs">
                   {prepared.error}
-                  <Button size='xs' onClick={prepared.retry}>
+                  <Button size="xs" onClick={prepared.retry}>
                     Try again
                   </Button>
                 </Text>
@@ -411,8 +481,8 @@ export const MeasurementExplorer = ({
                 <>
                   <MeasurementChart
                     data={plotData}
-                    metric='elevation'
-                    title='Elevation profile'
+                    metric="elevation"
+                    title="Elevation profile"
                     unit={labels.elevation}
                     distanceUnit={labels.distance}
                     selectedId={selected?.sample.id}
@@ -448,7 +518,9 @@ export const MeasurementExplorer = ({
               )}
             </>
           )}
-          {!showDesktopMap ? <MobileMapDialog mapView={mapView} selected={selected} /> : null}
+          {!showDesktopMap ? (
+            <MobileMapDialog mapView={mapView} selected={selected} />
+          ) : null}
           <RoutePosition
             points={analysis.points}
             selectedIndex={selectedIndex}
@@ -456,22 +528,24 @@ export const MeasurementExplorer = ({
             onSelect={setSelectedId}
           />
           {!hasTimedMotion && hasElevation ? (
-            <Text fontSize='sm'>
-              Speed and pace need recorded times. This section doesn&apos;t have enough usable
-              times.
+            <Text fontSize="sm">
+              Speed and pace need recorded times. This section doesn&apos;t have
+              enough usable times.
             </Text>
           ) : null}
-          {!hasElevation ? <Text fontSize='sm'>No elevation measurements available.</Text> : null}
+          {!hasElevation ? (
+            <Text fontSize="sm">No elevation measurements available.</Text>
+          ) : null}
           <SpeedExplanation moving={isMoving} />
           {children}
         </Stack>
         <Box
-          hideBelow='lg'
+          hideBelow="lg"
           minW={0}
-          bg='bg'
-          borderWidth='1px'
-          borderColor='border.subtle'
-          rounded='xl'
+          bg="bg"
+          borderWidth="1px"
+          borderColor="border.subtle"
+          rounded="xl"
           p={4}
         >
           {showDesktopMap ? mapView : null}

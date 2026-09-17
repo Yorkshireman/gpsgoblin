@@ -1,5 +1,8 @@
 import { Field, Input, Text } from '@chakra-ui/react';
-import { smoothingDurations, formatSmoothingDuration } from '../measurementDisplay';
+import {
+  smoothingDurations,
+  formatSmoothingDuration
+} from '../measurementDisplay';
 
 type MotionControlsProps = Readonly<{
   smoothingSeconds: number;
@@ -7,19 +10,27 @@ type MotionControlsProps = Readonly<{
   pending?: boolean;
 }>;
 
-export const MotionControls = ({ smoothingSeconds, setSmoothingSeconds, pending }: MotionControlsProps) => {
+export const MotionControls = ({
+  smoothingSeconds,
+  setSmoothingSeconds,
+  pending
+}: MotionControlsProps) => {
   return (
     <Field.Root gap={0}>
       <Field.Label>
         Smoothing · <span>{formatSmoothingDuration(smoothingSeconds)}</span>
         {smoothingSeconds === 0 ? ' (off)' : ''}
-        {pending ? <Text as='span' role='status' fontSize='xs' color='fg.muted'>Updating…</Text> : null}
+        {pending ? (
+          <Text as="span" role="status" fontSize="xs" color="fg.muted">
+            Updating…
+          </Text>
+        ) : null}
       </Field.Label>
       <Input
-        aria-label='Smoothing'
-        type='range'
-        appearance='auto'
-        accentColor='green.solid'
+        aria-label="Smoothing"
+        type="range"
+        appearance="auto"
+        accentColor="green.solid"
         borderWidth={0}
         p={0}
         min={0}
@@ -27,10 +38,14 @@ export const MotionControls = ({ smoothingSeconds, setSmoothingSeconds, pending 
         step={1}
         value={smoothingDurations.indexOf(smoothingSeconds)}
         aria-valuetext={
-          smoothingSeconds ? formatSmoothingDuration(smoothingSeconds) : '0 seconds (off)'
+          smoothingSeconds
+            ? formatSmoothingDuration(smoothingSeconds)
+            : '0 seconds (off)'
         }
-        onChange={event => {
-          setSmoothingSeconds(smoothingDurations[Number(event.currentTarget.value)]);
+        onChange={(event) => {
+          setSmoothingSeconds(
+            smoothingDurations[Number(event.currentTarget.value)]
+          );
         }}
       />
     </Field.Root>

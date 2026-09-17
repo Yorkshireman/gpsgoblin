@@ -1,6 +1,8 @@
 import { test, expect } from './browserTest';
 
-test('loaded view stays within the viewport across rotation with long track names', async ({ page }) => {
+test('loaded view stays within the viewport across rotation with long track names', async ({
+  page
+}) => {
   const trackName = 'Long route name '.repeat(20);
   await page.setViewportSize({ width: 440, height: 956 });
   await page.goto('/tools/gpx-file-viewer');
@@ -28,13 +30,20 @@ test('loaded view stays within the viewport across rotation with long track name
     { width: 375, height: 667 }
   ]) {
     await page.setViewportSize(viewport);
-    await expect.poll(async () => {
-      return page.evaluate(() => {
-        return document.documentElement.scrollWidth - document.documentElement.clientWidth;
-      });
-    }).toBeLessThanOrEqual(1);
+    await expect
+      .poll(async () => {
+        return page.evaluate(() => {
+          return (
+            document.documentElement.scrollWidth -
+            document.documentElement.clientWidth
+          );
+        });
+      })
+      .toBeLessThanOrEqual(1);
     await expect(position).toHaveValue('1');
-    await expect(page.getByLabel('View', { exact: true }).locator('option:checked')).toHaveText(`Track: ${trackName.trim()}`);
+    await expect(
+      page.getByLabel('View', { exact: true }).locator('option:checked')
+    ).toHaveText(`Track: ${trackName.trim()}`);
   }
 
   const view = page.getByLabel('View', { exact: true });

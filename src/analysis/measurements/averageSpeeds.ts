@@ -2,12 +2,18 @@ import type { MeasurementPoint } from './analyseMeasurements';
 
 export const SPEED_AVERAGE_SECONDS = 60;
 
-type SpeedInterval = Pick<MeasurementPoint, 'segmentId' | 'speedMetresPerSecond' | 'intervalSeconds'>;
+type SpeedInterval = Pick<
+  MeasurementPoint,
+  'segmentId' | 'speedMetresPerSecond' | 'intervalSeconds'
+>;
 
 // A trailing, time-weighted view. Source measurements and totals remain untouched.
-export const averageSpeeds = (points: Iterable<SpeedInterval>, windowSeconds: number) => {
+export const averageSpeeds = (
+  points: Iterable<SpeedInterval>,
+  windowSeconds: number
+) => {
   if (windowSeconds <= 0) {
-    return Array.from(points, point => {
+    return Array.from(points, (point) => {
       return point.speedMetresPerSecond;
     });
   }
@@ -48,7 +54,8 @@ export const averageSpeeds = (points: Iterable<SpeedInterval>, windowSeconds: nu
     if (movingIntervals === 0) distance = 0;
     const excess = Math.max(0, seconds - windowSeconds);
     averaged.push(
-      Math.max(0, distance - intervals[start].speed * excess) / Math.min(seconds, windowSeconds)
+      Math.max(0, distance - intervals[start].speed * excess) /
+        Math.min(seconds, windowSeconds)
     );
   }
   return averaged;

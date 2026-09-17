@@ -30,9 +30,33 @@ pnpm dev
 
 Open <http://localhost:3000/tools/gpx-file-viewer>.
 
+## Formatting
+
+Prettier covers maintained JavaScript/TypeScript, styles, JSON, YAML, HTML and
+Markdown. `.prettierignore` excludes generated output, lockfiles, vendored assets
+and skills, captured benchmarks, and external GPX samples.
+
+`pnpm dev` runs the formatter watcher alongside Next.js. The watcher formats disk
+writes from both people and agents while it is running. For editing without the
+dev server, use `pnpm format:watch`. Formatting happens shortly after a completed
+write; stop the watcher when editing is finished.
+
+VS Code recommends the Prettier extension and enables format on save for these
+languages. Its folder-open task also starts the watcher once automatic tasks are
+allowed in a trusted workspace. Without a running watcher, agent instructions
+require formatting each edit batch explicitly.
+
+`pnpm format` formats all files in scope; `pnpm format:check` checks without writing.
+CI runs the check for every PR targeting `master`, pushes to `master`, and merge
+queue candidates. To enforce it before changes reach `master`, configure GitHub
+branch protection or a ruleset to require the `Prettier` status check and pull
+requests, with bypasses and direct pushes disabled. A workflow alone reports
+failures but cannot prevent an unprotected branch from accepting them.
+
 ## Checks
 
 ```sh
+pnpm format:check
 pnpm tsc
 pnpm lint
 pnpm test

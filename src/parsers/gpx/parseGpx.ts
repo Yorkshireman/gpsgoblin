@@ -5,7 +5,8 @@ export const parseGpx = (fileText: string): GpxParseResult => {
   if (/<!DOCTYPE[\s>]/i.test(fileText)) {
     return {
       ok: false,
-      error: 'This GPX file uses an unsupported format. Download a new GPX copy from the app that created it.'
+      error:
+        'This GPX file uses an unsupported format. Download a new GPX copy from the app that created it.'
     };
   }
 
@@ -14,7 +15,8 @@ export const parseGpx = (fileText: string): GpxParseResult => {
   } catch {
     return {
       ok: false,
-      error: 'The file is damaged or incomplete. Download a new copy and try again.'
+      error:
+        'The file is damaged or incomplete. Download a new copy and try again.'
     };
   }
 };

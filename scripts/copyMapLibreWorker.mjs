@@ -12,5 +12,8 @@ const destinationDirectory = path.join(process.cwd(), 'public', 'maplibre');
 mkdirSync(destinationDirectory, { recursive: true });
 
 for (const filename of ['maplibre-gl-worker.mjs', 'maplibre-gl-shared.mjs']) {
-  copyFileSync(path.join(mapLibreDirectory, filename), path.join(destinationDirectory, filename));
+  copyFileSync(
+    path.join(mapLibreDirectory, filename),
+    path.join(destinationDirectory, filename)
+  );
 }

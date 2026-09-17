@@ -20,14 +20,19 @@ const calculateSampleDistanceMetres = (
 
   const haversine =
     Math.sin(latitudeDifference / 2) ** 2 +
-    Math.cos(firstLatitude) * Math.cos(secondLatitude) * Math.sin(longitudeDifference / 2) ** 2;
+    Math.cos(firstLatitude) *
+      Math.cos(secondLatitude) *
+      Math.sin(longitudeDifference / 2) ** 2;
 
-  const angularDistance = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+  const angularDistance =
+    2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 
   return EARTH_MEAN_RADIUS_METRES * angularDistance;
 };
 
-export const calculatePathDistanceMetres = (samples: readonly GeographicSample[]) => {
+export const calculatePathDistanceMetres = (
+  samples: readonly GeographicSample[]
+) => {
   let distanceMetres = 0;
 
   for (let index = 1; index < samples.length; index += 1) {
@@ -44,7 +49,9 @@ export const calculatePathDistanceMetres = (samples: readonly GeographicSample[]
   return distanceMetres;
 };
 
-export const calculateTrackDistanceMetres = (segments: readonly TrackSegment[]) => {
+export const calculateTrackDistanceMetres = (
+  segments: readonly TrackSegment[]
+) => {
   return segments.reduce((total, segment) => {
     return total + calculatePathDistanceMetres(segment.samples);
   }, 0);

@@ -1,4 +1,11 @@
-import { Alert, Button, FileUpload, Flex, Spinner, Text } from '@chakra-ui/react';
+import {
+  Alert,
+  Button,
+  FileUpload,
+  Flex,
+  Spinner,
+  Text
+} from '@chakra-ui/react';
 import { useRef } from 'react';
 
 type GpxFileControlsProps = Readonly<{
@@ -27,43 +34,54 @@ export const GpxFileControls = ({
       <FileUpload.Label srOnly>GPX file</FileUpload.Label>
       <FileUpload.HiddenInput />
       {showDropzone ? (
-        <FileUpload.Dropzone _hover={{ bg: 'bg' }} cursor='default' disableClick width='full'>
+        <FileUpload.Dropzone
+          _hover={{ bg: 'bg' }}
+          cursor="default"
+          disableClick
+          width="full"
+        >
           <FileUpload.DropzoneContent>
-            <Text fontWeight='medium'>Drag and drop a GPX file here</Text>
-            <Text color='fg.muted'>GPX 1.1 files</Text>
+            <Text fontWeight="medium">Drag and drop a GPX file here</Text>
+            <Text color="fg.muted">GPX 1.1 files</Text>
           </FileUpload.DropzoneContent>
         </FileUpload.Dropzone>
       ) : null}
-      <Flex gap={2} align='center' wrap='wrap' width='full'>
+      <Flex gap={2} align="center" wrap="wrap" width="full">
         {filename ? (
           <Text
-            fontWeight='medium'
+            fontWeight="medium"
             minW={0}
             title={filename}
             flex={{ base: '1 1 100%', md: '1 1 6rem' }}
             whiteSpace={{ base: 'normal', md: 'nowrap' }}
             overflow={{ base: 'visible', md: 'hidden' }}
             textOverflow={{ base: 'clip', md: 'ellipsis' }}
-            overflowWrap='anywhere'
+            overflowWrap="anywhere"
           >
             {filename}
           </Text>
         ) : null}
         <FileUpload.Trigger asChild>
-          <Button ref={chooser} type='button' variant='outline'>
+          <Button ref={chooser} type="button" variant="outline">
             {filename ? 'Change GPX file' : 'Choose GPX file'}
           </Button>
         </FileUpload.Trigger>
         {onReset ? (
-          <Button type='button' variant='outline' colorPalette='orange' disabled={isLoading} onClick={onReset}>
+          <Button
+            type="button"
+            variant="outline"
+            colorPalette="orange"
+            disabled={isLoading}
+            onClick={onReset}
+          >
             Reset view
           </Button>
         ) : null}
         {canClear ? (
           <Button
-            colorPalette='gray'
-            type='button'
-            variant='outline'
+            colorPalette="gray"
+            type="button"
+            variant="outline"
             onClick={() => {
               onClear();
               chooser.current?.focus();
@@ -75,14 +93,14 @@ export const GpxFileControls = ({
         ) : null}
       </Flex>
       {isLoading ? (
-        <Alert.Root role='status' status='info'>
-          <Spinner aria-hidden='true' size='sm' />
+        <Alert.Root role="status" status="info">
+          <Spinner aria-hidden="true" size="sm" />
           <Alert.Content>
             <Alert.Title>Opening GPX file</Alert.Title>
           </Alert.Content>
           <Button
-            type='button'
-            variant='outline'
+            type="button"
+            variant="outline"
             onClick={() => {
               onCancel();
               chooser.current?.focus();

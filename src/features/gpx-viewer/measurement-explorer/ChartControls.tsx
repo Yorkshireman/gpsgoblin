@@ -21,33 +21,37 @@ export const ChartControls = ({
   pending
 }: ChartControlsProps) => {
   return (
-    <Grid templateColumns='repeat(2, minmax(0, 1fr))' gap={2}>
+    <Grid templateColumns="repeat(2, minmax(0, 1fr))" gap={2}>
       <Field.Root>
-        <Flex align='baseline' justify='space-between' width='full' gap={1}>
+        <Flex align="baseline" justify="space-between" width="full" gap={1}>
           <Field.Label>Chart</Field.Label>
-          <Text role='status' aria-label='Updating measurements' fontSize='xs'>
+          <Text role="status" aria-label="Updating measurements" fontSize="xs">
             {pending ? 'Updating…' : ''}
           </Text>
         </Flex>
         <NativeSelect.Root>
           <NativeSelect.Field
             value={chart}
-            onChange={event => {
+            onChange={(event) => {
               const value = event.currentTarget.value;
               setActiveChart(
-                value === 'elevation' ? 'elevation' : value === 'pace' ? 'pace' : 'speed'
+                value === 'elevation'
+                  ? 'elevation'
+                  : value === 'pace'
+                    ? 'pace'
+                    : 'speed'
               );
             }}
           >
             {hasTimedMotion ? (
               <>
-                <option value='speed'>Speed</option>
-                <option value='pace'>Pace</option>
+                <option value="speed">Speed</option>
+                <option value="pace">Pace</option>
               </>
             ) : null}
-            {hasElevation ? <option value='elevation'>Elevation</option> : null}
+            {hasElevation ? <option value="elevation">Elevation</option> : null}
             {!hasTimedMotion && !hasElevation ? (
-              <option value='speed'>No measurements</option>
+              <option value="speed">No measurements</option>
             ) : null}
           </NativeSelect.Field>
           <NativeSelect.Indicator />
@@ -58,12 +62,14 @@ export const ChartControls = ({
         <NativeSelect.Root>
           <NativeSelect.Field
             value={units}
-            onChange={event => {
-              onUnitsChange(event.currentTarget.value === 'imperial' ? 'imperial' : 'metric');
+            onChange={(event) => {
+              onUnitsChange(
+                event.currentTarget.value === 'imperial' ? 'imperial' : 'metric'
+              );
             }}
           >
-            <option value='metric'>Metric</option>
-            <option value='imperial'>Imperial</option>
+            <option value="metric">Metric</option>
+            <option value="imperial">Imperial</option>
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>

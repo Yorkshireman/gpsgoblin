@@ -33,22 +33,22 @@ export const GpxItemSelector = ({
           // WebKit otherwise includes long option text in the page's scroll width.
           overflow="clip"
           value={selectedItem?.id ?? ''}
-          onChange={event => {
+          onChange={(event) => {
             const id = event.currentTarget.value;
             if (
-              tracks.some(candidate => {
+              tracks.some((candidate) => {
                 return candidate.id === id;
               })
             ) {
               onItemChange({ kind: 'track', id });
             } else if (
-              routes.some(candidate => {
+              routes.some((candidate) => {
                 return candidate.id === id;
               })
             ) {
               onItemChange({ kind: 'route', id });
             } else if (
-              waypoints.some(candidate => {
+              waypoints.some((candidate) => {
                 return candidate.id === id;
               })
             ) {

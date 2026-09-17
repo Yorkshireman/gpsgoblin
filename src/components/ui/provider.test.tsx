@@ -6,9 +6,15 @@ it('keeps server-rendered style classes independent of earlier page renders', ()
   const renderLabel = (reverse: boolean) => {
     const html = renderToString(
       <Provider>
-        {reverse
-          ? <Text color='fg.muted' fontSize='19px'>Inspection label</Text>
-          : <Text fontSize='19px' color='fg.muted'>Inspection label</Text>}
+        {reverse ? (
+          <Text color="fg.muted" fontSize="19px">
+            Inspection label
+          </Text>
+        ) : (
+          <Text fontSize="19px" color="fg.muted">
+            Inspection label
+          </Text>
+        )}
       </Provider>
     );
     return html.match(/<p class="([^"]+)"[^>]*>Inspection label<\/p>/)?.[1];

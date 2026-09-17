@@ -1,5 +1,11 @@
 import { chartPosition } from './chartPosition';
-import { DefaultZIndexes, ZIndexLayer, usePlotArea, useXAxisScale, useYAxisScale } from 'recharts';
+import {
+  DefaultZIndexes,
+  ZIndexLayer,
+  usePlotArea,
+  useXAxisScale,
+  useYAxisScale
+} from 'recharts';
 import type { ChartMeasurement } from '../../measurementDisplay';
 
 type ChartSelectionProps = Readonly<{
@@ -9,7 +15,12 @@ type ChartSelectionProps = Readonly<{
   onSelect: (id: string) => void;
 }>;
 
-export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSelectionProps) => {
+export const ChartSelection = ({
+  data,
+  metric,
+  axisMaximum,
+  onSelect
+}: ChartSelectionProps) => {
   const area = usePlotArea();
   const xScale = useXAxisScale();
   const yScale = useYAxisScale();
@@ -24,20 +35,23 @@ export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSel
         y={area.y}
         width={area.width}
         height={area.height}
-        fill='transparent'
-        stroke='transparent'
+        fill="transparent"
+        stroke="transparent"
         strokeWidth={8}
-        vectorEffect='non-scaling-stroke'
-        pointerEvents='all'
-        className='measurement-selection-area'
-        aria-hidden='true'
+        vectorEffect="non-scaling-stroke"
+        pointerEvents="all"
+        className="measurement-selection-area"
+        aria-hidden="true"
         style={{ cursor: 'crosshair' }}
-        onClick={event => {
+        onClick={(event) => {
           const matrix = event.currentTarget.getScreenCTM();
           if (!matrix) return;
           // Some engines include the hit stroke in getBoundingClientRect. Use
           // the SVG transform so the forgiving edge never changes coordinates.
-          const { x, y } = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+          const { x, y } = new DOMPoint(
+            event.clientX,
+            event.clientY
+          ).matrixTransform(matrix.inverse());
           let nearest: ChartMeasurement | undefined;
           let nearestX = Infinity;
           let nearestY = Infinity;
@@ -52,7 +66,8 @@ export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSel
             let high = data.length;
             while (low < high) {
               const middle = Math.floor((low + high) / 2);
-              if ((xScale(chartPosition(data[middle])) ?? Infinity) < target) low = middle + 1;
+              if ((xScale(chartPosition(data[middle])) ?? Infinity) < target)
+                low = middle + 1;
               else high = middle;
             }
             return low;
@@ -60,21 +75,35 @@ export const ChartSelection = ({ data, metric, axisMaximum, onSelect }: ChartSel
           // Cumulative distances are non-decreasing. Include the neighbours and
           // all distance ties so sparse lines and stationary runs stay selectable.
           let first = Math.max(0, lowerBound(x - radius / scaleX) - 1);
-          while (first > 0 && chartPosition(data[first - 1]) === chartPosition(data[first])) first -= 1;
+          while (
+            first > 0 &&
+            chartPosition(data[first - 1]) === chartPosition(data[first])
+          )
+            first -= 1;
           const last = lowerBound(x + radius / scaleX);
           let end = last;
-          while (end < data.length && chartPosition(data[end]) === chartPosition(data[last])) end += 1;
+          while (
+            end < data.length &&
+            chartPosition(data[end]) === chartPosition(data[last])
+          )
+            end += 1;
           let hit: ChartMeasurement | undefined;
           let hitDistance = radius ** 2;
           for (let index = first; index < end; index += 1) {
             const point = data[index];
-            if (axisMaximum !== undefined && point[metric] !== null && point[metric] > axisMaximum) continue;
+            if (
+              axisMaximum !== undefined &&
+              point[metric] !== null &&
+              point[metric] > axisMaximum
+            )
+              continue;
             const pointX = xScale(chartPosition(point));
             if (pointX === undefined) {
               continue;
             }
             const dx = Math.abs(pointX - x);
-            const pointY = point[metric] === null ? undefined : yScale(point[metric]);
+            const pointY =
+              point[metric] === null ? undefined : yScale(point[metric]);
             const dy = pointY === undefined ? Infinity : Math.abs(pointY - y);
             const distance = (dx * scaleX) ** 2 + (dy * scaleY) ** 2;
             if (point.sampleId && distance < hitDistance) {

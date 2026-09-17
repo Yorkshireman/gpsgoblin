@@ -14,8 +14,8 @@ type WaypointDetailsProps = Readonly<{
 export const WaypointDetails = ({ waypoint, units }: WaypointDetailsProps) => {
   const labels = displayUnits(units);
   return (
-    <Stack as='section' aria-labelledby='waypoint-heading' gap={3}>
-      <Heading as='h3' id='waypoint-heading' size='lg'>
+    <Stack as="section" aria-labelledby="waypoint-heading" gap={3}>
+      <Heading as="h3" id="waypoint-heading" size="lg">
         Waypoint
       </Heading>
       {waypoint.description ? <Text>{waypoint.description}</Text> : null}
@@ -27,7 +27,9 @@ export const WaypointDetails = ({ waypoint, units }: WaypointDetailsProps) => {
             Elevation:{' '}
             {units === 'metric'
               ? waypoint.elevationMetres
-              : (waypoint.elevationMetres / labels.metresPerElevation).toFixed(1)}{' '}
+              : (waypoint.elevationMetres / labels.metresPerElevation).toFixed(
+                  1
+                )}{' '}
             {labels.elevation}
           </Text>
         ) : null}

@@ -17,8 +17,8 @@ export const Provider = ({ children }: ProviderProps) => {
   });
   return (
     <NextThemesProvider
-      attribute='class'
-      defaultTheme='system'
+      attribute="class"
+      defaultTheme="system"
       disableTransitionOnChange
       enableSystem
     >

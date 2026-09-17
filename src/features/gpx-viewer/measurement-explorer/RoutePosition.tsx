@@ -9,7 +9,12 @@ type RoutePositionProps = Readonly<{
   onSelect: (id: string) => void;
 }>;
 
-export const RoutePosition = ({ points, selectedIndex, labels, onSelect }: RoutePositionProps) => {
+export const RoutePosition = ({
+  points,
+  selectedIndex,
+  labels,
+  onSelect
+}: RoutePositionProps) => {
   const selected = points[selectedIndex];
   if (!points.length) {
     return null;
@@ -18,9 +23,9 @@ export const RoutePosition = ({ points, selectedIndex, labels, onSelect }: Route
     <Field.Root mb={2}>
       <Field.Label>Position on route</Field.Label>
       <Input
-        type='range'
-        appearance='auto'
-        accentColor='green.solid'
+        type="range"
+        appearance="auto"
+        accentColor="green.solid"
         borderWidth={0}
         p={0}
         min={0}
@@ -29,16 +34,21 @@ export const RoutePosition = ({ points, selectedIndex, labels, onSelect }: Route
         value={selectedIndex < 0 ? 0 : selectedIndex}
         aria-valuetext={
           selected
-            ? formatMeasurement(selected.distanceMetres / labels.metresPerDistance, labels.distance)
+            ? formatMeasurement(
+                selected.distanceMetres / labels.metresPerDistance,
+                labels.distance
+              )
             : 'No point selected'
         }
-        onKeyDown={event => {
+        onKeyDown={(event) => {
           if (event.key === 'Home' || event.key === 'End') {
             event.preventDefault();
-            onSelect(points[event.key === 'Home' ? 0 : points.length - 1].sample.id);
+            onSelect(
+              points[event.key === 'Home' ? 0 : points.length - 1].sample.id
+            );
           }
         }}
-        onChange={event => {
+        onChange={(event) => {
           const point = points[Number(event.currentTarget.value)];
           if (point) {
             onSelect(point.sample.id);

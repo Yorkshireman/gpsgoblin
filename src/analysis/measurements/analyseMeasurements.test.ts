@@ -6,7 +6,12 @@ describe('analyseMeasurements', () => {
       {
         id: 'a',
         samples: [
-          { id: 'a0', latitudeDegrees: 0, longitudeDegrees: 0, sourceTime: '2026-09-11T12:00:00Z' },
+          {
+            id: 'a0',
+            latitudeDegrees: 0,
+            longitudeDegrees: 0,
+            sourceTime: '2026-09-11T12:00:00Z'
+          },
           {
             id: 'a1',
             latitudeDegrees: 0,
@@ -25,7 +30,12 @@ describe('analyseMeasurements', () => {
       {
         id: 'b',
         samples: [
-          { id: 'b0', latitudeDegrees: 0, longitudeDegrees: 2, sourceTime: '2026-09-12T12:00:00Z' },
+          {
+            id: 'b0',
+            latitudeDegrees: 0,
+            longitudeDegrees: 2,
+            sourceTime: '2026-09-12T12:00:00Z'
+          },
           {
             id: 'b1',
             latitudeDegrees: 0,
@@ -54,12 +64,12 @@ describe('analyseMeasurements', () => {
     expect(result.timedDurationSeconds).toBe(15);
     expect(result.averageSpeedMetresPerSecond).toBe(0);
     expect(
-      result.points.map(point => {
+      result.points.map((point) => {
         return point.speedMetresPerSecond;
       })
     ).toEqual([null, 0, null, null, null, 0]);
     expect(
-      result.points.map(point => {
+      result.points.map((point) => {
         return point.sample;
       })
     ).toEqual(samples);
@@ -102,12 +112,12 @@ describe('analyseMeasurements', () => {
     expect(result.elapsedDurationSeconds).toBe(86400);
     expect(result.distanceMetres).toBe(0);
     expect(
-      result.points.map(point => {
+      result.points.map((point) => {
         return point.speedMetresPerSecond;
       })
     ).toEqual([null, 0, null]);
     expect(
-      result.points.map(point => {
+      result.points.map((point) => {
         return point.elevationMetres;
       })
     ).toEqual([0, null, null]);
@@ -122,21 +132,29 @@ describe('analyseMeasurements', () => {
     [undefined, 'missing times'],
     ['2026-09-11T11:00:00Z', 'repeated times'],
     ['2026-09-11T10:00:00Z', 'times in the wrong order']
-  ])('leaves an unusable interval null for %s and explains %s', (sourceTime, warning) => {
-    const result = analyseMeasurements([
-      {
-        id: 'segment',
-        samples: [
-          { id: 'a', latitudeDegrees: 0, longitudeDegrees: 0, sourceTime: '2026-09-11T11:00:00Z' },
-          { id: 'b', latitudeDegrees: 0, longitudeDegrees: 1, sourceTime }
-        ]
-      }
-    ]);
-    expect(result.timedDurationSeconds).toBeNull();
-    expect(result.averageSpeedMetresPerSecond).toBeNull();
-    expect(result.points[1].speedMetresPerSecond).toBeNull();
-    expect(result.warnings.join(' ')).toContain(warning);
-  });
+  ])(
+    'leaves an unusable interval null for %s and explains %s',
+    (sourceTime, warning) => {
+      const result = analyseMeasurements([
+        {
+          id: 'segment',
+          samples: [
+            {
+              id: 'a',
+              latitudeDegrees: 0,
+              longitudeDegrees: 0,
+              sourceTime: '2026-09-11T11:00:00Z'
+            },
+            { id: 'b', latitudeDegrees: 0, longitudeDegrees: 1, sourceTime }
+          ]
+        }
+      ]);
+      expect(result.timedDurationSeconds).toBeNull();
+      expect(result.averageSpeedMetresPerSecond).toBeNull();
+      expect(result.points[1].speedMetresPerSecond).toBeNull();
+      expect(result.warnings.join(' ')).toContain(warning);
+    }
+  );
 
   it('calculates duration and interval speed from full-resolution points, retaining zero elevation', () => {
     const result = analyseMeasurements([
@@ -166,7 +184,7 @@ describe('analyseMeasurements', () => {
     expect(result.distanceMetres).toBeCloseTo(111195.08, 2);
     expect(result.points[1].speedMetresPerSecond).toBeCloseTo(30.88752, 5);
     expect(
-      result.points.map(point => {
+      result.points.map((point) => {
         return point.elevationMetres;
       })
     ).toEqual([0, 100]);
@@ -180,12 +198,24 @@ describe('analyseMeasurements', () => {
     ['2026-09-11T12:00:00Z', '2026-09-11T12:01:00', null],
     ['2026-09-11T12:00:00Z', '2026-09-11T11:59:00Z', null],
     ['2026-09-11T12:00:00Z', '2026-09-11T12:00:00Z', 0]
-  ])('uses the actual endpoints for Duration: %s to %s', (start, finish, expected) => {
-    const samples = [start, '2026-09-11T12:00:30Z', finish].map((sourceTime, index) => {
-      return { id: String(index), latitudeDegrees: 0, longitudeDegrees: 0, sourceTime };
-    });
-    expect(analyseMeasurements([{ id: 'segment', samples }]).elapsedDurationSeconds).toBe(expected);
-  });
+  ])(
+    'uses the actual endpoints for Duration: %s to %s',
+    (start, finish, expected) => {
+      const samples = [start, '2026-09-11T12:00:30Z', finish].map(
+        (sourceTime, index) => {
+          return {
+            id: String(index),
+            latitudeDegrees: 0,
+            longitudeDegrees: 0,
+            sourceTime
+          };
+        }
+      );
+      expect(
+        analyseMeasurements([{ id: 'segment', samples }]).elapsedDurationSeconds
+      ).toBe(expected);
+    }
+  );
 
   it('leaves Duration unavailable with fewer than two points', () => {
     expect(analyseMeasurements([]).elapsedDurationSeconds).toBeNull();

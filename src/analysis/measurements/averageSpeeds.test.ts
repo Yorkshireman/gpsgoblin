@@ -1,7 +1,11 @@
 import { analyseMeasurements, averageSpeeds } from '.';
 import type { MeasurementPoint } from '.';
 
-const point = (id: string, speed: number | null, seconds: number | null): MeasurementPoint => {
+const point = (
+  id: string,
+  speed: number | null,
+  seconds: number | null
+): MeasurementPoint => {
   return {
     sample: { id, latitudeDegrees: 0, longitudeDegrees: 0 },
     segmentId: 'a',
@@ -14,7 +18,12 @@ const point = (id: string, speed: number | null, seconds: number | null): Measur
 
 describe('averageSpeeds', () => {
   it('returns exact zero after movement leaves a stationary window without discarding tiny movement', () => {
-    const points = [point('a', 0.1, 1), point('b', 0.2, 1), point('c', 0, 1), point('d', 1e-14, 1)];
+    const points = [
+      point('a', 0.1, 1),
+      point('b', 0.2, 1),
+      point('c', 0, 1),
+      point('d', 1e-14, 1)
+    ];
     const speeds = averageSpeeds(points, 1);
     expect(speeds[2]).toBe(0);
     expect(speeds[3]).toBe(1e-14);
@@ -35,7 +44,7 @@ describe('averageSpeeds', () => {
     const points = [point('a', 2, 10), point('b', 8, 5), point('c', 4, 10)];
     expect(averageSpeeds(points, 15)).toEqual([2, 4, 16 / 3]);
     expect(
-      points.map(value => {
+      points.map((value) => {
         return value.speedMetresPerSecond;
       })
     ).toEqual([2, 8, 4]);
@@ -79,7 +88,7 @@ describe('averageSpeeds', () => {
       }
     ]);
     expect(
-      result.points.map(value => {
+      result.points.map((value) => {
         return value.intervalSeconds;
       })
     ).toEqual([null, 5, null]);

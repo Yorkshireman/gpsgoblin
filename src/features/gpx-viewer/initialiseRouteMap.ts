@@ -1,4 +1,7 @@
-import type { Map as MapLibreMapInstance, Marker as MapLibreMarker } from 'maplibre-gl';
+import type {
+  Map as MapLibreMapInstance,
+  Marker as MapLibreMarker
+} from 'maplibre-gl';
 import type { GeographicSample } from '@/domain/activityDocument';
 import { addBasemap, type BasemapStatus } from './basemap';
 
@@ -58,7 +61,10 @@ export const initialiseRouteMap = ({
     );
     element.style.cssText = `width:18px;height:18px;border-radius:50%;background:${routeColor};border:3px solid white;box-shadow:0 0 0 2px black;`;
     marker = new mapModule.Marker({ element })
-      .setLngLat([selectedPoint.longitudeDegrees, selectedPoint.latitudeDegrees])
+      .setLngLat([
+        selectedPoint.longitudeDegrees,
+        selectedPoint.latitudeDegrees
+      ])
       .addTo(map);
     return;
   };
@@ -169,10 +175,10 @@ export const initialiseRouteMap = ({
           data: {
             type: 'FeatureCollection',
             features: paths
-              .filter(path => {
+              .filter((path) => {
                 return path.samples.length > 1;
               })
-              .map(path => {
+              .map((path) => {
                 return {
                   type: 'Feature',
                   properties: {
@@ -180,7 +186,7 @@ export const initialiseRouteMap = ({
                   },
                   geometry: {
                     type: 'LineString',
-                    coordinates: path.samples.map(sample => {
+                    coordinates: path.samples.map((sample) => {
                       return [sample.longitudeDegrees, sample.latitudeDegrees];
                     })
                   }
@@ -223,7 +229,11 @@ export const initialiseRouteMap = ({
 
         if (!failed) {
           onStatusChange?.('ready');
-          basemap = addBasemap(loadedMap, 'route-casing', onBasemapStatusChange);
+          basemap = addBasemap(
+            loadedMap,
+            'route-casing',
+            onBasemapStatusChange
+          );
         }
       } catch {
         reportFailure();

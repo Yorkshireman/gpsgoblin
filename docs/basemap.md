@@ -4,11 +4,11 @@ Provider assessment for issue #5, checked 14 September 2026. OSM public raster t
 
 ## Brief alternatives comparison
 
-| Candidate | Fit for this project |
-| --- | --- |
-| OpenStreetMap Standard raster tiles | Normal interactive viewing is permitted subject to the tile policy. No supplier account, card, API key or billing subscription is needed. Preferred for this release. |
-| MapTiler Cloud | Offers vector and raster maps, but its Free plan is described as testing, personal or non-commercial use. The advertised Flex plan starts at $30/month with extra traffic billed. No advantage under our no-unapproved-spend constraint. |
-| Stadia Maps | Offers standard basemaps, but Free explicitly excludes commercial use. Starter permits it at $20/month. No advantage under our current cost constraint. |
+| Candidate                           | Fit for this project                                                                                                                                                                                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OpenStreetMap Standard raster tiles | Normal interactive viewing is permitted subject to the tile policy. No supplier account, card, API key or billing subscription is needed. Preferred for this release.                                                                    |
+| MapTiler Cloud                      | Offers vector and raster maps, but its Free plan is described as testing, personal or non-commercial use. The advertised Flex plan starts at $30/month with extra traffic billed. No advantage under our no-unapproved-spend constraint. |
+| Stadia Maps                         | Offers standard basemaps, but Free explicitly excludes commercial use. Starter permits it at $20/month. No advantage under our current cost constraint.                                                                                  |
 
 This is a bounded comparison, not an exhaustive supplier survey or a visual ranking. Sources: [MapTiler pricing](https://www.maptiler.com/cloud/pricing/) and [Stadia pricing](https://stadiamaps.com/pricing/).
 

@@ -1,0 +1,27 @@
+# Dependencies, generated output, local recordings and secrets
+node_modules/
+.pnp.*
+.yarn/
+.pnpm-store/
+.next/
+.next-profiles/
+out/
+build/
+coverage/
+test-results/
+playwright-report/
+.wrangler/
+private-recordings/
+.env*
+.dev.vars*
+next-env.d.ts
+
+# Generated dependencies, vendored skills and captured benchmark data
+pnpm-lock.yaml
+skills-lock.json
+public/maplibre/
+.agents/skills/
+docs/benchmarks/
+
+# Preserve external GPX samples verbatim; their README remains in scope
+**/*.gpx

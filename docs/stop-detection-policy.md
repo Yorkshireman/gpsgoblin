@@ -36,15 +36,15 @@ The owner authorised validation and bringing the #13 viewer feature forward, usi
 
 Re-ran the existing synthetic harness and extended it with a reproducible 189-trial matrix: seven labelled scenarios, three schedules (1 s, 5 s and a dense irregular schedule), three minimum durations (30/60/120 s), and three spatial extents (5/10/20 m). Each trial applies compact-window detection, bounded-core refinement and movement/elevation screening. The invented 600-second observations contain no private data. Candidate duration is the number of seconds that would be falsely excluded for a known moving scenario if surviving candidates were excluded automatically.
 
-| Known scenario | Trials with surviving candidates / 27 | Surviving candidate duration range |
-| --- | ---: | ---: |
-| Stationary with jitter | 27 | 599–600 s |
-| Walking at 1 m/s | 0 | 0 s |
-| Slow progress at 0.05 m/s | 6 | 0–100 s |
-| Very slow progress at 0.005 m/s | 27 | 599–600 s |
-| Vertical climb with recorded elevation rise | 0 | 0 s |
-| Vertical climb with flat recorded elevation | 27 | 599–600 s |
-| Movement in a 3 m radius circle | 18 | 0–600 s |
+| Known scenario                              | Trials with surviving candidates / 27 | Surviving candidate duration range |
+| ------------------------------------------- | ------------------------------------: | ---------------------------------: |
+| Stationary with jitter                      |                                    27 |                          599–600 s |
+| Walking at 1 m/s                            |                                     0 |                                0 s |
+| Slow progress at 0.05 m/s                   |                                     6 |                            0–100 s |
+| Very slow progress at 0.005 m/s             |                                    27 |                          599–600 s |
+| Vertical climb with recorded elevation rise |                                     0 |                                0 s |
+| Vertical climb with flat recorded elevation |                                    27 |                          599–600 s |
+| Movement in a 3 m radius circle             |                                    18 |                            0–600 s |
 
 These are deliberately selected counterexamples, not population error rates. At some irregular window boundaries the accepted core begins one second late; even synthetic candidate duration should not be described as exact stopped time. The slow-progress result extends the earlier single-operating-point result: changing duration/extent can defeat its directional safeguard. No tested parameter combination separates stationary jitter from the flat-elevation climb or very slow progress across these schedules. This does not prove that every possible estimated detector is unusable.
 
@@ -77,16 +77,16 @@ Build the first viewer iteration as an **opt-in exclusion mode with per-interval
 
 The owner confirmed that the dominant spike corresponds to a summit break, not climbing. This confirms the nature of that event, not exact arrival/departure timestamps or other detected candidates.
 
-| Observation | Result |
-| --- | --- |
-| Recording | 8,142 points, one segment, 8,167 seconds elapsed |
-| Dominant ten-minute pace window | 600 seconds, 601 observations |
-| Accumulated horizontal path | 43.277 m |
-| Maximum distance from the window's first position | 2.536 m |
-| Spatial bounding-box diagonal | 5.289 m |
-| Identical consecutive coordinates | 411 of 600 intervals |
-| Elevation range in that window | 0.1 m, at the recording's maximum elevation |
-| Resulting pace | 231.070 min/km, approximately 231:04 |
+| Observation                                       | Result                                           |
+| ------------------------------------------------- | ------------------------------------------------ |
+| Recording                                         | 8,142 points, one segment, 8,167 seconds elapsed |
+| Dominant ten-minute pace window                   | 600 seconds, 601 observations                    |
+| Accumulated horizontal path                       | 43.277 m                                         |
+| Maximum distance from the window's first position | 2.536 m                                          |
+| Spatial bounding-box diagonal                     | 5.289 m                                          |
+| Identical consecutive coordinates                 | 411 of 600 intervals                             |
+| Elevation range in that window                    | 0.1 m, at the recording's maximum elevation      |
+| Resulting pace                                    | 231.070 min/km, approximately 231:04             |
 
 The observation density and confinement agree with the owner's account. Summing GPS jitter into path length explains why this is a large finite pace, rather than zero speed. This arithmetic uses independent spherical distance calculations, consistent with the earlier application diagnosis.
 
@@ -97,10 +97,10 @@ Across the whole recording, 8,137 sampling intervals are one second, two are two
 The diagnostic first finds compact trailing windows and unions overlaps. These are **candidates**, not measured stopped time. Spatial extent here means the diagonal of an axis-aligned local bounding box, not a radius.
 
 | Minimum window | 5 m extent: candidate seconds | 10 m extent: candidate seconds | 20 m extent: candidate seconds |
-| --- | ---: | ---: | ---: |
-| 30 seconds | 1,274 | 1,693 | 2,606 |
-| 60 seconds | 910 | 1,028 | 1,495 |
-| 120 seconds | 612 | 770 | 856 |
+| -------------- | ----------------------------: | -----------------------------: | -----------------------------: |
+| 30 seconds     |                         1,274 |                          1,693 |                          2,606 |
+| 60 seconds     |                           910 |                          1,028 |                          1,495 |
+| 120 seconds    |                           612 |                            770 |                            856 |
 
 The totals vary too much to select thresholds solely because a chart looks better. A 60-second/10-metre experiment produces five candidate intervals. Only the summit event has owner confirmation; this investigation cannot report precision, recall or total true stopped time.
 
@@ -114,21 +114,21 @@ The initial operating point is 60 seconds, 10 m extent and no observation gap ov
 
 These sample medians are a diagnostic convenience. Production treatment of irregular sampling, time weighting, short edge bins, outliers and noisy elevation still needs specification and validation. A noisy or drifting height trace should cause abstention, not a confident claim of climbing. Trial spans of 3, 5 and 10 m do not distinguish the real candidates, whose elevation changes are small; this recording cannot calibrate an elevation threshold.
 
-| Synthetic 600-second case | Result after core and movement/elevation screening |
-| --- | --- |
-| Stationary, small GPS jitter | Remains a candidate for all 600 seconds |
-| Continuous movement at 1 m/s | No candidate |
-| Slow directional movement at 0.05 m/s | Retained in pace by directional-progress safeguard |
-| Near-vertical climb, recorded elevation rises 60 m | Retained by elevation safeguard |
-| Climb then descend to original elevation | Retained by elevation safeguard |
-| Stationary with elevation drifting 60 m | Retained for review; conservative false negative |
-| Climb with missing elevation | Retained for review, without claiming movement |
-| Stationary with missing elevation | Also retained for review; reduced stop coverage |
-| Climb with flat terrain-derived elevation | **Remains a candidate: unresolved false positive** |
-| Movement in a 3 m radius circle | **Remains a candidate: unresolved false positive** |
-| Two identical positions 600 seconds apart | No candidate; intervening behaviour unknown |
-| Stationary sampled at 1 s, 5 s or the tested dense irregular schedule | Candidate duration remains 600 seconds |
-| Stationary sampled at 15 s | No candidate under the experimental 10 s observation-gap rule |
+| Synthetic 600-second case                                             | Result after core and movement/elevation screening            |
+| --------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Stationary, small GPS jitter                                          | Remains a candidate for all 600 seconds                       |
+| Continuous movement at 1 m/s                                          | No candidate                                                  |
+| Slow directional movement at 0.05 m/s                                 | Retained in pace by directional-progress safeguard            |
+| Near-vertical climb, recorded elevation rises 60 m                    | Retained by elevation safeguard                               |
+| Climb then descend to original elevation                              | Retained by elevation safeguard                               |
+| Stationary with elevation drifting 60 m                               | Retained for review; conservative false negative              |
+| Climb with missing elevation                                          | Retained for review, without claiming movement                |
+| Stationary with missing elevation                                     | Also retained for review; reduced stop coverage               |
+| Climb with flat terrain-derived elevation                             | **Remains a candidate: unresolved false positive**            |
+| Movement in a 3 m radius circle                                       | **Remains a candidate: unresolved false positive**            |
+| Two identical positions 600 seconds apart                             | No candidate; intervening behaviour unknown                   |
+| Stationary sampled at 1 s, 5 s or the tested dense irregular schedule | Candidate duration remains 600 seconds                        |
+| Stationary sampled at 15 s                                            | No candidate under the experimental 10 s observation-gap rule |
 
 A flat-elevation vertical climb can have exactly the same input series as a stationary person. Without an independent signal, no rule can distinguish those two cases. Likewise, an altitude drift can duplicate a genuine climb. This is why elevation is useful evidence but cannot guarantee correct classification. The small-loop failure separately shows that bounding extent and coarse directional progress do not establish stationarity. Real climbing recordings, correlated drift and movement inside small areas are still needed before recommending automated exclusions as the initial view.
 
@@ -170,7 +170,6 @@ Commands run:
 Application source, dependencies, defaults and GitHub issues were not modified. A build and browser suite were not rerun for research-only artifacts. No source file or private trace was uploaded to a research service.
 
 ## Primary-source evidence
-
 
 ### 1. GPX does not guarantee the observations needed to distinguish stops from climbing
 

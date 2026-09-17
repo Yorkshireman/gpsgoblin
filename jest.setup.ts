@@ -6,7 +6,10 @@ if (typeof window !== 'undefined') {
   window.matchMedia = (query: string) => {
     const minimum = query.match(/\(min-width:\s*([\d.]+)(px|rem|em)\)/);
     return {
-      matches: minimum ? Number(minimum[1]) * (minimum[2] === 'px' ? 1 : 16) <= window.innerWidth : false,
+      matches: minimum
+        ? Number(minimum[1]) * (minimum[2] === 'px' ? 1 : 16) <=
+          window.innerWidth
+        : false,
       media: query,
       onchange: null,
       addListener: jest.fn(),

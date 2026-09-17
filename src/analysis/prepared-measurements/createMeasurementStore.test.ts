@@ -1,7 +1,10 @@
 import { createMeasurementStore } from '.';
 import type { MeasurementViewRequest } from '.';
 
-const completeView = (store: ReturnType<typeof createMeasurementStore>, request: MeasurementViewRequest) => {
+const completeView = (
+  store: ReturnType<typeof createMeasurementStore>,
+  request: MeasurementViewRequest
+) => {
   const view = store.prepareView(request);
   if (!view.analysis) throw new Error('Expected initial analysis payload');
   return { ...view.analysis, display: view.display };
@@ -10,14 +13,53 @@ const completeView = (store: ReturnType<typeof createMeasurementStore>, request:
 describe('prepared measurements', () => {
   it('omits unchanged analysis from display-only responses without changing displayed values', () => {
     const store = createMeasurementStore({
-      format: 'gpx', version: '1.1', originalContents: '', routes: [], waypoints: [],
-      tracks: [{ id: 'track', segments: [{ id: 'segment', samples: [
-        { id: 'a', latitudeDegrees: 0, longitudeDegrees: 0, sourceTime: '2026-09-12T12:00:00Z' },
-        { id: 'b', latitudeDegrees: 0, longitudeDegrees: 0.001, sourceTime: '2026-09-12T12:00:10Z' }
-      ] }] }]
+      format: 'gpx',
+      version: '1.1',
+      originalContents: '',
+      routes: [],
+      waypoints: [],
+      tracks: [
+        {
+          id: 'track',
+          segments: [
+            {
+              id: 'segment',
+              samples: [
+                {
+                  id: 'a',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 0,
+                  sourceTime: '2026-09-12T12:00:00Z'
+                },
+                {
+                  id: 'b',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 0.001,
+                  sourceTime: '2026-09-12T12:00:10Z'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
-    const view = store.prepareView({ entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 60, includeAnalysis: false });
-    expect(view).toMatchObject({ display: new Float64Array([0, NaN, NaN, 0.11119508023353292, NaN, 40.03022888407185]) });
+    const view = store.prepareView({
+      entityId: 'track',
+      units: 'metric',
+      motion: 'speed',
+      smoothingSeconds: 60,
+      includeAnalysis: false
+    });
+    expect(view).toMatchObject({
+      display: new Float64Array([
+        0,
+        NaN,
+        NaN,
+        0.11119508023353292,
+        NaN,
+        40.03022888407185
+      ])
+    });
   });
 
   it('keeps complete measurements and calculates time-weighted display values without retaining returned buffers', () => {
@@ -27,19 +69,45 @@ describe('prepared measurements', () => {
       originalContents: '<gpx/>',
       routes: [],
       waypoints: [],
-      tracks: [{
-        id: 'track',
-        segments: [{
-          id: 'segment',
-          samples: [
-            { id: 'a', latitudeDegrees: 0, longitudeDegrees: 0, elevationMetres: 0, sourceTime: '2026-09-12T12:00:00Z' },
-            { id: 'b', latitudeDegrees: 0, longitudeDegrees: 0.001, elevationMetres: 10, sourceTime: '2026-09-12T12:00:10Z' },
-            { id: 'c', latitudeDegrees: 0, longitudeDegrees: 0.001, sourceTime: '2026-09-12T12:00:40Z' }
+      tracks: [
+        {
+          id: 'track',
+          segments: [
+            {
+              id: 'segment',
+              samples: [
+                {
+                  id: 'a',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 0,
+                  elevationMetres: 0,
+                  sourceTime: '2026-09-12T12:00:00Z'
+                },
+                {
+                  id: 'b',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 0.001,
+                  elevationMetres: 10,
+                  sourceTime: '2026-09-12T12:00:10Z'
+                },
+                {
+                  id: 'c',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 0.001,
+                  sourceTime: '2026-09-12T12:00:40Z'
+                }
+              ]
+            }
           ]
-        }]
-      }]
+        }
+      ]
     });
-    const speed = completeView(store, { entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 60 });
+    const speed = completeView(store, {
+      entityId: 'track',
+      units: 'metric',
+      motion: 'speed',
+      smoothingSeconds: 60
+    });
     expect(speed.metrics.length).toBe(12);
     expect(speed.display.length).toBe(9);
     expect(speed.summary).toMatchObject({
@@ -59,7 +127,12 @@ describe('prepared measurements', () => {
     expect(speed.display[7]).toBeNaN();
     speed.metrics.fill(-1);
     speed.display.fill(-1);
-    const pace = completeView(store, { entityId: 'track', units: 'imperial', motion: 'pace', smoothingSeconds: 60 });
+    const pace = completeView(store, {
+      entityId: 'track',
+      units: 'imperial',
+      motion: 'pace',
+      smoothingSeconds: 60
+    });
     expect(pace.metrics[0]).toBe(0);
     expect(pace.display[4]).toBeCloseTo(32.80839895, 6);
     expect(pace.display[8]).toBeCloseTo(9.6487722, 6);
@@ -68,22 +141,59 @@ describe('prepared measurements', () => {
 
   it('resets distance and smoothing for a selected segment and keeps its own warnings and endpoint duration', () => {
     const store = createMeasurementStore({
-      format: 'gpx', version: '1.1', originalContents: '', routes: [], waypoints: [],
-      tracks: [{ id: 'track', segments: [
-        { id: 'empty', samples: [] },
-        { id: 'first', samples: [
-          { id: 'a', latitudeDegrees: 0, longitudeDegrees: 0 },
-          { id: 'b', latitudeDegrees: 0, longitudeDegrees: 1 }
-        ] },
-        { id: 'second', samples: [
-          { id: 'c', latitudeDegrees: 0, longitudeDegrees: 2, sourceTime: '2026-09-12T12:00:00Z' },
-          { id: 'd', latitudeDegrees: 0, longitudeDegrees: 2.001, sourceTime: '2026-09-12T12:00:10Z' },
-          { id: 'e', latitudeDegrees: 0, longitudeDegrees: 2.002, sourceTime: '2026-09-12T12:00:05Z', elevationMetres: NaN }
-        ] },
-        { id: 'end-empty', samples: [] }
-      ] }]
+      format: 'gpx',
+      version: '1.1',
+      originalContents: '',
+      routes: [],
+      waypoints: [],
+      tracks: [
+        {
+          id: 'track',
+          segments: [
+            { id: 'empty', samples: [] },
+            {
+              id: 'first',
+              samples: [
+                { id: 'a', latitudeDegrees: 0, longitudeDegrees: 0 },
+                { id: 'b', latitudeDegrees: 0, longitudeDegrees: 1 }
+              ]
+            },
+            {
+              id: 'second',
+              samples: [
+                {
+                  id: 'c',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 2,
+                  sourceTime: '2026-09-12T12:00:00Z'
+                },
+                {
+                  id: 'd',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 2.001,
+                  sourceTime: '2026-09-12T12:00:10Z'
+                },
+                {
+                  id: 'e',
+                  latitudeDegrees: 0,
+                  longitudeDegrees: 2.002,
+                  sourceTime: '2026-09-12T12:00:05Z',
+                  elevationMetres: NaN
+                }
+              ]
+            },
+            { id: 'end-empty', samples: [] }
+          ]
+        }
+      ]
     });
-    const selected = completeView(store, { entityId: 'track', segmentId: 'second', units: 'metric', motion: 'speed', smoothingSeconds: 600 });
+    const selected = completeView(store, {
+      entityId: 'track',
+      segmentId: 'second',
+      units: 'metric',
+      motion: 'speed',
+      smoothingSeconds: 600
+    });
     expect(selected.summary).toMatchObject({
       elapsedDurationSeconds: 5,
       timedDurationSeconds: 10,
@@ -99,8 +209,15 @@ describe('prepared measurements', () => {
     expect(selected.metrics[8]).toBeCloseTo(222.39016, 5);
     expect(selected.display[5]).toBeCloseTo(40.0302289, 6);
     expect(selected.display[8]).toBeNaN();
-    expect(selected.timeIssues).toEqual([{ index: 2, issue: 'backwards timestamp' }]);
-    const all = completeView(store, { entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 600 });
+    expect(selected.timeIssues).toEqual([
+      { index: 2, issue: 'backwards timestamp' }
+    ]);
+    const all = completeView(store, {
+      entityId: 'track',
+      units: 'metric',
+      motion: 'speed',
+      smoothingSeconds: 600
+    });
     expect(all.display[8]).toBeNaN();
     expect(all.display[11]).toBeCloseTo(40.0302289, 6);
     expect(all.timeIssues).toEqual([
@@ -108,70 +225,170 @@ describe('prepared measurements', () => {
       { index: 1, issue: 'missing timestamp' },
       { index: 4, issue: 'backwards timestamp' }
     ]);
-    const empty = completeView(store, { entityId: 'track', segmentId: 'end-empty', units: 'metric', motion: 'speed', smoothingSeconds: 0 });
+    const empty = completeView(store, {
+      entityId: 'track',
+      segmentId: 'end-empty',
+      units: 'metric',
+      motion: 'speed',
+      smoothingSeconds: 0
+    });
     expect(empty.metrics.length).toBe(0);
     expect(empty.display.length).toBe(0);
-    expect(empty.summary).toEqual({ distanceMetres: 0, elapsedDurationSeconds: null, timedDurationSeconds: null, averageSpeedMetresPerSecond: null, intervalCount: 0, timedIntervalCount: 0, warnings: [] });
+    expect(empty.summary).toEqual({
+      distanceMetres: 0,
+      elapsedDurationSeconds: null,
+      timedDurationSeconds: null,
+      averageSpeedMetresPerSecond: null,
+      intervalCount: 0,
+      timedIntervalCount: 0,
+      warnings: []
+    });
   });
 
   it('retains prepared route results when the input object changes and leaves exact stationary pace unavailable', () => {
-    const route = { id: 'route', points: [
-      { id: 'a', latitudeDegrees: 0, longitudeDegrees: 0, sourceTime: '2026-09-12T12:00:00Z' },
-      { id: 'b', latitudeDegrees: 0, longitudeDegrees: 0.001, sourceTime: '2026-09-12T12:00:10Z' },
-      { id: 'c', latitudeDegrees: 0, longitudeDegrees: 0.001, sourceTime: '2026-09-12T12:00:20Z' }
-    ] };
-    const store = createMeasurementStore({ format: 'gpx', version: '1.1', originalContents: '', routes: [route], tracks: [], waypoints: [] });
+    const route = {
+      id: 'route',
+      points: [
+        {
+          id: 'a',
+          latitudeDegrees: 0,
+          longitudeDegrees: 0,
+          sourceTime: '2026-09-12T12:00:00Z'
+        },
+        {
+          id: 'b',
+          latitudeDegrees: 0,
+          longitudeDegrees: 0.001,
+          sourceTime: '2026-09-12T12:00:10Z'
+        },
+        {
+          id: 'c',
+          latitudeDegrees: 0,
+          longitudeDegrees: 0.001,
+          sourceTime: '2026-09-12T12:00:20Z'
+        }
+      ]
+    };
+    const store = createMeasurementStore({
+      format: 'gpx',
+      version: '1.1',
+      originalContents: '',
+      routes: [route],
+      tracks: [],
+      waypoints: []
+    });
     route.points[1].sourceTime = 'invalid';
     route.points[1].longitudeDegrees = 100;
-    const pace = completeView(store, { entityId: 'route', units: 'metric', motion: 'pace', smoothingSeconds: 10 });
+    const pace = completeView(store, {
+      entityId: 'route',
+      units: 'metric',
+      motion: 'pace',
+      smoothingSeconds: 10
+    });
     expect(pace.summary.distanceMetres).toBeCloseTo(111.19508, 5);
     expect(pace.display[5]).toBeCloseTo(1.49886727, 6);
     expect(pace.display[8]).toBeNaN();
     expect(pace.metrics[10]).toBe(0);
     expect(pace.timeIssues).toEqual([]);
-    expect(() => store.prepareView({ entityId: 'missing', units: 'metric', motion: 'speed', smoothingSeconds: 60 })).toThrow('selected activity');
-    expect(() => store.prepareView({ entityId: 'route', segmentId: 'missing', units: 'metric', motion: 'speed', smoothingSeconds: 60 })).toThrow('selected segment');
+    expect(() =>
+      store.prepareView({
+        entityId: 'missing',
+        units: 'metric',
+        motion: 'speed',
+        smoothingSeconds: 60
+      })
+    ).toThrow('selected activity');
+    expect(() =>
+      store.prepareView({
+        entityId: 'route',
+        segmentId: 'missing',
+        units: 'metric',
+        motion: 'speed',
+        smoothingSeconds: 60
+      })
+    ).toThrow('selected segment');
   });
 });
 
 it('requires explicit candidate confirmation, resets smoothing after exclusion and restores the complete view', () => {
   const samples = Array.from({ length: 81 }, (_, index) => {
-    const metres = index <= 10 ? index * 30 : index <= 70 ? 300 : 300 + (index - 70) * 20;
-    return { id: `p${index}`, latitudeDegrees: 0, longitudeDegrees: metres / 111195.0802335329,
-      elevationMetres: 100, sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 1000).toISOString() };
+    const metres =
+      index <= 10 ? index * 30 : index <= 70 ? 300 : 300 + (index - 70) * 20;
+    return {
+      id: `p${index}`,
+      latitudeDegrees: 0,
+      longitudeDegrees: metres / 111195.0802335329,
+      elevationMetres: 100,
+      sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 1000).toISOString()
+    };
   });
-  const document = { format: 'gpx' as const, version: '1.1' as const, originalContents: '<gpx/>', routes: [], waypoints: [],
-    tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }] };
+  const document = {
+    format: 'gpx' as const,
+    version: '1.1' as const,
+    originalContents: '<gpx/>',
+    routes: [],
+    waypoints: [],
+    tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }]
+  };
   const store = createMeasurementStore(document);
-  const request: MeasurementViewRequest = { entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 60 };
+  const request: MeasurementViewRequest = {
+    entityId: 'track',
+    units: 'metric',
+    motion: 'speed',
+    smoothingSeconds: 60
+  };
   const complete = store.prepareView(request);
   const candidate = complete.analysis?.stops?.candidates[0];
   expect(candidate).toBeDefined();
   if (!candidate) throw new Error('Expected a possible stop');
   const unconfirmed = store.prepareView({ ...request, stopMode: 'exclude' });
   expect(unconfirmed.basis.excludedSeconds).toBe(0);
-  const filtered = store.prepareView({ ...request, stopMode: 'exclude', confirmedStopIds: [candidate.id] });
+  const filtered = store.prepareView({
+    ...request,
+    stopMode: 'exclude',
+    confirmedStopIds: [candidate.id]
+  });
   expect(filtered.basis.excludedSeconds).toBe(60);
   expect(filtered.display[(candidate.endIndex + 1) * 3 + 2]).toBeCloseTo(72);
   expect(filtered.display[candidate.endIndex * 3 + 2]).toBeNaN();
   expect(filtered.analysis?.summary).toEqual(complete.analysis?.summary);
   expect(filtered.timeSeconds.at(-1)).toBe(20);
   expect(filtered.basis.averageSpeedMetresPerSecond).toBeCloseTo(25);
-  expect(store.prepareView({ ...request, confirmedStopIds: [candidate.id] })).toEqual(complete);
+  expect(
+    store.prepareView({ ...request, confirmedStopIds: [candidate.id] })
+  ).toEqual(complete);
   expect(document.originalContents).toBe('<gpx/>');
 });
 
 it('masks gaps only for recorded display, preserves totals and resets smoothing in every view', () => {
   let seconds = 0;
-  const samples = [0, ...Array(20).fill(10), 600, ...Array(20).fill(10)].map((duration, index) => {
-    seconds += duration;
-    return { id: `sample-${index}`, latitudeDegrees: 0, longitudeDegrees: index / 10000,
-      sourceTime: new Date(Date.UTC(2026, 0, 1) + seconds * 1000).toISOString() };
-  });
-  const store = createMeasurementStore({ format: 'gpx', version: '1.1', originalContents: '', waypoints: [],
+  const samples = [0, ...Array(20).fill(10), 600, ...Array(20).fill(10)].map(
+    (duration, index) => {
+      seconds += duration;
+      return {
+        id: `sample-${index}`,
+        latitudeDegrees: 0,
+        longitudeDegrees: index / 10000,
+        sourceTime: new Date(
+          Date.UTC(2026, 0, 1) + seconds * 1000
+        ).toISOString()
+      };
+    }
+  );
+  const store = createMeasurementStore({
+    format: 'gpx',
+    version: '1.1',
+    originalContents: '',
+    waypoints: [],
     tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }],
-    routes: [{ id: 'route', points: samples }] });
-  const request: MeasurementViewRequest = { entityId: 'track', units: 'metric', motion: 'speed', smoothingSeconds: 60 };
+    routes: [{ id: 'route', points: samples }]
+  });
+  const request: MeasurementViewRequest = {
+    entityId: 'track',
+    units: 'metric',
+    motion: 'speed',
+    smoothingSeconds: 60
+  };
   const view = completeView(store, request);
   expect(view.recordingGaps).toEqual([21]);
   expect(view.metrics[21 * 4 + 2]).toBeGreaterThan(0);
@@ -180,21 +397,42 @@ it('masks gaps only for recorded display, preserves totals and resets smoothing 
   expect(view.summary.elapsedDurationSeconds).toBe(1000);
   expect(view.summary.timedDurationSeconds).toBe(1000);
   for (const smoothingSeconds of [0, 600]) {
-    const changed = completeView(store, { ...request, segmentId: 'segment', units: 'imperial', motion: 'pace', smoothingSeconds });
+    const changed = completeView(store, {
+      ...request,
+      segmentId: 'segment',
+      units: 'imperial',
+      motion: 'pace',
+      smoothingSeconds
+    });
     expect(changed.recordingGaps).toEqual([21]);
     expect(changed.display[21 * 3 + 2]).toBeNaN();
-    expect(changed.display[22 * 3 + 2]).toBeCloseTo(1609.344 / view.metrics[22 * 4 + 2] / 60);
+    expect(changed.display[22 * 3 + 2]).toBeCloseTo(
+      1609.344 / view.metrics[22 * 4 + 2] / 60
+    );
     expect(changed.summary).toEqual(view.summary);
   }
   const planned = completeView(store, { ...request, entityId: 'route' });
   expect(planned.recordingGaps).toEqual([]);
   expect(planned.display[21 * 3 + 2]).toBeGreaterThan(0);
   expect(planned.summary).toEqual(view.summary);
-  const update = store.prepareView({ ...request, includeAnalysis: false, smoothingSeconds: 0 });
+  const update = store.prepareView({
+    ...request,
+    includeAnalysis: false,
+    smoothingSeconds: 0
+  });
   expect(update.analysis).toBeUndefined();
   expect(update.display[21 * 3 + 2]).toBeNaN();
-  const moving = store.prepareView({ ...request, stopMode: 'exclude', includeAnalysis: false });
-  expect(moving.basis).toMatchObject({ gapSeconds: 600, excludedSeconds: 0, eligibleSeconds: 400, partialCoverage: true });
+  const moving = store.prepareView({
+    ...request,
+    stopMode: 'exclude',
+    includeAnalysis: false
+  });
+  expect(moving.basis).toMatchObject({
+    gapSeconds: 600,
+    excludedSeconds: 0,
+    eligibleSeconds: 400,
+    partialCoverage: true
+  });
   expect(moving.basis.eligibleDistanceMetres).toBeCloseTo(444.78032, 5);
   expect(moving.basis.averageSpeedMetresPerSecond).toBeCloseTo(1.1119508, 6);
   expect(moving.timeSeconds[21]).toBe(moving.timeSeconds[20]);
@@ -204,17 +442,44 @@ it('masks gaps only for recorded display, preserves totals and resets smoothing 
 
 it('never excludes planned-route timestamps and makes incomplete time coverage explicit', () => {
   const samples = Array.from({ length: 61 }, (_, index) => {
-    return { id: `p${index}`, latitudeDegrees: 0, longitudeDegrees: 0,
-      sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 1000).toISOString() };
+    return {
+      id: `p${index}`,
+      latitudeDegrees: 0,
+      longitudeDegrees: 0,
+      sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 1000).toISOString()
+    };
   });
-  const store = createMeasurementStore({ format: 'gpx', version: '1.1', originalContents: '', waypoints: [],
-    tracks: [{ id: 'track', segments: [{ id: 's', samples: [...samples, { ...samples[0], id: 'bad' }] }] }],
-    routes: [{ id: 'route', points: samples }] });
-  const request: MeasurementViewRequest = { entityId: 'route', units: 'metric', motion: 'speed', smoothingSeconds: 0, stopMode: 'exclude', confirmedStopIds: ['p0:p60'] };
+  const store = createMeasurementStore({
+    format: 'gpx',
+    version: '1.1',
+    originalContents: '',
+    waypoints: [],
+    tracks: [
+      {
+        id: 'track',
+        segments: [
+          { id: 's', samples: [...samples, { ...samples[0], id: 'bad' }] }
+        ]
+      }
+    ],
+    routes: [{ id: 'route', points: samples }]
+  });
+  const request: MeasurementViewRequest = {
+    entityId: 'route',
+    units: 'metric',
+    motion: 'speed',
+    smoothingSeconds: 0,
+    stopMode: 'exclude',
+    confirmedStopIds: ['p0:p60']
+  };
   const route = store.prepareView(request);
   expect(route.basis.mode).toBe('include');
   expect(route.analysis?.stops.candidates).toEqual([]);
-  const invalid = store.prepareView({ ...request, entityId: 'track', stopMode: 'include' });
+  const invalid = store.prepareView({
+    ...request,
+    entityId: 'track',
+    stopMode: 'include'
+  });
   expect(invalid.timeAvailable).toBe(false);
   expect(invalid.basis.partialCoverage).toBe(true);
   const excluded = store.prepareView({ ...request, entityId: 'track' });
@@ -225,16 +490,37 @@ it('never excludes planned-route timestamps and makes incomplete time coverage e
 
 it('returns the suggested pace range with settings-only responses and converts it without changing summaries', () => {
   const samples = Array.from({ length: 101 }, (_, index) => {
-    return { id: `point-${index}`, latitudeDegrees: 0, longitudeDegrees: index / 10000,
-      sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 10_000).toISOString() };
+    return {
+      id: `point-${index}`,
+      latitudeDegrees: 0,
+      longitudeDegrees: index / 10000,
+      sourceTime: new Date(Date.UTC(2026, 0, 1) + index * 10_000).toISOString()
+    };
   });
-  const store = createMeasurementStore({ format: 'gpx', version: '1.1', originalContents: '', routes: [], waypoints: [],
-    tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }] });
-  const request: MeasurementViewRequest = { entityId: 'track', motion: 'pace', units: 'metric', smoothingSeconds: 60 };
+  const store = createMeasurementStore({
+    format: 'gpx',
+    version: '1.1',
+    originalContents: '',
+    routes: [],
+    waypoints: [],
+    tracks: [{ id: 'track', segments: [{ id: 'segment', samples }] }]
+  });
+  const request: MeasurementViewRequest = {
+    entityId: 'track',
+    motion: 'pace',
+    units: 'metric',
+    smoothingSeconds: 60
+  };
   const metric = store.prepareView(request);
   expect(metric.suggestedPaceMaximum).toBe(19);
-  const imperial = store.prepareView({ ...request, units: 'imperial', includeAnalysis: false });
+  const imperial = store.prepareView({
+    ...request,
+    units: 'imperial',
+    includeAnalysis: false
+  });
   expect(imperial.suggestedPaceMaximum).toBeCloseTo(19 * 1.609344);
   expect(imperial.analysis).toBeUndefined();
-  expect(store.prepareView({ ...request, motion: 'speed' }).analysis?.summary).toEqual(metric.analysis?.summary);
+  expect(
+    store.prepareView({ ...request, motion: 'speed' }).analysis?.summary
+  ).toEqual(metric.analysis?.summary);
 });

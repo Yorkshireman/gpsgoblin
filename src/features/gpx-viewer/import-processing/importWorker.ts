@@ -12,12 +12,29 @@ self.addEventListener('message', async (event: MessageEvent<ImportRequest>) => {
     try {
       if (!measurements) throw new Error('No open measurements');
       const view = measurements.prepareView(settings);
-      const response: ImportResponse = { type: 'view', requestId, ok: true, view };
-      self.postMessage(response, { transfer: view.analysis
-        ? [view.analysis.metrics.buffer, view.display.buffer, view.timeSeconds.buffer] : [view.display.buffer, view.timeSeconds.buffer] });
+      const response: ImportResponse = {
+        type: 'view',
+        requestId,
+        ok: true,
+        view
+      };
+      self.postMessage(response, {
+        transfer: view.analysis
+          ? [
+              view.analysis.metrics.buffer,
+              view.display.buffer,
+              view.timeSeconds.buffer
+            ]
+          : [view.display.buffer, view.timeSeconds.buffer]
+      });
     } catch {
-      const response: ImportResponse = { type: 'view', requestId: event.data.requestId, ok: false,
-        error: 'Measurements could not be updated. Try again or reopen the file.' };
+      const response: ImportResponse = {
+        type: 'view',
+        requestId: event.data.requestId,
+        ok: false,
+        error:
+          'Measurements could not be updated. Try again or reopen the file.'
+      };
       self.postMessage(response);
     }
     return;
@@ -34,7 +51,8 @@ self.addEventListener('message', async (event: MessageEvent<ImportRequest>) => {
       requestId,
       result: {
         ok: false,
-        error: 'The file could not be read or processed. Try exporting it again or choose another GPX file.'
+        error:
+          'The file could not be read or processed. Try exporting it again or choose another GPX file.'
       }
     };
   }

@@ -242,13 +242,13 @@ to run the optional real-recording check; it does not copy the recording into th
 repository. Screenshots are stored in the ignored `test-results` directory.
 Tested exporter coverage is deliberately narrow:
 
-| Exporter/input | Verified behaviour |
-| --- | --- |
-| bikerouter.de 2025.46, sanitised GPX 1.1 | Imports its 169-point planned route exported as a track. |
-| StravaGPX, permissioned complete 8,142-point GPX 1.1 recording | Imports recorded structure, elevation and timestamps after sanitisation; the complete private original also opens in local Chrome profiling. |
-| GPSBabel, sanitised GPX 1.0 recording | Rejected explicitly as an unsupported version. |
-| Synthetic UTF-8 GPX 1.1 | Tracks, segments, routes, waypoints, names/descriptions, optional elevation and raw timestamps, plus hostile/malformed and missing-data cases. |
-| HR, cadence, power and other vendor extensions | Not interpreted; no vendor compatibility claim. |
+| Exporter/input                                                 | Verified behaviour                                                                                                                             |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| bikerouter.de 2025.46, sanitised GPX 1.1                       | Imports its 169-point planned route exported as a track.                                                                                       |
+| StravaGPX, permissioned complete 8,142-point GPX 1.1 recording | Imports recorded structure, elevation and timestamps after sanitisation; the complete private original also opens in local Chrome profiling.   |
+| GPSBabel, sanitised GPX 1.0 recording                          | Rejected explicitly as an unsupported version.                                                                                                 |
+| Synthetic UTF-8 GPX 1.1                                        | Tracks, segments, routes, waypoints, names/descriptions, optional elevation and raw timestamps, plus hostile/malformed and missing-data cases. |
+| HR, cadence, power and other vendor extensions                 | Not interpreted; no vendor compatibility claim.                                                                                                |
 
 The Strava fixture preserves all 8,142 source points but replaces sensitive values
 and removes extensions. It does not establish support for all Strava exports.

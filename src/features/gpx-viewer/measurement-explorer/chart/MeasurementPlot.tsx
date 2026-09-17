@@ -13,7 +13,10 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
-import { formatChartValue, formatChartMeasurement } from '../../measurementDisplay';
+import {
+  formatChartValue,
+  formatChartMeasurement
+} from '../../measurementDisplay';
 import { ChartSelection } from './ChartSelection';
 import { GapMarkers } from './GapMarkers';
 import { OverflowMarkers } from './OverflowMarkers';
@@ -41,7 +44,8 @@ export const MeasurementPlot = ({
   const container = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [hoveredOverflowId, setHoveredOverflowId] = useState<string>();
-  const [hideTooltipAfterOverflow, setHideTooltipAfterOverflow] = useState(false);
+  const [hideTooltipAfterOverflow, setHideTooltipAfterOverflow] =
+    useState(false);
   useLayoutEffect(() => {
     const element = container.current;
     if (!element) return;
@@ -57,14 +61,21 @@ export const MeasurementPlot = ({
   const displayData = useMemo(() => {
     return downsampleChart(data, width);
   }, [data, width]);
-  const hoveredOverflow = axisMaximum === undefined || hoveredOverflowId === undefined ? undefined : data.find(point => {
-    return point.sampleId === hoveredOverflowId && point.motion !== null && point.motion > axisMaximum;
-  });
+  const hoveredOverflow =
+    axisMaximum === undefined || hoveredOverflowId === undefined
+      ? undefined
+      : data.find((point) => {
+          return (
+            point.sampleId === hoveredOverflowId &&
+            point.motion !== null &&
+            point.motion > axisMaximum
+          );
+        });
   const chart = useChart({
     data: displayData,
     series: [{ name: metric, color: 'green.fg', label: `${title} (${unit})` }]
   });
-  const selected = data.find(point => {
+  const selected = data.find((point) => {
     return point.sampleId === selectedId;
   });
   const isolated = displayData.filter((point, index) => {
@@ -78,19 +89,38 @@ export const MeasurementPlot = ({
     );
   });
   return (
-    <Box ref={container} h={{ base: '48', md: '56' }} maxH='sm' minW={0}
-      onPointerMove={event => {
-        if (event.target instanceof Element && event.target.closest('.measurement-selection-area')) {
+    <Box
+      ref={container}
+      h={{ base: '48', md: '56' }}
+      maxH="sm"
+      minW={0}
+      onPointerMove={(event) => {
+        if (
+          event.target instanceof Element &&
+          event.target.closest('.measurement-selection-area')
+        ) {
           setHideTooltipAfterOverflow(false);
         }
-      }}>
+      }}
+    >
       {width > 0 ? (
-        <Chart.Root chart={chart} h='full' minW={0}>
+        <Chart.Root chart={chart} h="full" minW={0}>
           <ComposedChart
             responsive
             style={{ width: '100%', height: '100%' }}
             data={chart.data}
-            margin={{ top: metric === 'motion' && displayData.some(point => { return point.recordingGap || point.possibleStop; }) ? 56 : 12, right: 8, bottom: 28, left: 0 }}
+            margin={{
+              top:
+                metric === 'motion' &&
+                displayData.some((point) => {
+                  return point.recordingGap || point.possibleStop;
+                })
+                  ? 56
+                  : 12,
+              right: 8,
+              bottom: 28,
+              left: 0
+            }}
             accessibilityLayer
           >
             <CartesianGrid
@@ -99,10 +129,10 @@ export const MeasurementPlot = ({
               verticalCoordinatesGenerator={noVerticalGrid}
             />
             <XAxis
-              type='number'
+              type="number"
               dataKey={chartPosition}
               domain={['dataMin', 'dataMax']}
-              tickFormatter={value => {
+              tickFormatter={(value) => {
                 return Number(Number(value).toFixed(1)).toString();
               }}
               label={{
@@ -113,7 +143,7 @@ export const MeasurementPlot = ({
               }}
             />
             <YAxis
-              type='number'
+              type="number"
               domain={
                 unit.startsWith('min/')
                   ? [0, axisMaximum ?? 'dataMax']
@@ -123,30 +153,30 @@ export const MeasurementPlot = ({
               }
               allowDataOverflow={axisMaximum !== undefined}
               padding={{ top: unit.startsWith('min/') ? 3 : 0 }}
-              width='auto'
-              tickFormatter={value => {
+              width="auto"
+              tickFormatter={(value) => {
                 return formatChartValue(Number(value), unit);
               }}
             />
             {elevationOverlay?.enabled ? (
               <YAxis
-                yAxisId='backgroundElevation'
-                orientation='right'
-                width='auto'
+                yAxisId="backgroundElevation"
+                orientation="right"
+                width="auto"
                 tickCount={4}
                 domain={['auto', 'auto']}
-                tickFormatter={value => {
+                tickFormatter={(value) => {
                   return formatChartValue(Number(value), elevationOverlay.unit);
                 }}
               />
             ) : null}
             {elevationOverlay?.enabled ? (
               <Area
-                className='elevation-background'
-                yAxisId='backgroundElevation'
-                type='linear'
-                dataKey='elevation'
-                baseValue='dataMin'
+                className="elevation-background"
+                yAxisId="backgroundElevation"
+                type="linear"
+                dataKey="elevation"
+                baseValue="dataMin"
                 stroke={chart.color('bg.inverted')}
                 strokeOpacity={0.25}
                 fill={chart.color('bg.inverted')}
@@ -158,26 +188,51 @@ export const MeasurementPlot = ({
               />
             ) : null}
             <Tooltip
-              active={hideTooltipAfterOverflow ? false : hoveredOverflow ? true : undefined}
+              active={
+                hideTooltipAfterOverflow
+                  ? false
+                  : hoveredOverflow
+                    ? true
+                    : undefined
+              }
               content={({ active, payload }) => {
                 const point = hoveredOverflow ?? payload?.[0]?.payload;
-                if ((!active && !hoveredOverflow) || !point || typeof point[metric] !== 'number') {
+                if (
+                  (!active && !hoveredOverflow) ||
+                  !point ||
+                  typeof point[metric] !== 'number'
+                ) {
                   return null;
                 }
                 return (
-                  <Stack bg='bg.panel' rounded='l2' shadow='md' px={3} py={2} gap={1} fontSize='xs'>
+                  <Stack
+                    bg="bg.panel"
+                    rounded="l2"
+                    shadow="md"
+                    px={3}
+                    py={2}
+                    gap={1}
+                    fontSize="xs"
+                  >
                     <Text>
-                      Distance: {Number(point.distance).toFixed(2)} {distanceUnit}
+                      Distance: {Number(point.distance).toFixed(2)}{' '}
+                      {distanceUnit}
                     </Text>
                     <Text>
                       {title}: {formatChartMeasurement(point[metric], unit)}
                     </Text>
-                    {axisMaximum !== undefined && point[metric] > axisMaximum ? (
+                    {axisMaximum !== undefined &&
+                    point[metric] > axisMaximum ? (
                       <Text>Above visible maximum.</Text>
                     ) : null}
-                    {elevationOverlay?.enabled && typeof point.elevation === 'number' ? (
+                    {elevationOverlay?.enabled &&
+                    typeof point.elevation === 'number' ? (
                       <Text>
-                        Elevation: {formatChartMeasurement(point.elevation, elevationOverlay.unit)}
+                        Elevation:{' '}
+                        {formatChartMeasurement(
+                          point.elevation,
+                          elevationOverlay.unit
+                        )}
                       </Text>
                     ) : null}
                   </Stack>
@@ -185,7 +240,7 @@ export const MeasurementPlot = ({
               }}
             />
             <Line
-              type='linear'
+              type="linear"
               dataKey={metric}
               stroke={chart.color('green.fg')}
               connectNulls={false}
@@ -199,11 +254,13 @@ export const MeasurementPlot = ({
                 y={reference.value}
                 stroke={chart.color('fg.muted')}
                 strokeWidth={2}
-                strokeDasharray='6 4'
-                ifOverflow={axisMaximum === undefined ? 'extendDomain' : 'hidden'}
+                strokeDasharray="6 4"
+                ifOverflow={
+                  axisMaximum === undefined ? 'extendDomain' : 'hidden'
+                }
               />
             ) : null}
-            {isolated.map(point => {
+            {isolated.map((point) => {
               return (
                 <ReferenceDot
                   key={point.sampleId}
@@ -211,11 +268,13 @@ export const MeasurementPlot = ({
                   y={point[metric] ?? undefined}
                   r={3}
                   fill={chart.color('green.fg')}
-                  stroke='none'
+                  stroke="none"
                 />
               );
             })}
-            {selected && selected[metric] !== null && (axisMaximum === undefined || selected[metric] <= axisMaximum) ? (
+            {selected &&
+            selected[metric] !== null &&
+            (axisMaximum === undefined || selected[metric] <= axisMaximum) ? (
               <ReferenceDot
                 x={chartPosition(selected)}
                 y={selected[metric]}
@@ -224,27 +283,51 @@ export const MeasurementPlot = ({
                 stroke={chart.color('fg')}
               />
             ) : null}
-            <ChartSelection data={data} metric={metric} axisMaximum={axisMaximum} onSelect={onSelect} />
-            {metric === 'motion' ? <GapMarkers data={displayData} selectedId={selectedId}
-              onHover={() => { setHideTooltipAfterOverflow(true); setHoveredOverflowId(undefined); }}
-              onSelect={(id, trigger) => {
-                setHideTooltipAfterOverflow(true);
-                setHoveredOverflowId(undefined);
-                if (onStopSelect && data.some(point => { return point.sampleId === id && point.possibleStop; })) onStopSelect(id, trigger);
-                else onSelect(id);
-              }} /> : null}
+            <ChartSelection
+              data={data}
+              metric={metric}
+              axisMaximum={axisMaximum}
+              onSelect={onSelect}
+            />
+            {metric === 'motion' ? (
+              <GapMarkers
+                data={displayData}
+                selectedId={selectedId}
+                onHover={() => {
+                  setHideTooltipAfterOverflow(true);
+                  setHoveredOverflowId(undefined);
+                }}
+                onSelect={(id, trigger) => {
+                  setHideTooltipAfterOverflow(true);
+                  setHoveredOverflowId(undefined);
+                  if (
+                    onStopSelect &&
+                    data.some((point) => {
+                      return point.sampleId === id && point.possibleStop;
+                    })
+                  )
+                    onStopSelect(id, trigger);
+                  else onSelect(id);
+                }}
+              />
+            ) : null}
             {axisMaximum !== undefined ? (
-              <OverflowMarkers data={displayData} maximum={axisMaximum} unit={unit}
-                distanceUnit={distanceUnit} selected={selected}
-                onSelect={id => {
+              <OverflowMarkers
+                data={displayData}
+                maximum={axisMaximum}
+                unit={unit}
+                distanceUnit={distanceUnit}
+                selected={selected}
+                onSelect={(id) => {
                   setHideTooltipAfterOverflow(true);
                   setHoveredOverflowId(undefined);
                   onSelect(id);
                 }}
-                onHover={id => {
+                onHover={(id) => {
                   setHoveredOverflowId(id);
                   if (id !== undefined) setHideTooltipAfterOverflow(false);
-                }} />
+                }}
+              />
             ) : null}
           </ComposedChart>
         </Chart.Root>
