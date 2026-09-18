@@ -4,6 +4,11 @@ Owner decision, 18 September 2026: Bramble light and dark are the finalised
 colour palettes chosen for implementation. These are local previews; production theme configuration has not yet
 been changed. Preserve Source Sans 3, Fraunces and all existing typography.
 
+Owner amendment, 18 September 2026: light-mode measurement selections use pale
+blue (`#DBEAFE`) with dark blue text and actions (`#173DA6`), replacing the
+original berry treatment. Dark-mode selection colours are unchanged. The
+historical previews below predate this amendment.
+
 ## Exact palettes
 
 | Preview key         | Role                                   | Selected light | Selected dark |
@@ -18,8 +23,8 @@ been changed. Preserve Source Sans 3, Fraunces and all existing typography.
 | `soft`              | Subtle action backgrounds              | `#D4E6AF`      | `#2F432B`     |
 | `hover`             | Stronger action backgrounds            | `#B8D383`      | `#405834`     |
 | `contrast`          | Text on solid green actions            | `#FFFFFF`      | `#172314`     |
-| `selected`          | Selected measurement background        | `#F0DCE8`      | `#20344A`     |
-| `selection`         | Selected measurement text and actions  | `#742445`      | `#BEDBFA`     |
+| `selected`          | Selected measurement background        | `#DBEAFE`      | `#20344A`     |
+| `selection`         | Selected measurement text and actions  | `#173DA6`      | `#BEDBFA`     |
 | `selectionContrast` | Text on solid blue actions             | `#FFFFFF`      | `#15283D`     |
 | `routeColour`       | Map route and markers                  | `#254E24`      | `#254E24`     |
 
@@ -66,7 +71,7 @@ External map requests were blocked; live basemap contrast remains unverified.
 ## Adoption boundary
 
 The palette choices are finalised. Production adoption requires normal Chakra light/dark semantic tokens and appropriate action,
-information and success colour roles. Preserve berry measurement selections in light mode and blue information/stop
+information and success colour roles. Preserve pale blue measurement selections in light mode and blue information/stop
 panels in dark mode. The preview reuses existing palette roles; implementation
 should distinguish these selection roles from semantic information and success
 states. Imp remains [saved separately](imp.md) as a possible future default

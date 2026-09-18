@@ -70,8 +70,8 @@ const themeConfig = defineConfig({
           actionBackground: modeColor('#D4E6AF', '#2F432B'),
           actionHover: modeColor('#B8D383', '#405834'),
           actionContrast: modeColor('{colors.white}', '#172314'),
-          selectionBackground: modeColor('#F0DCE8', '#20344A'),
-          selectionText: modeColor('#742445', '#BEDBFA'),
+          selectionBackground: modeColor('#DBEAFE', '#20344A'),
+          selectionText: modeColor('#173DA6', '#BEDBFA'),
           selectionContrast: modeColor('{colors.white}', '#15283D')
         },
         bg: {

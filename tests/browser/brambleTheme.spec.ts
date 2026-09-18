@@ -6,7 +6,8 @@ const expected = {
     page: 'rgb(235, 238, 218)',
     panel: 'rgb(255, 254, 244)',
     muted: 'rgb(72, 83, 59)',
-    selection: 'rgb(240, 220, 232)',
+    selection: 'rgb(219, 234, 254)',
+    selectionText: 'rgb(23, 61, 166)',
     infoBackground: 'rgb(219, 234, 254)',
     infoText: 'rgb(23, 61, 166)'
   },
@@ -15,6 +16,7 @@ const expected = {
     panel: 'rgb(32, 43, 34)',
     muted: 'rgb(203, 213, 191)',
     selection: 'rgb(32, 52, 74)',
+    selectionText: 'rgb(190, 219, 250)',
     infoBackground: 'rgb(32, 52, 74)',
     infoText: 'rgb(190, 219, 250)'
   }
@@ -76,6 +78,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(
         page.getByLabel('Selected measurement', { exact: true })
       ).toHaveCSS('background-color', expected[colorScheme].selection);
+      await expect(
+        page.getByLabel('Selected measurement', { exact: true })
+      ).toHaveCSS('color', expected[colorScheme].selectionText);
 
       await page.getByLabel('GPX file', { exact: true }).setInputFiles({
         name: 'one-point.gpx',
