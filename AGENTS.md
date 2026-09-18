@@ -58,6 +58,24 @@ Before completing an implementation request, run `pnpm knip` and require it to e
 
 During authorised implementation, keep `pnpm format:watch` running (it also runs with `pnpm dev`). After each edit batch, run `pnpm exec prettier --write --ignore-unknown` with the paths you changed and wait for completion before reading them again or running checks. Editor save hooks do not run for agent filesystem writes. Before completing implementation or merging, require `pnpm format:check` to exit successfully across the repository.
 
+For all new or updated runtime and test code:
+
+- Order object keys alphabetically when reordering preserves property evaluation
+  and spread precedence.
+- Prefer alphabetical JSX props by prop name. Preserve spread precedence and
+  expression evaluation order; sort explicit props within each group separated
+  by a spread.
+- Order independent variable declarations and assignments alphabetically by
+  variable name within each logical group. Keep dependency and execution order
+  intact.
+- Use blank lines between substantial declarations, such as route definitions,
+  and distinct steps, such as fixture setup, rendering, user interactions, and
+  waiting for results.
+- Add a blank line after a multiline block before the following statement,
+  unless it continues the same expression or control-flow construct.
+- Split long assertions and interactions across lines using the root Prettier
+  configuration and nearby formatting as the guide.
+
 ## TypeScript conventions
 
 Use PascalCase for React component filenames. Use camelCase for other TypeScript and TSX filenames, except framework-mandated filenames such as `page.tsx` and `layout.tsx`.
@@ -68,6 +86,47 @@ Declare named functions as `const` arrow functions with a block body and an expl
 const foobar = () => {
   return null;
 };
+```
+
+## Test structure and setup
+
+Use scenario-based `describe('when ...')` blocks. Put setup and user
+interactions in scoped `beforeEach` blocks so each `test` body is thin and
+focuses on one expected outcome.
+
+- Put common defaults in the outer `beforeEach`; override them in the relevant
+  scenario before rendering.
+- Nest scenarios for natural next steps, such as clearing a filter or a request
+  finishing. Keep the setup chain easy to follow.
+- Give distinct outcomes separate, descriptive `test` blocks. Keep related
+  assertions together when they establish one outcome.
+- Await asynchronous setup and interactions in `beforeEach` so each test starts
+  in the stated situation.
+- Mount the actual component under test with its required providers.
+- For simple rendering and pending-state checks, mock the relevant hooks with
+  explicit values such as `isPending: true`. Use real hooks and controlled
+  service responses when testing transitions or concurrent requests that static
+  mocks would only assume work.
+
+```tsx
+describe('when caches are loading', () => {
+  beforeEach(() => {
+    jest.mocked(useGetCaches).mockReturnValue({
+      isPending: true,
+      isError: false
+    });
+
+    renderCaches();
+  });
+
+  test('shows a loader', () => {
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeVisible();
+  });
+
+  test('does not show the cache list', () => {
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+});
 ```
 
 ## Module interfaces

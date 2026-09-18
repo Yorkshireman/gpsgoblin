@@ -23,7 +23,7 @@ test('exported pages enforce headers and hydrate on direct clean URLs', async ({
     const response = await page.goto(url);
     const headers = response?.headers();
     expect(headers?.['content-security-policy']).toContain("worker-src 'self'");
-    expect(headers?.['content-security-policy']).not.toContain('unsafe-eval');
+    expect(headers?.['content-security-policy']).not.toContain("'unsafe-eval'");
     expect(headers?.['x-content-type-options']).toBe('nosniff');
     expect(headers?.['referrer-policy']).toBe(
       'strict-origin-when-cross-origin'

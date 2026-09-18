@@ -25,7 +25,7 @@ for (const file of htmlFiles) {
 }
 const policy = [
   "default-src 'self'",
-  `script-src 'self' ${[...hashes].sort().join(' ')}`,
+  `script-src 'self' 'wasm-unsafe-eval' ${[...hashes].sort().join(' ')}`,
   "script-src-attr 'none'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",

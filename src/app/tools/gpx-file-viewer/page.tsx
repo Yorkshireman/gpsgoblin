@@ -82,9 +82,11 @@ const GpxFileViewerPage = () => {
                   Privacy and limitations
                 </Heading>
                 <Text>
-                  Your file is not uploaded. Online map backgrounds request the
-                  area you are viewing from OpenStreetMap. Refreshing or leaving
-                  this tool closes your file and resets your choices.
+                  Your file is not uploaded. If you choose Share, the link
+                  itself contains the file so someone else can open it. Online
+                  map backgrounds request the area you are viewing from
+                  OpenStreetMap. Refreshing or leaving this tool closes your
+                  file and resets your choices.
                 </Text>
                 <Text>
                   This viewer does not edit, repair, convert or download a
