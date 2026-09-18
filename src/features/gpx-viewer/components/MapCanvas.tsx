@@ -35,7 +35,10 @@ export const MapCanvas = ({
       container,
       paths,
       point,
-      routeColor,
+      routeColor:
+        getComputedStyle(container)
+          .getPropertyValue('--gpsgoblin-route-colour')
+          .trim() || routeColor,
       onStatusChange: setStatus,
       onBasemapStatusChange: setBasemapStatus
     });
