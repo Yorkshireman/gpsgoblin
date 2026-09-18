@@ -1,8 +1,8 @@
 # Bramble — finalised light and dark themes
 
 Owner decision, 18 September 2026: Bramble light and dark are the finalised
-colour palettes chosen for implementation. These are local previews; production theme configuration has not yet
-been changed. Preserve Source Sans 3, Fraunces and all existing typography.
+colour palettes chosen for implementation. The preview links below record the
+original exploration. Preserve Source Sans 3, Fraunces and all existing typography.
 
 Owner amendment, 18 September 2026: light-mode measurement selections use pale
 blue (`#DBEAFE`) with dark blue text and actions (`#173DA6`), replacing the
@@ -55,7 +55,7 @@ error and neutral palettes use Chakra's defaults for the respective mode.
 
 ## Verification
 
-Chrome checks covered both modes at 1440 × 900, 1280 × 720, 390 × 844 and
+Preview Chrome checks covered both modes at 1440 × 900, 1280 × 720, 390 × 844 and
 375 × 667: navigation, import, keyboard and mouse/touch chart selection,
 map markers and phone map dialogs. Page backgrounds matched across homepage
 and viewer; opposite system preferences did not override the preview mode.
@@ -66,7 +66,26 @@ secondary text on panels, 6.82:1 for green text on subtle green actions,
 8.90:1 for blue text on selection panels and 10.38:1 for text on solid green
 actions. Control borders have 3.22:1 contrast against panels; decorative grid
 lines are more subdued. These spot checks are not a full accessibility audit.
-External map requests were blocked; live basemap contrast remains unverified.
+External map requests were blocked during those preview checks.
+
+Implementation verification, 18 September 2026:
+
+- Focused theme, graph selection and workspace checks passed across Chrome,
+  Firefox and WebKit, with desktop and phone-sized touch contexts (66 tests).
+- Both modes' possible-stop panels were visually inspected at 1440 × 900,
+  1280 × 720, 390 × 844 and 375 × 667 after keyboard or touch selection. The
+  selected stop, confirmation control and graph remained visible in the dialog,
+  with no horizontal overflow. These captures used blocked tiles and invented data.
+- Live OSM tiles were loaded and visually inspected in both modes at 1440 × 900
+  using an invented York route. The deep green route, white casing and selected
+  marker remained distinguishable over the unchanged basemap. Neutral fallback
+  route rendering was also inspected in both modes.
+- The amended light selection text on its background has 7.63:1 contrast.
+  Automated accessibility, focus, missing-data, failed-import, map-return and
+  enlarged-text checks are included in the browser suite.
+
+Phone contexts are browser emulation, not physical-device testing. These checks
+are not a full accessibility audit or evidence for every possible map tile.
 
 ## Adoption boundary
 
