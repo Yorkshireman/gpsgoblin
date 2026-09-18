@@ -41,7 +41,13 @@ const Home = () => {
             explore elevation, speed and pace when your file has the readings
             needed.
           </Text>
-          <Button asChild colorPalette="teal" variant="surface">
+          <Button
+            asChild
+            colorPalette="teal"
+            variant="surface"
+            maxW="full"
+            whiteSpace="normal"
+          >
             <NextLink href="/tools/gpx-file-viewer">
               Open GPX File Viewer
             </NextLink>
