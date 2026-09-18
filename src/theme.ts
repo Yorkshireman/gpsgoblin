@@ -97,8 +97,6 @@ const themeConfig = defineConfig({
           emphasized: { value: '{colors.bramble.mutedText}' }
         },
         action: actionPalette,
-        // Information and selection remain separate roles even where the
-        // approved dark-mode colours coincide.
         blue: {
           fg: modeColor('{colors.blue.700}', '#BEDBFA'),
           subtle: modeColor('{colors.blue.100}', '#20344A')
