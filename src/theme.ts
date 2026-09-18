@@ -1,108 +1,37 @@
-import { defineConfig, defineRecipe } from '@chakra-ui/react';
+import {
+  createSystem,
+  defaultConfig,
+  defineConfig,
+  defineRecipe
+} from '@chakra-ui/react';
 
 const systemFontFallback =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
 
-const brambleActionPalette = {
-  contrast: {
-    value: {
-      _light: '{colors.brambleLight.950}',
-      _dark: '{colors.brambleDark.950}'
-    }
-  },
-  fg: {
-    value: {
-      _light: '{colors.brambleLight.600}',
-      _dark: '{colors.brambleDark.200}'
-    }
-  },
-  subtle: {
-    value: {
-      _light: '{colors.brambleLight.200}',
-      _dark: '{colors.brambleDark.600}'
-    }
-  },
-  muted: {
-    value: {
-      _light: '{colors.brambleLight.300}',
-      _dark: '{colors.brambleDark.500}'
-    }
-  },
-  emphasized: {
-    value: {
-      _light: '{colors.brambleLight.300}',
-      _dark: '{colors.brambleDark.500}'
-    }
-  },
-  solid: {
-    value: {
-      _light: '{colors.brambleLight.600}',
-      _dark: '{colors.brambleDark.200}'
-    }
-  },
-  focusRing: {
-    value: {
-      _light: '{colors.brambleLight.600}',
-      _dark: '{colors.brambleDark.200}'
-    }
-  },
-  border: {
-    value: {
-      _light: '{colors.brambleLight.600}',
-      _dark: '{colors.brambleDark.200}'
-    }
-  }
+const modeColor = (light: string, dark: string) => {
+  return { value: { _light: light, _dark: dark } };
+};
+
+const actionPalette = {
+  contrast: { value: '{colors.bramble.actionContrast}' },
+  fg: { value: '{colors.bramble.accent}' },
+  subtle: { value: '{colors.bramble.actionBackground}' },
+  muted: { value: '{colors.bramble.actionHover}' },
+  emphasized: { value: '{colors.bramble.actionHover}' },
+  solid: { value: '{colors.bramble.accent}' },
+  focusRing: { value: '{colors.bramble.accent}' },
+  border: { value: '{colors.bramble.accent}' }
 };
 
 const selectionPalette = {
-  contrast: {
-    value: {
-      _light: '{colors.brambleBerry.950}',
-      _dark: '{colors.brambleBlue.950}'
-    }
-  },
-  fg: {
-    value: {
-      _light: '{colors.brambleBerry.700}',
-      _dark: '{colors.brambleBlue.50}'
-    }
-  },
-  subtle: {
-    value: {
-      _light: '{colors.brambleBerry.50}',
-      _dark: '{colors.brambleBlue.500}'
-    }
-  },
-  muted: {
-    value: {
-      _light: '{colors.brambleLight.400}',
-      _dark: '{colors.brambleDark.300}'
-    }
-  },
-  emphasized: {
-    value: {
-      _light: '{colors.brambleLight.400}',
-      _dark: '{colors.brambleDark.300}'
-    }
-  },
-  solid: {
-    value: {
-      _light: '{colors.brambleBerry.700}',
-      _dark: '{colors.brambleBlue.50}'
-    }
-  },
-  focusRing: {
-    value: {
-      _light: '{colors.brambleBerry.700}',
-      _dark: '{colors.brambleBlue.50}'
-    }
-  },
-  border: {
-    value: {
-      _light: '{colors.brambleBerry.700}',
-      _dark: '{colors.brambleBlue.50}'
-    }
-  }
+  contrast: { value: '{colors.bramble.selectionContrast}' },
+  fg: { value: '{colors.bramble.selectionText}' },
+  subtle: { value: '{colors.bramble.selectionBackground}' },
+  muted: { value: '{colors.bramble.border}' },
+  emphasized: { value: '{colors.bramble.border}' },
+  solid: { value: '{colors.bramble.selectionText}' },
+  focusRing: { value: '{colors.bramble.selectionText}' },
+  border: { value: '{colors.bramble.selectionText}' }
 };
 
 const selectionPanelRecipe = defineRecipe({
@@ -112,44 +41,11 @@ const selectionPanelRecipe = defineRecipe({
   }
 });
 
-export const themeConfig = defineConfig({
+const themeConfig = defineConfig({
   theme: {
     tokens: {
       colors: {
-        brambleLight: {
-          50: { value: '#FFFEF4' },
-          100: { value: '#EBEEDA' },
-          200: { value: '#D4E6AF' },
-          300: { value: '#B8D383' },
-          400: { value: '#A9B38C' },
-          500: { value: '#48533B' },
-          600: { value: '#254E24' },
-          700: { value: '#18291C' },
-          950: { value: '#FFFFFF' }
-        },
-        brambleDark: {
-          50: { value: '#EEF3E4' },
-          100: { value: '#CBD5BF' },
-          200: { value: '#B9D98B' },
-          300: { value: '#667C5E' },
-          400: { value: '#4C6048' },
-          500: { value: '#405834' },
-          600: { value: '#2F432B' },
-          800: { value: '#202B22' },
-          900: { value: '#151D17' },
-          950: { value: '#172314' }
-        },
-        brambleBerry: {
-          50: { value: '#F0DCE8' },
-          700: { value: '#742445' },
-          950: { value: '#FFFFFF' }
-        },
-        brambleBlue: {
-          50: { value: '#BEDBFA' },
-          500: { value: '#20344A' },
-          950: { value: '#15283D' }
-        },
-        brambleRoute: { 500: { value: '#254E24' } }
+        routeGreen: { value: '#254E24' }
       },
       fonts: {
         body: {
@@ -162,98 +58,51 @@ export const themeConfig = defineConfig({
     },
     semanticTokens: {
       colors: {
+        // The approved colours are roles, not a numbered shade scale.
+        bramble: {
+          page: modeColor('#EBEEDA', '#151D17'),
+          panel: modeColor('#FFFEF4', '#202B22'),
+          text: modeColor('#18291C', '#EEF3E4'),
+          mutedText: modeColor('#48533B', '#CBD5BF'),
+          border: modeColor('#A9B38C', '#667C5E'),
+          decorativeBorder: modeColor('#A9B38C', '#4C6048'),
+          accent: modeColor('{colors.routeGreen}', '#B9D98B'),
+          actionBackground: modeColor('#D4E6AF', '#2F432B'),
+          actionHover: modeColor('#B8D383', '#405834'),
+          actionContrast: modeColor('{colors.white}', '#172314'),
+          selectionBackground: modeColor('#F0DCE8', '#20344A'),
+          selectionText: modeColor('#742445', '#BEDBFA'),
+          selectionContrast: modeColor('{colors.white}', '#15283D')
+        },
         bg: {
-          DEFAULT: {
-            value: {
-              _light: '{colors.brambleLight.50}',
-              _dark: '{colors.brambleDark.800}'
-            }
-          },
-          panel: {
-            value: {
-              _light: '{colors.brambleLight.50}',
-              _dark: '{colors.brambleDark.800}'
-            }
-          },
-          subtle: {
-            value: {
-              _light: '{colors.brambleLight.100}',
-              _dark: '{colors.brambleDark.900}'
-            }
-          },
-          muted: {
-            value: {
-              _light: '{colors.brambleLight.100}',
-              _dark: '{colors.brambleDark.900}'
-            }
-          },
-          emphasized: {
-            value: {
-              _light: '{colors.brambleLight.400}',
-              _dark: '{colors.brambleDark.300}'
-            }
-          },
-          inverted: {
-            value: {
-              _light: '{colors.brambleLight.700}',
-              _dark: '{colors.brambleDark.50}'
-            }
-          }
+          DEFAULT: { value: '{colors.bramble.panel}' },
+          panel: { value: '{colors.bramble.panel}' },
+          subtle: { value: '{colors.bramble.page}' },
+          muted: { value: '{colors.bramble.page}' },
+          emphasized: { value: '{colors.bramble.border}' },
+          inverted: { value: '{colors.bramble.text}' },
+          info: modeColor('{colors.blue.50}', '#20344A')
         },
         fg: {
-          DEFAULT: {
-            value: {
-              _light: '{colors.brambleLight.700}',
-              _dark: '{colors.brambleDark.50}'
-            }
-          },
-          muted: {
-            value: {
-              _light: '{colors.brambleLight.500}',
-              _dark: '{colors.brambleDark.100}'
-            }
-          },
-          subtle: {
-            value: {
-              _light: '{colors.brambleLight.500}',
-              _dark: '{colors.brambleDark.100}'
-            }
-          },
-          inverted: {
-            value: {
-              _light: '{colors.brambleLight.950}',
-              _dark: '{colors.brambleDark.950}'
-            }
-          }
+          DEFAULT: { value: '{colors.bramble.text}' },
+          muted: { value: '{colors.bramble.mutedText}' },
+          subtle: { value: '{colors.bramble.mutedText}' },
+          inverted: { value: '{colors.bramble.actionContrast}' },
+          info: modeColor('{colors.blue.600}', '#BEDBFA')
         },
         border: {
-          DEFAULT: {
-            value: {
-              _light: '{colors.brambleLight.400}',
-              _dark: '{colors.brambleDark.300}'
-            }
-          },
-          muted: {
-            value: {
-              _light: '{colors.brambleLight.400}',
-              _dark: '{colors.brambleDark.400}'
-            }
-          },
-          subtle: {
-            value: {
-              _light: '{colors.brambleLight.400}',
-              _dark: '{colors.brambleDark.400}'
-            }
-          },
-          emphasized: {
-            value: {
-              _light: '{colors.brambleLight.500}',
-              _dark: '{colors.brambleDark.100}'
-            }
-          }
+          DEFAULT: { value: '{colors.bramble.border}' },
+          muted: { value: '{colors.bramble.decorativeBorder}' },
+          subtle: { value: '{colors.bramble.decorativeBorder}' },
+          emphasized: { value: '{colors.bramble.mutedText}' }
         },
-        green: brambleActionPalette,
-        teal: brambleActionPalette,
+        action: actionPalette,
+        // Information and selection remain separate roles even where the
+        // approved dark-mode colours coincide.
+        blue: {
+          fg: modeColor('{colors.blue.700}', '#BEDBFA'),
+          subtle: modeColor('{colors.blue.100}', '#20344A')
+        },
         selection: selectionPalette
       }
     },
@@ -279,3 +128,7 @@ export const themeConfig = defineConfig({
     }
   }
 });
+
+export const createThemeSystem = () => {
+  return createSystem(defaultConfig, themeConfig);
+};

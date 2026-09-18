@@ -44,7 +44,7 @@ const Home = () => {
           </Text>
           <Button
             asChild
-            colorPalette="teal"
+            colorPalette="action"
             variant="surface"
             maxW="full"
             whiteSpace="normal"

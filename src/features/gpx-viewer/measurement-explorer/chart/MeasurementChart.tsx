@@ -22,7 +22,7 @@ export const MeasurementChart = (props: MeasurementChartProps) => {
             onCheckedChange={(details) => {
               elevationOverlay.onToggle(details.checked);
             }}
-            colorPalette="green"
+            colorPalette="action"
           >
             <Switch.HiddenInput />
             <Switch.Control>

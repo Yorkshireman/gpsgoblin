@@ -94,7 +94,7 @@ const GpxFileViewerPage = () => {
                 <Link
                   asChild
                   minH="44px"
-                  colorPalette="green"
+                  colorPalette="action"
                   variant="underline"
                   textDecorationColor="currentColor"
                   _hover={{ textDecorationThickness: '2px' }}
@@ -106,7 +106,7 @@ const GpxFileViewerPage = () => {
                 <Link
                   asChild
                   minH="44px"
-                  colorPalette="green"
+                  colorPalette="action"
                   variant="underline"
                   textDecorationColor="currentColor"
                   _hover={{ textDecorationThickness: '2px' }}

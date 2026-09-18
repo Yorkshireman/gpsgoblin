@@ -32,7 +32,7 @@ export const AdvancedControls = ({
         _hover={{ bg: 'bg.muted' }}
         _focusVisible={{
           outline: '2px solid',
-          outlineColor: 'green.focusRing',
+          outlineColor: 'action.focusRing',
           outlineOffset: '2px'
         }}
         css={{ '&::-webkit-details-marker': { display: 'none' } }}

@@ -1,18 +1,22 @@
 import type { Locator } from '@playwright/test';
-import { expect, test } from './browserTest';
+import { blockExternalTiles, expect, test } from './browserTest';
 
 const expected = {
   light: {
     page: 'rgb(235, 238, 218)',
     panel: 'rgb(255, 254, 244)',
     muted: 'rgb(72, 83, 59)',
-    selection: 'rgb(240, 220, 232)'
+    selection: 'rgb(240, 220, 232)',
+    infoBackground: 'rgb(219, 234, 254)',
+    infoText: 'rgb(23, 61, 166)'
   },
   dark: {
     page: 'rgb(21, 29, 23)',
     panel: 'rgb(32, 43, 34)',
     muted: 'rgb(203, 213, 191)',
-    selection: 'rgb(32, 52, 74)'
+    selection: 'rgb(32, 52, 74)',
+    infoBackground: 'rgb(32, 52, 74)',
+    infoText: 'rgb(190, 219, 250)'
   }
 } as const;
 
@@ -36,6 +40,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     browser
   }) => {
     const context = await browser.newContext({ colorScheme });
+    await blockExternalTiles(context);
     const page = await context.newPage();
 
     try {
@@ -71,6 +76,29 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(
         page.getByLabel('Selected measurement', { exact: true })
       ).toHaveCSS('background-color', expected[colorScheme].selection);
+
+      await page.getByLabel('GPX file', { exact: true }).setInputFiles({
+        name: 'one-point.gpx',
+        mimeType: 'application/gpx+xml',
+        buffer: Buffer.from(
+          '<gpx version="1.1"><trk><trkseg><trkpt lat="53.958" lon="-1.083" /></trkseg></trk></gpx>'
+        )
+      });
+      const viewOnMap = page.getByRole('button', { name: 'View on map' });
+      if (await viewOnMap.isVisible()) {
+        await viewOnMap.click();
+      }
+      const information = page.locator('.chakra-alert__root').filter({
+        has: page.getByText('No line to display', { exact: true })
+      });
+      await expect(information).toHaveCSS(
+        'background-color',
+        expected[colorScheme].infoBackground
+      );
+      await expect(information).toHaveCSS(
+        'color',
+        expected[colorScheme].infoText
+      );
     } finally {
       await context.close();
     }
