@@ -15,6 +15,8 @@
     "predev": "node ./scripts/copyMapLibreWorker.mjs",
     "start": "next start",
     "test": "jest",
+    "typography:preview": "node scripts/previewTypography.mjs",
+    "typography:capture": "node scripts/captureTypography.mjs",
     "test:browser": "playwright test",
     "test:browser:hosting": "playwright test --config playwright.hosting.config.ts",
     "test:browser:compatibility": "playwright test --config playwright.compatibility.config.ts",
