@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>GPSGoblin typography comparison — #19</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        margin: 24px;
+        color: #18242b;
+        background: #f6f8f9;
+      }
+      h1 {
+        font-size: 26px;
+        margin-bottom: 8px;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin: 24px 0;
+      }
+      label {
+        display: grid;
+        gap: 4px;
+        max-width: 100%;
+        min-width: 0;
+      }
+      select {
+        font: inherit;
+        padding: 8px;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .comparison {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      figure {
+        margin: 0;
+        min-width: 0;
+        flex: 1 1 350px;
+      }
+      figcaption {
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .frame {
+        overflow: auto;
+        border: 1px solid #aab8c0;
+        background: white;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      img[hidden] {
+        display: none;
+      }
+      body.actual img {
+        max-width: none;
+      }
+      a {
+        color: #075a70;
+      }
+      :focus-visible {
+        outline: 3px solid #006c87;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GPSGoblin typography comparison</h1>
+    <p>
+      Actual page captures, with only the font changed. Compare the overall
+      feel, then view at actual size to judge small text.
+    </p>
+    <p>
+      My recommendation: <strong>Source Sans 3</strong> for a warmer, quieter
+      character. Inter is a crisper alternative. The site still uses its current
+      system font.
+    </p>
+    <div class="controls">
+      <label
+        >Candidate<select id="font">
+          <option value="source">Source Sans 3</option>
+          <option value="inter">Inter</option>
+        </select></label
+      >
+      <label
+        >Page / state<select id="state">
+          <option value="home">Homepage</option>
+          <option value="privacy">Privacy</option>
+          <option value="limitations">Limitations</option>
+          <option value="empty">Viewer — before choosing a file</option>
+          <option value="loaded">Viewer — immediately after import</option>
+          <option value="selected">Viewer — selected point, metric</option>
+          <option value="line-feedback">
+            Viewer — immediately after chart click / tap
+          </option>
+          <option value="imperial">Viewer — selected point, imperial</option>
+          <option value="details">
+            Viewer — long filename and missing timestamps
+          </option>
+          <option value="map">Viewer — phone map dialog</option>
+        </select></label
+      >
+      <label
+        >Viewport<select id="viewport">
+          <option value="1440x900">Desktop · 1440 × 900</option>
+          <option value="1280x720">Short laptop · 1280 × 720</option>
+          <option value="390x844">Phone · 390 × 844</option>
+          <option value="375x667">Short phone · 375 × 667</option>
+        </select></label
+      >
+      <label
+        >Text size<select id="text">
+          <option value="100">100%</option>
+          <option value="200">200% (root text size)</option>
+        </select></label
+      >
+      <label
+        >Image display<select id="size">
+          <option value="fit">Fit side by side</option>
+          <option value="actual">Actual CSS pixel size</option>
+        </select></label
+      >
+    </div>
+    <p id="note" role="status"></p>
+    <div class="comparison">
+      <figure>
+        <figcaption>Current — system font (Chrome on macOS)</figcaption>
+        <div class="frame">
+          <img
+            id="baseline"
+            alt="Current font on the selected page and viewport"
+          />
+        </div>
+      </figure>
+      <figure>
+        <figcaption id="candidate-label">Source Sans 3</figcaption>
+        <div class="frame">
+          <img
+            id="candidate"
+            alt="Candidate font on the same page and viewport"
+          />
+        </div>
+      </figure>
+    </div>
+    <p>
+      <a
+        id="live"
+        href="/tools/gpx-file-viewer?font=source"
+        target="_blank"
+        rel="noopener"
+        >Try this font in the actual viewer</a
+      >
+      · <a href="README.md">Read findings and font provenance</a>
+    </p>
+    <script>
+      const controls = Object.fromEntries(
+        ['font', 'state', 'viewport', 'text', 'size'].map((id) => {
+          return [id, document.getElementById(id)];
+        })
+      );
+      const update = () => {
+        const font = controls.font.value;
+        const viewport = controls.viewport.value;
+        const state = controls.state.value;
+        const text = controls.text.value;
+        const phone = viewport.startsWith('3');
+        const available = state !== 'map' || phone;
+        document.getElementById('note').textContent = available
+          ? `${viewport.replace('x', ' × ')} CSS pixels; text ${text}%. Screenshots show that viewport only. Fit images are reduced; choose actual size to judge small text.`
+          : 'The map is alongside the chart on desktop. Choose a phone viewport for its dialog.';
+        for (const [id, family] of [
+          ['baseline', 'current'],
+          ['candidate', font]
+        ]) {
+          const image = document.getElementById(id);
+          image.hidden = !available;
+          if (available)
+            image.src = `captures/${family}-${viewport}-${text}-${state}.png`;
+        }
+        document.getElementById('candidate-label').textContent =
+          font === 'source' ? 'Source Sans 3' : 'Inter';
+        document.getElementById('live').href =
+          `/tools/gpx-file-viewer?font=${font}&text=${text}`;
+        document.body.classList.toggle(
+          'actual',
+          controls.size.value === 'actual'
+        );
+        return;
+      };
+      Object.values(controls).forEach((control) => {
+        control.addEventListener('change', update);
+        return;
+      });
+      update();
+    </script>
+  </body>
+</html>
