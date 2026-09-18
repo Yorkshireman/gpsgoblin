@@ -2,8 +2,58 @@
 
 18 September 2026. Authorised follow-up: explore more options taking Goblin's
 personality into account, with **Source Sans 3 the owner's best option so far**.
-That is an interim preference, not a decision to adopt a font. Adoption remains
-pending. This extends the [initial findings](README.md) on the same ticket branch.
+Source was the interim preference for this round. The owner has since selected
+**Fraunces headings + Source Sans 3 body and data** as the preferred direction
+for planned adoption. This extends the [initial findings](README.md) on the same
+ticket branch; production implementation remains separate.
+
+## Owner decision
+
+On 18 September 2026, after reviewing the added directions, the owner said:
+“I like the Fraunces + Source Sans 3 the most.” This selects the pairing over
+Source alone: Fraunces carries the name and headings' warm, playful character;
+Source Sans 3 retains clear body copy, controls, numbers, units and chart axes.
+The gallery now opens with this pairing selected.
+
+The intended adoption uses the previewed Fraunces settings (`SOFT=50`, `WONK=1`,
+automatic optical sizing) and existing heading weights, with Source for body and
+data. The [integration guidance below](#intended-pairing-integration) records the
+Chakra approach and remaining checks. This decision completes the exploration's
+owner-choice gate; it does not implement the production fonts, approve a wider
+redesign, or authorise publishing or deployment. Issue #19 remains open until its
+PR is merged.
+
+Decision-update verification: `pnpm tsc`, `pnpm lint`, `pnpm knip` (no findings),
+`pnpm format:check`, and `pnpm test --runInBand` (15 suites, 176 tests) passed.
+Local Chrome checked the gallery at 1440 × 900, 1280 × 720, 390 × 844 and
+375 × 667: Fraunces is selected, Source remains the comparison reference, images
+load, live links use Fraunces, keyboard focus moves from reference to candidate,
+and the page has no horizontal overflow. Desktop and short-phone viewport
+screenshots were visually inspected. The underlying page captures are unchanged;
+production adoption checks remain pending.
+
+### Decision-update Standards review
+
+No Standards findings. The owner’s preference is accurately recorded as Fraunces
+headings with Source Sans 3 body and data. Gallery defaults, labels and live links
+agree with that decision. Earlier recommendations and reviews are clearly marked
+as historical, and production implementation remains explicitly separate.
+
+The full exploration remains consistent with the previously reviewed standards;
+no baseline smell warrants refactoring. Standards: **0 documented-standard
+violations; 0 smell findings.**
+
+### Decision-update Spec review
+
+No Spec findings against `38e6dd5...HEAD`, including the owner-selection update.
+The requirement to record the owner’s decision is satisfied by the recorded
+Fraunces/Source direction and exact owner preference. Intended Chakra integration
+and remaining implementation/verification work are covered. Production
+implementation remains separate; existing layout limitations remain documented.
+Spec: **0 technical findings; 0 outstanding exploration acceptance criteria.**
+
+Decision-update review totals: Standards **0 findings**; Spec **0 findings**.
+Publishing and merge remain governed by the authorised PR workflow.
 
 ## What the name contributes
 
@@ -33,7 +83,7 @@ local override. Nothing is added to production routes or assets.
 Fraunces + Source Sans 3 is the pairing worth considering if more personality in
 the name/headings is desired. Bricolage is a modest sans alternative; Grenze and
 Goblin One make the aesthetic cost of a more literal Goblin reading visible.
-This does not replace the owner's front-runner or settle adoption.
+This was the assessment before the owner selected the Fraunces/Source pairing.
 
 All existing sizes, spacing, copy and colours are retained. Bricolage uses its
 normal width and automatic optical sizing. Fraunces uses `SOFT=50`, `WONK=1` and
@@ -115,21 +165,23 @@ Grenze: 18c7c0aed73f486c2b2231b23d2ec17cb5a2107d2f7292e88ce3218cca323209
 Goblin One: 26a15eafd8911f547e846066a1eea0521af2d870d6f17b8ecf0741768b99d099
 ```
 
-## If a pairing is chosen
+## Intended pairing integration
 
-The conditional Next/Chakra integration from the initial report still applies.
-Expose separate local-font variables for Source body and the chosen heading face;
+The Next/Chakra integration from the initial report applies to the selected pair.
+Expose separate local-font variables for Source body and Fraunces headings;
 set Chakra's `fonts.body` and `fonts.heading` tokens separately, preserve mono and
 the provider's per-instance system, and keep the preview's custom axis settings
-if Fraunces is selected. A name-only option would retain Source for both tokens
-and apply the display face only to the agreed brand component. Any shared-header
-integration requires its own agreed scope.
+for Fraunces. Use self-hosted files via `next/font/local`, retain the OFL notices,
+and preserve the system fallback. Any shared-header integration requires its own
+agreed scope.
 
 Settle font role, language/subsetting and payload, check slow-loading/fallback
 metrics, and verify real zoom and the required viewports before adoption. Goblin
-One additionally needs enlarged-text fit; no new display font is approved for
-control labels or chart data by this exploration. The owner can choose Source
-alone, a pairing, a name-only treatment, the current stack or defer.
+One's enlarged-text fit finding remains evidence about a rejected alternative.
+Fraunces is selected for headings only; controls and chart data retain Source.
+The planned implementation must verify these roles across pages, controls and
+portals in light/dark appearance, plus font failure, slow loading and real browser
+zoom. Existing enlarged-text layout limits remain distinct from font adoption.
 
 ## Verification and review
 
@@ -159,7 +211,7 @@ selection is verified.
 Independent reviews used the agreed `38e6dd5` baseline, with the authorised
 Goblin-personality follow-up included in scope.
 
-## Standards
+## Exploration Standards review (before owner decision)
 
 No Standards findings. The expanded exploration keeps fonts and captures outside
 production assets, preserves Source Sans 3 as an interim preference, and separates
@@ -171,7 +223,7 @@ No baseline smell warrants refactoring this bounded local harness.
 
 Standards: **0 documented-standard violations; 0 smell findings.**
 
-## Spec
+## Exploration Spec review (before owner decision)
 
 No technical Spec defects or scope creep found against `38e6dd5...HEAD`, including
 the authorised request to “explore more options taking Goblin personality into
@@ -191,5 +243,7 @@ front-runner, while adoption remains pending. This is not a technical defect.
 
 Spec: **0 technical findings; 1 outstanding owner decision.**
 
-Review totals: Standards **0 findings**; Spec **0 technical findings**, with the
-owner’s adoption decision outstanding. Issue #19 remains open.
+Exploration review totals at that point: Standards **0 findings**; Spec **0
+technical findings**, with the owner decision outstanding. The subsequent
+[owner decision](#owner-decision) resolves that gate; implementation and the
+authorised PR workflow remain separate.

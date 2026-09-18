@@ -2,12 +2,12 @@
 
 Explored on 18 September 2026 against `38e6dd5`, for
 [issue #19](https://github.com/Yorkshireman/gpsgoblin/issues/19).
-**Owner adoption decision: pending.** Source Sans 3 is the owner's current
-front-runner. The initial recommendation was Source Sans 3 as a single family;
-the [Goblin personality follow-up](goblin-directions.md) compares four added
-directions with it.
-No adoption, redesign, deployment or change to the published font is included.
-This work is ready for the owner's visual comparison, rather than ticket closure.
+**Owner-selected direction: Fraunces headings + Source Sans 3 body and data.**
+On 18 September 2026 the owner chose this pairing after comparing the
+[Goblin personality follow-up](goblin-directions.md). The initial recommendation
+was Source Sans 3 as a single family; the pairing is now the preferred direction
+for planned adoption. Implementation and deployment remain separate work.
+The published font is unchanged. Issue #19 remains open until its PR is merged.
 
 ## Compare the actual pages
 
@@ -144,7 +144,7 @@ viewer with no horizontal overflow. See
 The font faces reported `error`, while the viewer still imported its file.
 Slow-loading layout shifts and fallback metric adjustment were not benchmarked.
 
-## If the owner chooses adoption
+## Initial adoption guidance
 
 Use the chosen local WOFF2 with this installed Next.js version's
 `next/font/local`, expose a CSS variable on the root layout, and merge a Chakra v3
@@ -160,8 +160,10 @@ language coverage, review Source's small text if selected, verify fallback/loadi
 and real browser zoom, and repeat desktop/phone interaction checks in light and
 dark appearances. Do not silently broaden #19 into the existing 200% layout
 repairs. Record an explicit owner choice of Source, Inter, current stack or defer;
-then agree the scope of any implementation that follows. #19 stays open pending
-that choice and its authorised PR workflow.
+then agree the scope of any implementation that follows. This was the initial
+guidance; the owner has since selected the Fraunces/Source pairing. See the
+[recorded decision and intended integration](goblin-directions.md#owner-decision)
+for the selected direction. #19 still requires its authorised PR workflow.
 
 ## Initial verification
 
