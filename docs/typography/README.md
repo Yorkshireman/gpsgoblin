@@ -165,6 +165,57 @@ guidance; the owner has since selected the Fraunces/Source pairing. See the
 [recorded decision and intended integration](goblin-directions.md#owner-decision)
 for the selected direction. #19 still requires its authorised PR workflow.
 
+## Production adoption — #35
+
+The production application uses the owner-selected pairing through
+`next/font/local` and Chakra v3 tokens. The unmodified full upright variable
+files and their complete SIL OFL 1.1 notices are co-located in `src/app/fonts/`:
+
+| Role     | Source file                   | Upright variable weights | Source and emitted bytes | SHA-256                                                            |
+| -------- | ----------------------------- | ------------------------ | ------------------------ | ------------------------------------------------------------------ |
+| Headings | `Fraunces.woff2`              | 100–900                  | 205,500                  | `e6638ea113d0027354a08f957a4068975c8066395a0d0f7bb7861f6409621be3` |
+| Body     | `SourceSans3VF-Upright.woff2` | 200–900                  | 170,188                  | `5f16566f7a40d39b339ad26be151fa5a1ab1f0c2574c7a2e619765584a1acbd8` |
+
+The fresh static export emitted the same full-file payloads (375,688 bytes / 366.9
+KiB total) under Next-generated cacheable asset names:
+`/_next/static/media/Fraunces-s.p.26qqven6k087-.woff2` and
+`/_next/static/media/SourceSans3VF_Upright-s.p.0bgocza2xk39f.woff2`.
+Those names are build output, not a new source-file naming scheme. The export
+preloads both assets and requests neither a font service nor a paid dependency.
+
+Text coverage is recorded as the verified product surface, not a language claim:
+the current English homepage, supporting pages and GPX viewer, including small
+labels, filenames, decimal values, units, chart axes and selected-point details.
+The fonts are intentionally unmodified full upstream files, but this work does
+not claim coverage for a particular language or script beyond those exercised
+surfaces.
+
+### Adoption verification evidence
+
+Focused static-export checks inspect the public homepage's heading, body and
+link roles; block and defer both font files; and test 200% root text (32 px) in
+light and dark appearance. At the default 1280 × 900 desktop and 390 × 844
+phone sizes, the homepage remained readable and had no horizontal overflow in
+the captured fallback, slow-load and loaded states. Separate 200% checks covered
+1440 × 900, 1280 × 720, 390 × 844 and 375 × 667 in light and dark appearance;
+the enlarged homepage had no horizontal overflow, normal scrolling brought its
+action into view, and click/touch activation opened the viewer. The existing
+workspace browser checks then exercised the loaded viewer, including unit
+changes, keyboard selection, chart clicks/touch taps, long/missing readings, and
+opening and returning from the phone map with the selection retained. Captures
+were inspected at the initial loaded/selected states; lower controls or results
+that are naturally below the fold require the normal vertical scroll already
+documented for the workspace.
+
+Local Chrome was also checked on the static-export homepage at its real 200%
+browser zoom, starting at scroll position zero: the Fraunces headings and Source
+body copy remained readable, and the viewer card continued below the initial
+fold by normal vertical scrolling without horizontal clipping. This was a
+desktop Chrome check with touch emulation in automated cases, not physical-phone,
+cross-browser or user testing. Existing enlarged-text long-filename overflow,
+truncated native select values and control/result separation remain documented
+separately; this pairing did not introduce a replacement layout repair.
+
 ## Initial verification
 
 The evidence can be regenerated from a fresh static export with
