@@ -79,17 +79,48 @@
   <body>
     <h1>GPSGoblin typography comparison</h1>
     <p>
-      Actual page captures, with only the font changed. Compare the overall
-      feel, then view at actual size to judge small text.
+      Actual page captures with preview font choices. Compare the overall feel,
+      then view at actual size to judge small text.
     </p>
     <p>
-      My recommendation: <strong>Source Sans 3</strong> for a warmer, quieter
-      character. Inter is a crisper alternative. The site still uses its current
-      system font.
+      <strong>Source Sans 3 remains the front-runner.</strong> These added
+      heading faces explore the mischievous, inventive and storybook sides of
+      “Goblin”, with Source Sans 3 for body text and data. The site still uses
+      its current system font.
     </p>
     <div class="controls">
       <label
+        >Compare against<select id="reference">
+          <option value="source">Source Sans 3 — front-runner</option>
+          <option value="current">Current — system font</option>
+        </select></label
+      >
+      <label
         >Candidate<select id="font">
+          <option
+            value="bricolage"
+            data-description="Inventive and a little eccentric: Bricolage Grotesque headings, Source Sans 3 body and data."
+          >
+            Bricolage Grotesque + Source Sans 3
+          </option>
+          <option
+            value="fraunces"
+            data-description="Warm storybook character: Fraunces headings, Source Sans 3 body and data."
+          >
+            Fraunces + Source Sans 3
+          </option>
+          <option
+            value="grenze"
+            data-description="A more literal fantasy flavour: Grenze headings, Source Sans 3 body and data."
+          >
+            Grenze + Source Sans 3
+          </option>
+          <option
+            value="goblin"
+            data-description="Goblin One for the homepage name only; Source Sans 3 for all other headings, body text and data. The viewer is intentionally the same as Source Sans 3."
+          >
+            Goblin One name + Source Sans 3
+          </option>
           <option value="source">Source Sans 3</option>
           <option value="inter">Inter</option>
         </select></label
@@ -134,18 +165,23 @@
       >
     </div>
     <p id="note" role="status"></p>
+    <p id="direction"></p>
     <div class="comparison">
       <figure>
-        <figcaption>Current — system font (Chrome on macOS)</figcaption>
+        <figcaption id="reference-label">
+          Source Sans 3 — front-runner
+        </figcaption>
         <div class="frame">
           <img
             id="baseline"
-            alt="Current font on the selected page and viewport"
+            alt="Reference font on the selected page and viewport"
           />
         </div>
       </figure>
       <figure>
-        <figcaption id="candidate-label">Source Sans 3</figcaption>
+        <figcaption id="candidate-label">
+          Bricolage Grotesque + Source Sans 3
+        </figcaption>
         <div class="frame">
           <img
             id="candidate"
@@ -155,18 +191,25 @@
       </figure>
     </div>
     <p>
+      <a id="live-home" href="/?font=bricolage" target="_blank" rel="noopener"
+        >Try this font on the homepage</a
+      >
+      ·
       <a
         id="live"
-        href="/tools/gpx-file-viewer?font=source"
+        href="/tools/gpx-file-viewer?font=bricolage"
         target="_blank"
         rel="noopener"
         >Try this font in the actual viewer</a
       >
-      · <a href="README.md">Read findings and font provenance</a>
+      ·
+      <a href="goblin-directions.md"
+        >Read Goblin findings and font provenance</a
+      >
     </p>
     <script>
       const controls = Object.fromEntries(
-        ['font', 'state', 'viewport', 'text', 'size'].map((id) => {
+        ['reference', 'font', 'state', 'viewport', 'text', 'size'].map((id) => {
           return [id, document.getElementById(id)];
         })
       );
@@ -181,7 +224,7 @@
           ? `${viewport.replace('x', ' × ')} CSS pixels; text ${text}%. Screenshots show that viewport only. Fit images are reduced; choose actual size to judge small text.`
           : 'The map is alongside the chart on desktop. Choose a phone viewport for its dialog.';
         for (const [id, family] of [
-          ['baseline', 'current'],
+          ['baseline', controls.reference.value],
           ['candidate', font]
         ]) {
           const image = document.getElementById(id);
@@ -190,7 +233,14 @@
             image.src = `captures/${family}-${viewport}-${text}-${state}.png`;
         }
         document.getElementById('candidate-label').textContent =
-          font === 'source' ? 'Source Sans 3' : 'Inter';
+          controls.font.selectedOptions[0].textContent;
+        document.getElementById('reference-label').textContent =
+          controls.reference.selectedOptions[0].textContent;
+        document.getElementById('direction').textContent =
+          controls.font.selectedOptions[0].dataset.description ??
+          'One family for headings, body text and data.';
+        document.getElementById('live-home').href =
+          `/?font=${font}&text=${text}`;
         document.getElementById('live').href =
           `/tools/gpx-file-viewer?font=${font}&text=${text}`;
         document.body.classList.toggle(

@@ -13,23 +13,38 @@ const types = {
   '.css': 'text/css',
   '.json': 'application/json',
   '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain',
   '.md': 'text/plain; charset=utf-8'
 };
 
-const fontStyle = (font, enlarged) => {
+const fontStyle = (font, enlarged, homepage) => {
   const families = {
     inter: ['Inter Preview', 'InterVariable.woff2', '100 900'],
-    source: ['Source Sans 3 Preview', 'SourceSans3VF-Upright.woff2', '200 900']
+    source: ['Source Sans 3 Preview', 'SourceSans3VF-Upright.woff2', '200 900'],
+    bricolage: ['Bricolage Preview', 'BricolageGrotesque.woff2', '200 800'],
+    fraunces: ['Fraunces Preview', 'Fraunces.woff2', '100 900'],
+    grenze: ['Grenze Preview', 'Grenze.woff2', '100 900'],
+    goblin: ['Goblin One Preview', 'GoblinOne.ttf', '400']
   };
-  const candidate = families[font];
+  const candidate = Object.hasOwn(families, font) ? families[font] : undefined;
+  const paired = ['bricolage', 'fraunces', 'grenze', 'goblin'].includes(font);
+  const body = paired ? families.source : candidate;
+  const heading = font === 'goblin' ? body : candidate;
+  const face = (family) => {
+    return `@font-face {font-family:'${family[0]}';src:url('/__typography/fonts/${family[1]}') format('${family[1].endsWith('.ttf') ? 'truetype' : 'woff2'}');font-weight:${family[2]};font-style:normal;font-display:swap;}`;
+  };
+  const fallback =
+    "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol'";
   return `<style>
     ${
       candidate
-        ? `@font-face {font-family:'${candidate[0]}';src:url('/__typography/fonts/${candidate[1]}') format('woff2');font-weight:${candidate[2]};font-style:normal;font-display:swap;}
-    :root {--chakra-fonts-body:'${candidate[0]}',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol' !important;--chakra-fonts-heading:var(--chakra-fonts-body) !important;}`
+        ? `${face(candidate)}${paired ? face(body) : ''}
+    :root {--chakra-fonts-body:'${body[0]}',${fallback} !important;--chakra-fonts-heading:'${heading[0]}',${fallback} !important;}
+    ${font === 'fraunces' ? "h1,h2,h3,h4,h5,h6 {font-variation-settings:'SOFT' 50,'WONK' 1;}" : ''}
+    ${font === 'goblin' && homepage ? `h1 {font-family:'${candidate[0]}',${fallback} !important;font-weight:400 !important;}` : ''}`
         : ''
     }
     ${enlarged ? ':root {font-size:32px !important;}' : ''}
@@ -59,7 +74,7 @@ const server = createServer(async (request, response) => {
           .toString()
           .replace(
             '</head>',
-            `${fontStyle(url.searchParams.get('font'), url.searchParams.get('text') === '200')}</head>`
+            `${fontStyle(url.searchParams.get('font'), url.searchParams.get('text') === '200', ['/', '/index.html'].includes(url.pathname))}</head>`
           )
       );
     }

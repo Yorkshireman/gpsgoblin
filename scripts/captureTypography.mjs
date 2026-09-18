@@ -1,16 +1,34 @@
 // Repeatable design evidence, not a production font change or a new E2E suite.
 import { chromium, expect } from '@playwright/test';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const port = Number(process.env.TYPOGRAPHY_CAPTURE_PORT ?? 4191);
 const origin = `http://127.0.0.1:${port}`;
 const output = 'docs/typography/captures';
+const candidates = [
+  'current',
+  'inter',
+  'source',
+  'bricolage',
+  'fraunces',
+  'grenze',
+  'goblin'
+];
+const fonts =
+  process.argv.length > 2 ? [...new Set(process.argv.slice(2))] : candidates;
+if (
+  fonts.some((font) => {
+    return !candidates.includes(font);
+  })
+) {
+  throw new Error(`Choose fonts from: ${candidates.join(', ')}`);
+}
 const server = spawn(process.execPath, ['scripts/previewTypography.mjs'], {
   env: { ...process.env, TYPOGRAPHY_PORT: String(port) },
   stdio: 'inherit'
 });
-const evidence = [];
+let evidence = [];
 let browser;
 let startupError;
 server.once('error', (error) => {
@@ -30,6 +48,16 @@ const missingTime =
   '<gpx version="1.1" creator="Synthetic typography sample" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>Route with missing readings</name><trkseg><trkpt lat="0" lon="0"><ele>10</ele></trkpt><trkpt lat="0" lon="0.01"/></trkseg></trk></gpx>';
 
 try {
+  try {
+    const previous = JSON.parse(
+      await readFile('docs/typography/evidence.json', 'utf8')
+    );
+    evidence = previous.filter((record) => {
+      return !fonts.includes(record.font);
+    });
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
   for (let attempt = 0; ; attempt += 1) {
     if (startupError) throw startupError;
     if (attempt >= 50) throw new Error('Preview server did not become ready');
@@ -47,7 +75,7 @@ try {
   await mkdir(output, { recursive: true });
   browser = await chromium.launch({ channel: 'chrome' });
   console.log(`Capturing with ${browser.version()}`);
-  for (const font of ['current', 'inter', 'source']) {
+  for (const font of fonts) {
     for (const viewport of [
       { width: 1440, height: 900 },
       { width: 1280, height: 720 },
@@ -243,6 +271,11 @@ try {
           await expect(
             page.getByRole('img', { name: /Selected map position:/ })
           ).toBeVisible();
+          await expect(
+            page
+              .getByRole('status')
+              .filter({ hasText: 'Background map unavailable' })
+          ).toBeVisible();
           await capture('map');
           await page.getByRole('button', { name: 'Back to chart' }).tap();
           await expect(selection).toHaveText(before);
@@ -266,7 +299,9 @@ try {
     }
   }
   // Exercise a failed font download, with the same content and explicit system fallback.
-  for (const font of ['inter', 'source']) {
+  for (const font of fonts.filter((font) => {
+    return font !== 'current';
+  })) {
     const context = await browser.newContext({
       viewport: { width: 375, height: 667 },
       colorScheme: 'light',
@@ -288,6 +323,11 @@ try {
     await page.screenshot({
       path: `${output}/${font}-375x667-100-fallback-home.png`
     });
+    const homeFontStatus = await page.evaluate(() => {
+      return [...document.fonts].map((face) => {
+        return { family: face.family, status: face.status };
+      });
+    });
     await page.goto(`${origin}/tools/gpx-file-viewer?font=${font}`);
     await page.getByLabel('GPX file', { exact: true }).setInputFiles({
       name: 'typography-sample.gpx',
@@ -305,6 +345,7 @@ try {
       state: 'fallback',
       viewport: { width: 375, height: 667 },
       text: 100,
+      homeFontStatus,
       ...(await page.evaluate(() => {
         return {
           horizontalOverflow: document.documentElement.scrollWidth > innerWidth,

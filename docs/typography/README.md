@@ -2,14 +2,17 @@
 
 Explored on 18 September 2026 against `38e6dd5`, for
 [issue #19](https://github.com/Yorkshireman/gpsgoblin/issues/19).
-**Owner decision: pending.** Recommendation: Source Sans 3 as a single family.
+**Owner adoption decision: pending.** Source Sans 3 is the owner's current
+front-runner. The initial recommendation was Source Sans 3 as a single family;
+the [Goblin personality follow-up](goblin-directions.md) compares four added
+directions with it.
 No adoption, redesign, deployment or change to the published font is included.
 This work is ready for the owner's visual comparison, rather than ticket closure.
 
 ## Compare the actual pages
 
-The [comparison gallery](index.html) shows the current font alongside either
-candidate, with page/state, viewport, text-size and actual-size controls. It uses
+The [comparison gallery](index.html) shows Source Sans 3 or the current font alongside
+each candidate, with page/state, viewport, text-size and actual-size controls. It uses
 viewport captures of the actual static export, not a specimen or an isolated
 component. Its live-viewer link opens the real, interactive viewer with a local
 font override; any file chosen there stays on the device.
@@ -25,7 +28,7 @@ when requested, enlarged root text; it is not a production security-header test.
 The live link permits personal files, but the stored evidence uses only synthetic
 recordings generated in `scripts/captureTypography.mjs`.
 
-## Shortlist and recommendation
+## Initial shortlist and recommendation
 
 | Direction                                       | Appearance and tradeoff                                                                                                                                            | Readability at existing sizes                                                                                                                                                                             |
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -52,7 +55,7 @@ extra line; it does not universally save space. Inter's larger apparent size mak
 the site name stronger. Neither candidate needs a different brand or logo to work,
 and this exploration has no dependency on #18.
 
-## UX evidence
+## Initial UX evidence
 
 Chrome **153.0.8010.50 on macOS**, light appearance, reduced motion. All four content
 viewports from `docs/agents/ux.md` were captured for every font at 100% and 200%
@@ -160,11 +163,13 @@ repairs. Record an explicit owner choice of Source, Inter, current stack or defe
 then agree the scope of any implementation that follows. #19 stays open pending
 that choice and its authorised PR workflow.
 
-## Verification
+## Initial verification
 
 The evidence can be regenerated from a fresh static export with
 `pnpm typography:capture`; it starts its own loopback server on port 4191, uses the
-installed Chrome channel and closes it afterwards. The preview defaults to 4190.
+installed Chrome channel and closes it afterwards. With no font arguments it now
+captures every direction; selected font arguments replace only their evidence,
+retaining the other directions. The preview defaults to 4190.
 No dependency was added. This is a repeatable exploration harness; numerical
 behaviour was not changed and no new TDD seam was introduced.
 
@@ -190,7 +195,7 @@ with the headless macOS popup keyboard interaction did not change the value, so
 keyboard candidate selection is not claimed. The viewer's actual position-slider
 keyboard selection was verified in the capture harness.
 
-## Standards review
+## Initial Standards review
 
 Independent read-only review of `git diff 38e6dd5...HEAD` found no documented
 standard violations or baseline smell findings. The diff follows naming/function
@@ -198,7 +203,7 @@ conventions, keeps design evidence outside production assets, preserves the
 pending owner decision, and reports viewport/interaction evidence with explicit
 limitations. Standards: **0 findings**.
 
-## Spec review
+## Initial Spec review
 
 Independent read-only review against the same baseline found no technical defect
 or scope creep. Actual-page comparisons, the requested text surfaces and viewport
