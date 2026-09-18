@@ -112,15 +112,15 @@ export const OverflowMarkers = ({
               size="2xs"
               width="28px"
               height="28px"
-              colorPalette="green"
+              colorPalette="action"
               variant="outline"
-              color="green.fg"
+              color="action.fg"
               borderWidth={
                 point.sampleId === selected?.sampleId ? '2px' : '1px'
               }
               bg={
                 point.sampleId === selected?.sampleId
-                  ? 'green.subtle'
+                  ? 'action.subtle'
                   : 'bg.panel'
               }
               rounded="full"

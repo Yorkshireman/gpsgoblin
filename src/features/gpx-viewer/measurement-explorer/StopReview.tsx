@@ -5,7 +5,8 @@ import {
   Flex,
   NativeSelect,
   Stack,
-  Text
+  Text,
+  useRecipe
 } from '@chakra-ui/react';
 import type {
   MeasurementPoint,
@@ -107,6 +108,7 @@ export const SelectedStop = ({
   onConfirm,
   onClear
 }: SelectedStopProps) => {
+  const selectionPanel = useRecipe({ key: 'selectionPanel' });
   return (
     <Stack
       as="section"
@@ -114,8 +116,7 @@ export const SelectedStop = ({
       gap={1}
       p={2}
       rounded="md"
-      bg="blue.subtle"
-      color="blue.fg"
+      css={selectionPanel()}
       fontSize="sm"
     >
       <Flex justify="space-between" align="center" gap={2}>
@@ -151,7 +152,7 @@ export const SelectedStop = ({
           onConfirm(event.checked === true);
         }}
         minH="44px"
-        colorPalette="blue"
+        colorPalette="selection"
       >
         <Checkbox.HiddenInput />
         <Checkbox.Control>

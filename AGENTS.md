@@ -60,6 +60,10 @@ During authorised implementation, keep `pnpm format:watch` running (it also runs
 
 ## TypeScript conventions
 
+Prefer alphabetical order for object keys, including nested objects. Preserve a different order when it affects behaviour or clearly communicates a meaningful sequence, such as an ordered scale or workflow.
+
+Prefer alphabetical order by name for `const` declarations within each scope. Preserve dependency-safe initialisation and use a different order when it clearly communicates a meaningful sequence.
+
 Use PascalCase for React component filenames. Use camelCase for other TypeScript and TSX filenames, except framework-mandated filenames such as `page.tsx` and `layout.tsx`.
 
 Declare named functions as `const` arrow functions with a block body and an explicit `return`, for example:

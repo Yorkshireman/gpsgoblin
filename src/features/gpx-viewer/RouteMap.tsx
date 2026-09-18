@@ -39,7 +39,7 @@ export const RouteMap = ({
   selectedPoint
 }: RouteMapProps) => {
   // A dark route on a white casing stays distinct over light and dark map tiles.
-  const [routeColor] = useToken('colors', 'green.700');
+  const [routeColor] = useToken('colors', 'routeGreen');
 
   const paths = useMemo(() => {
     return track

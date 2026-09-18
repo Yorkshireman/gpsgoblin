@@ -5,7 +5,8 @@ import {
   Icon,
   IconButton,
   Stack,
-  Text
+  Text,
+  useRecipe
 } from '@chakra-ui/react';
 import type { MeasurementPoint } from '@/analysis/measurements';
 import {
@@ -39,6 +40,7 @@ export const SelectedMeasurement = ({
   motionUnit,
   smoothingSeconds
 }: SelectedMeasurementProps) => {
+  const selectionPanel = useRecipe({ key: 'selectionPanel' });
   if (selected?.recordingGap) {
     return (
       <Stack
@@ -48,8 +50,7 @@ export const SelectedMeasurement = ({
         gap={1}
         p={2}
         rounded="l3"
-        bg="blue.subtle"
-        color="blue.fg"
+        css={selectionPanel()}
         fontSize="sm"
       >
         <Flex align="center" justify="space-between" gap={2} minH="36px">
@@ -64,7 +65,7 @@ export const SelectedMeasurement = ({
             aria-label="Close gap details"
             title="Close gap details"
             variant="ghost"
-            colorPalette="blue"
+            colorPalette="selection"
             size="sm"
             minW="44px"
             minH="44px"
@@ -118,9 +119,7 @@ export const SelectedMeasurement = ({
       p={2}
       rounded="l3"
       textStyle="sm"
-      colorPalette="blue"
-      bg="colorPalette.subtle"
-      color="colorPalette.fg"
+      css={selectionPanel()}
     >
       {selected ? null : (
         <Icon asChild boxSize={5} flexShrink={0} aria-hidden="true">
@@ -144,7 +143,7 @@ export const SelectedMeasurement = ({
                 aria-label="Close point details"
                 title="Close point details"
                 variant="ghost"
-                colorPalette="blue"
+                colorPalette="selection"
                 size="sm"
                 minW="44px"
                 minH="44px"

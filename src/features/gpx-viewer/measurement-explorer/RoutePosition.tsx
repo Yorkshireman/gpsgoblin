@@ -25,7 +25,7 @@ export const RoutePosition = ({
       <Input
         type="range"
         appearance="auto"
-        accentColor="green.solid"
+        accentColor="action.solid"
         borderWidth={0}
         p={0}
         min={0}

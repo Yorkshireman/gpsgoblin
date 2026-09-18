@@ -73,7 +73,7 @@ export const MeasurementPlot = ({
         });
   const chart = useChart({
     data: displayData,
-    series: [{ name: metric, color: 'green.fg', label: `${title} (${unit})` }]
+    series: [{ name: metric, color: 'action.fg', label: `${title} (${unit})` }]
   });
   const selected = data.find((point) => {
     return point.sampleId === selectedId;
@@ -242,7 +242,7 @@ export const MeasurementPlot = ({
             <Line
               type="linear"
               dataKey={metric}
-              stroke={chart.color('green.fg')}
+              stroke={chart.color('action.fg')}
               connectNulls={false}
               activeDot={false}
               isAnimationActive={false}
@@ -267,7 +267,7 @@ export const MeasurementPlot = ({
                   x={chartPosition(point)}
                   y={point[metric] ?? undefined}
                   r={3}
-                  fill={chart.color('green.fg')}
+                  fill={chart.color('action.fg')}
                   stroke="none"
                 />
               );
@@ -279,7 +279,7 @@ export const MeasurementPlot = ({
                 x={chartPosition(selected)}
                 y={selected[metric]}
                 r={6}
-                fill={chart.color('green.fg')}
+                fill={chart.color('action.fg')}
                 stroke={chart.color('fg')}
               />
             ) : null}

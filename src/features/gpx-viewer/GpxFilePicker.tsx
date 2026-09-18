@@ -158,7 +158,7 @@ export const GpxFilePicker = ({
       accept={{ 'application/gpx+xml': ['.gpx'], 'application/xml': ['.gpx'] }}
       // The picker is transient; only successful imports become workspace data.
       acceptedFiles={[]}
-      colorPalette="green"
+      colorPalette="action"
       onFileAccept={handleFileAccept}
       onFileReject={handleFileReject}
       onDropCapture={handleDropCapture}

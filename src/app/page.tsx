@@ -28,6 +28,7 @@ const Home = () => {
         <Stack
           gap={3}
           borderWidth="1px"
+          bg="bg.panel"
           rounded="lg"
           p={{ base: 5, md: 8 }}
           mt={3}
@@ -43,7 +44,7 @@ const Home = () => {
           </Text>
           <Button
             asChild
-            colorPalette="teal"
+            colorPalette="action"
             variant="surface"
             maxW="full"
             whiteSpace="normal"
