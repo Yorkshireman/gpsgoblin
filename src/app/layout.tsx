@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { SiteHeader } from '@/components/SiteHeader';
 import { Provider } from '@/components/ui/provider';
 import { SiteFooter } from '@/components/SiteFooter';
 import { publicOrigin } from './siteMetadata';
@@ -59,6 +60,7 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
     >
       <body>
         <Provider>
+          <SiteHeader />
           {children}
           <SiteFooter />
         </Provider>

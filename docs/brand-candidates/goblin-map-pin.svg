@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>GPSGoblin conventional map-pin mark</title>
+  <path
+    fill="#254e24"
+    stroke="#fffef4"
+    stroke-linejoin="round"
+    stroke-width="2.5"
+    d="M32 61 20.5 40C15 36.5 12 31 14 24L5 14l14 3c3.5-5 8-7.5 13-7.5S41.5 12 45 17l14-3-9 10c2 7-.9 12.5-6.5 16L32 61Z"
+  />
+</svg>

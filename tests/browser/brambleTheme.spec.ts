@@ -48,7 +48,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
     try {
       await page.goto('/');
       await expect(
-        page.getByRole('heading', { name: 'GPSGoblin' })
+        page.getByRole('heading', {
+          name: 'Free tools for GPS and activity files'
+        })
       ).toBeVisible();
       await expect
         .poll(async () => background(page.locator('body')))

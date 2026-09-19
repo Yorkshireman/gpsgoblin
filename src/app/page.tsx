@@ -18,9 +18,8 @@ const Home = () => {
     >
       <Stack gap={5} align="start">
         <Heading as="h1" size={{ base: '3xl', md: '4xl' }}>
-          GPSGoblin
+          Free tools for GPS and activity files
         </Heading>
-        <Text fontSize="xl">Free tools for GPS and activity files.</Text>
         <Text maxW="prose">
           Explore a walk, ride, run or planned route. Your file stays on your
           device, with no account needed.

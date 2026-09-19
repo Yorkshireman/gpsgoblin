@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>GPSGoblin route-pin mark with horizontal route</title>
+  <path
+    fill="#254e24"
+    stroke="#fffef4"
+    stroke-linejoin="round"
+    stroke-width="2.5"
+    d="M32 60c-3.9-5.7-18.5-17.5-18.5-32.1L4.8 18l12.3 1.6C20.5 11.3 25.8 6.8 32 6.8s11.5 4.5 14.9 12.8L59.2 18l-8.7 9.9C50.5 42.5 35.9 54.3 32 60Z"
+  />
+  <path
+    fill="none"
+    stroke="#fffef4"
+    stroke-linecap="round"
+    stroke-width="4"
+    d="M21 26.5c-3 4.6-1.2 9 4.2 9 9.2 0 8.4-11.2 17.8-9"
+  />
+  <circle cx="21" cy="26.5" r="3" fill="#fffef4" />
+  <circle cx="43" cy="26.5" r="3" fill="#fffef4" />
+</svg>

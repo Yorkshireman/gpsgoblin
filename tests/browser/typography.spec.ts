@@ -37,7 +37,11 @@ test('homepage uses the selected local type roles without a font-service request
   });
 
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'GPSGoblin' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: 'Free tools for GPS and activity files'
+    })
+  ).toBeVisible();
   await page.evaluate(async () => {
     await document.fonts.ready;
   });
@@ -61,7 +65,11 @@ test('keeps the homepage usable when both font downloads fail', async ({
   });
 
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'GPSGoblin' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: 'Free tools for GPS and activity files'
+    })
+  ).toBeVisible();
   await expect(
     page.getByRole('link', { name: 'Open GPX File Viewer' })
   ).toBeVisible();
@@ -89,7 +97,11 @@ test('keeps the homepage usable while font downloads are slow', async ({
   });
 
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: 'GPSGoblin' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: 'Free tools for GPS and activity files'
+    })
+  ).toBeVisible();
   await expect(
     page.getByRole('link', { name: 'Open GPX File Viewer' })
   ).toBeVisible();
@@ -137,7 +149,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
         });
 
         await expect(
-          page.getByRole('heading', { name: 'GPSGoblin' })
+          page.getByRole('heading', {
+            name: 'Free tools for GPS and activity files'
+          })
         ).toBeVisible();
         const viewerLink = page.getByRole('link', {
           name: 'Open GPX File Viewer'
