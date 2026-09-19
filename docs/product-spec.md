@@ -1,8 +1,8 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.10
-**Date:** 14 September 2026
+**Version:** 0.11
+**Date:** 19 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
 **Owned production domain:** `https://gpsgoblin.com` — registered at GoDaddy; the Stage 1 viewer is live on Cloudflare Workers Static Assets. This is the canonical production origin.
@@ -149,6 +149,23 @@ Use desktop width deliberately and prioritise the active task on mobile. Fit the
 Treat the fold as the current visible viewport boundary, not a fixed device property. Check shorter windows as well as wide ones, and allow for text wrapping, zoom, browser chrome and variable content. Scrolling to secondary content is expected; repeated travel between a control and its result is a UX defect. Test actual clicks/taps on visible lines, fills, markers and labels, along with keyboard alternatives, so decorative layers do not intercept the intended action.
 
 These requirements apply across tools and release stages. Exact layouts, breakpoints and view-switching arrangements remain task-specific design choices; these principles do not approve a deferred redesign. Follow the [agent UX workflow](agents/ux.md) for planning and verification evidence.
+
+### 4.5 Prominent example experience — agreed; next implementation priority
+
+Owner decision (19 September 2026): [issue #46](https://github.com/Yorkshireman/gpsgoblin/issues/46) is the next feature to implement for the existing homepage and GPX viewer, ahead of further feature work. It is a Stage 1 enhancement; it does not reorder the later tool stages or depend on provider-import research.
+
+Let visitors experience the viewer before obtaining their own file: **Try an example → inspect the result → open your own file**.
+
+- On the homepage, place a prominent **Try an example** action beside **Open GPX File Viewer**. One activation opens the viewer with the sample loaded, without manual download/re-upload.
+- On the empty GPX viewer, place **Try an example** alongside **Choose GPX file**, outside collapsed help. Preserve normal file selection and drag-and-drop; an ordinary viewer visit must not automatically load an example.
+- Use one interesting, public-safe GPX 1.1 activity with valid coordinates, elevation and usable timestamps, demonstrating the existing map, elevation, speed and pace. Document provenance/licence; use synthetic or explicitly permissioned/sanitised data, never a personal recording without permission.
+- Use the normal import, validation, worker and calculation pipeline, not a separate mocked result. Serve/bundle the public sample as a first-party static asset. This adds no backend, account, paid supplier, new format or unapproved telemetry.
+- Clearly label the loaded input **Example activity** and keep **Open your own file** prominent near its identity. A successful personal-file import replaces the example label and clears any example-entry trigger. Do not let a late example load overwrite a more recently chosen file.
+- Provide understandable loading and failure feedback with retry and ordinary file selection available. Preserve a usable current result if replacement fails. Verify direct homepage entry, viewer entry, refresh/back behaviour and replacement.
+- Keep canonical/indexing rules unchanged. A fixed example-selection marker may identify the public sample; never embed personal activity data in a URL or create a duplicate indexable tool page.
+- Validate visibility, keyboard/touch operation and loading, example, error and replacement states in all four viewports required by the UX workflow. Reuse the importer so later tools can adopt the pattern without a speculative framework.
+
+File-obtaining guides, provider connections, Bluetooth transfers and FIT/TCX acceptance are separate work and are not prerequisites for this enhancement. The example must demonstrate only released capabilities. Its intended commercial role is to show value before asking the visitor to retrieve a file; no conversion or revenue uplift is claimed as established evidence.
 
 ## 5. Canonical data model
 
