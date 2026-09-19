@@ -279,8 +279,9 @@ export const MeasurementPlot = ({
                 x={chartPosition(selected)}
                 y={selected[metric]}
                 r={6}
-                fill={chart.color('action.fg')}
-                stroke={chart.color('fg')}
+                fill={chart.color('selection.fg')}
+                stroke={chart.color('bg.panel')}
+                strokeWidth={3}
               />
             ) : null}
             <ChartSelection

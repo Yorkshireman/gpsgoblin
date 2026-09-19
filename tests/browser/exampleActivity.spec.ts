@@ -64,6 +64,10 @@ for (const viewport of uxBaselineViewports) {
         page.getByText('Example activity', { exact: true })
       ).toBeVisible();
       await expect(
+        page.getByRole('combobox', { name: 'View', exact: true })
+      ).toContainText('Track: Day 3 — Col du Tricot');
+      await expect(page.getByText('14.8 km', { exact: true })).toBeVisible();
+      await expect(
         page.getByRole('button', { name: 'Open your own file' })
       ).toBeVisible();
       const chartChoice = page.getByRole('combobox', { name: 'Chart' });
