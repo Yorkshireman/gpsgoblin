@@ -221,25 +221,31 @@ export const MeasurementExplorer = ({
           ? paceMaximum
           : undefined
       : undefined;
-  const mapView = (
-    <>
-      {' '}
-      {track ? (
-        <RouteMap
-          track={track}
-          segment={segment}
-          selectedPoint={selected?.sample}
-        />
-      ) : (
-        <Stack as="section" aria-label="Planned route" gap={3}>
-          <Heading as="h3" size="lg">
-            Planned route
-          </Heading>
-          <RouteMap route={route} selectedPoint={selected?.sample} />
-        </Stack>
-      )}
-    </>
-  );
+  const mapView = (showHeading = true) => {
+    return (
+      <>
+        {track ? (
+          <RouteMap
+            showHeading={showHeading}
+            track={track}
+            segment={segment}
+            selectedPoint={selected?.sample}
+          />
+        ) : (
+          <Stack as="section" aria-label="Planned route" gap={3}>
+            <Heading as="h3" size="lg">
+              Planned route
+            </Heading>
+            <RouteMap
+              route={route}
+              selectedPoint={selected?.sample}
+              showHeading={showHeading}
+            />
+          </Stack>
+        )}
+      </>
+    );
+  };
 
   const activeBasis = (
     <Stack gap={1} fontSize="xs" aria-label="Active calculation">
@@ -519,7 +525,10 @@ export const MeasurementExplorer = ({
             </>
           )}
           {!showDesktopMap ? (
-            <MobileMapDialog mapView={mapView} selected={selected} />
+            <MobileMapDialog
+              mapView={mapView(Boolean(selected))}
+              selected={selected}
+            />
           ) : null}
           <RoutePosition
             points={analysis.points}
@@ -548,7 +557,7 @@ export const MeasurementExplorer = ({
           rounded="xl"
           p={4}
         >
-          {showDesktopMap ? mapView : null}
+          {showDesktopMap ? mapView() : null}
         </Box>
       </Grid>
     </Stack>

@@ -2,7 +2,7 @@ import { expect, test, blockExternalTiles } from './browserTest';
 
 test('phone maps mount only when requested and adapt to desktop without losing selection', async ({
   browser
-}) => {
+}, testInfo) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     hasTouch: true
@@ -19,16 +19,22 @@ test('phone maps mount only when requested and adapt to desktop without losing s
       <trkpt lat="0" lon="0.02"><ele>30</ele><time>2026-01-01T00:02:00Z</time></trkpt>
       </trkseg></trk></gpx>`)
   });
-  await page.getByRole('slider', { name: 'Position on route' }).press('End');
-  const selected = page.getByLabel('Selected measurement', { exact: true });
-  await expect(selected).toContainText('00:02:00 UTC');
-  const selectedText = await selected.textContent();
   const canvases = page.locator('canvas.maplibregl-canvas');
   const maps = page.locator('.maplibregl-map');
   await expect(canvases).toHaveCount(0);
   await expect(maps).toHaveCount(0);
 
   const viewMap = page.getByRole('button', { name: 'View on map' });
+  await viewMap.tap();
+  await expect(
+    page.getByRole('heading', { name: 'Route map', exact: true })
+  ).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath('route-map-dialog.png') });
+  await page.getByRole('button', { name: 'Back to chart' }).tap();
+  await page.getByRole('slider', { name: 'Position on route' }).press('End');
+  const selected = page.getByLabel('Selected measurement', { exact: true });
+  await expect(selected).toContainText('00:02:00 UTC');
+  const selectedText = await selected.textContent();
   const marker = page.getByRole('img', {
     name: 'Selected map position: 0, 0.02',
     exact: true

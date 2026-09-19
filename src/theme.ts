@@ -35,6 +35,31 @@ const selectionPanelRecipe = defineRecipe({
   }
 });
 
+const linkRecipe = defineRecipe({
+  base: {
+    alignItems: 'center',
+    borderRadius: 'l1',
+    color: 'action.fg',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    focusVisibleRing: 'outside',
+    gap: '1.5',
+    outline: 'none',
+    textDecoration: 'underline',
+    textDecorationColor: 'currentColor',
+    textUnderlineOffset: '3px'
+  },
+  variants: {
+    variant: {
+      plain: {},
+      underline: {}
+    }
+  },
+  defaultVariants: {
+    variant: 'plain'
+  }
+});
+
 const systemFontFallback =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
 
@@ -58,6 +83,7 @@ const themeConfig = defineConfig({
   },
   theme: {
     recipes: {
+      link: linkRecipe,
       selectionPanel: selectionPanelRecipe
     },
     semanticTokens: {

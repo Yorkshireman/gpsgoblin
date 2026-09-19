@@ -31,8 +31,12 @@ const initialItem = (
 };
 
 export const GpxFilePicker = ({
-  children
-}: Readonly<{ children?: ReactNode }>) => {
+  emptyStateHelp,
+  resultsHelp
+}: Readonly<{
+  emptyStateHelp?: ReactNode;
+  resultsHelp?: ReactNode;
+}>) => {
   const [filename, setFilename] = useState<string>();
   const [error, setError] = useState<string>();
   const [notice, setNotice] = useState<string>();
@@ -219,10 +223,10 @@ export const GpxFilePicker = ({
           onItemChange={setSelectedItem}
           selectedItem={selectedItem}
         >
-          {children}
+          {resultsHelp}
         </GpxDocumentResults>
       ) : (
-        children
+        emptyStateHelp
       )}
     </FileUpload.Root>
   );

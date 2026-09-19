@@ -29,10 +29,11 @@ type RouteMapProps = (
       segment?: never;
     }>
 ) &
-  Readonly<{ selectedPoint?: GeographicSample }>;
+  Readonly<{ selectedPoint?: GeographicSample; showHeading?: boolean }>;
 
 export const RouteMap = ({
   route,
+  showHeading = true,
   track,
   waypoint,
   segment,
@@ -108,12 +109,19 @@ export const RouteMap = ({
   const description = track?.description ?? route?.description;
 
   return (
-    <Box as="section" aria-labelledby={headingId} width="full">
+    <Box
+      as="section"
+      aria-label={showHeading ? undefined : 'Route map'}
+      aria-labelledby={showHeading ? headingId : undefined}
+      width="full"
+    >
       <Stack gap={3}>
         <Stack gap={1}>
-          <Heading as={track ? 'h3' : 'h4'} id={headingId} size="lg">
-            {waypoint ? 'Waypoint map' : 'Route map'}
-          </Heading>
+          {showHeading ? (
+            <Heading as={track ? 'h3' : 'h4'} id={headingId} size="lg">
+              {waypoint ? 'Waypoint map' : 'Route map'}
+            </Heading>
+          ) : null}
           <Text
             fontWeight="medium"
             overflowWrap="anywhere"
