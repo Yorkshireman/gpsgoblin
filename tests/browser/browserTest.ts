@@ -15,7 +15,7 @@ export const uxBaselineViewports = [
 
 type UXBaselineViewport = (typeof uxBaselineViewports)[number];
 
-export const advancedControls = (page: Page) => {
+export const advancedControlsDisclosureTrigger = (page: Page) => {
   return page.locator('summary').filter({ hasText: /^Advanced Controls$/ });
 };
 

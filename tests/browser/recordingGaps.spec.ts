@@ -1,4 +1,4 @@
-import { advancedControls, expect, test } from './browserTest';
+import { advancedControlsDisclosureTrigger, expect, test } from './browserTest';
 
 const recording = (gapCount = 3) => {
   let seconds = 0;
@@ -94,7 +94,7 @@ for (const viewport of [
     await expect(
       page.getByText('3 recording gaps', { exact: true })
     ).not.toBeVisible();
-    await advancedControls(page).click();
+    await advancedControlsDisclosureTrigger(page).click();
     await page.getByText('3 recording gaps', { exact: true }).click();
     await control.selectOption('');
     await expect(selection).toHaveCount(0);
@@ -187,7 +187,7 @@ test('permissioned local recordings preserve gap distinction', async ({
   const control = page.getByLabel('Inspect recording gap', { exact: true });
   await expect(control).toBeHidden();
   await expect(control.locator('option')).toHaveCount(10);
-  await advancedControls(page).click();
+  await advancedControlsDisclosureTrigger(page).click();
   await page.getByText('9 recording gaps', { exact: true }).click();
   await control.selectOption({ index: 1 });
   await expect(
