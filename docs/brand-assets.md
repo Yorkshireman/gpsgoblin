@@ -22,7 +22,9 @@ including the original horizontal-route design and the solid goblin-pin
 silhouette, along with the wider-eared conventional pin. They remain available
 for comparison and later development even when they are not the active favicon.
 The ungrounded friendly pin is also retained as the direct predecessor of the
-active mark.
+active mark. `grounded-goblin-map-pin.svg` is intentionally retained as a
+frozen historical snapshot of the selected design; `src/app/icon.svg` is the
+only editable canonical source for the active mark.
 
 The artwork was created for GPSGoblin by OpenAI Codex on 19 September 2026. It
 does not incorporate third-party artwork, fonts or generated-image assets. The
@@ -38,3 +40,17 @@ The owner approved using the mark in a compact shared header on 19 September 202
 accessible home link. It is deliberately limited to this home link so it does
 not displace page titles, viewer controls or results with a larger navigation
 system.
+
+## Verification record
+
+The active local SVG is covered by the static-export favicon check and rendered
+at 16 px and 32 px on light and dark browser-chrome-colour backgrounds, with
+Playwright screenshot artifacts retained locally. The shared header and global
+page shell are exercised at 1440×900, 1280×720, 390×844 and 375×667 for the
+homepage, GPX viewer (including a loaded file), privacy and limitations pages.
+Those checks capture viewport screenshots, keyboard home-link navigation and
+touch navigation. The homepage also has 200% text coverage across that viewport
+matrix. Every page with the shared header also has 200% text coverage across
+the same matrix, checking that its title and home link remain visible without
+horizontal overflow. A Chrome local-static-export inspection additionally
+confirmed the active favicon in a real browser tab.

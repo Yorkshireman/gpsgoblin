@@ -1,19 +1,15 @@
-import { blockExternalTiles, expect, test } from './browserTest';
+import {
+  createUXContext,
+  expect,
+  test,
+  uxBaselineViewports
+} from './browserTest';
 
-for (const viewport of [
-  { width: 1440, height: 900 },
-  { width: 1280, height: 720 },
-  { width: 390, height: 844 },
-  { width: 375, height: 667 }
-]) {
+for (const viewport of uxBaselineViewports) {
   test(`global shell keeps short-page footers useful at ${viewport.width} × ${viewport.height}`, async ({
     browser
-  }) => {
-    const context = await browser.newContext({
-      hasTouch: viewport.width < 600,
-      viewport
-    });
-    await blockExternalTiles(context);
+  }, testInfo) => {
+    const context = await createUXContext(browser, viewport);
     const page = await context.newPage();
 
     for (const path of ['/', '/tools/gpx-file-viewer']) {
@@ -27,8 +23,8 @@ for (const viewport of [
           return {
             bottomGap: window.innerHeight - box.bottom,
             height: box.height,
-            position: getComputedStyle(element).position,
-            pageOverflows: document.documentElement.scrollWidth > innerWidth
+            pageOverflows: document.documentElement.scrollWidth > innerWidth,
+            position: getComputedStyle(element).position
           };
         })
       ).toEqual({
@@ -36,6 +32,38 @@ for (const viewport of [
         height: 53,
         pageOverflows: false,
         position: 'relative'
+      });
+      await page.screenshot({
+        path: testInfo.outputPath(
+          `${path === '/' ? 'homepage' : path.slice(1).replaceAll('/', '-')}-${viewport.width}x${viewport.height}.png`
+        )
+      });
+    }
+
+    for (const [path, heading] of [
+      ['/privacy', 'Privacy'],
+      ['/limitations', 'Support and limitations']
+    ]) {
+      await page.goto(path);
+      await expect(
+        page.getByRole('heading', { level: 1, name: heading })
+      ).toBeInViewport();
+      expect(
+        await page.evaluate(() => {
+          return document.documentElement.scrollWidth > innerWidth;
+        })
+      ).toBe(false);
+      await page.screenshot({
+        path: testInfo.outputPath(
+          `${path.slice(1)}-initial-${viewport.width}x${viewport.height}.png`
+        )
+      });
+      await page.locator('footer').scrollIntoViewIfNeeded();
+      await expect(page.locator('footer')).toBeInViewport({ ratio: 1 });
+      await page.screenshot({
+        path: testInfo.outputPath(
+          `${path.slice(1)}-footer-${viewport.width}x${viewport.height}.png`
+        )
       });
     }
 

@@ -25,7 +25,7 @@ export const SiteFooter = () => {
           <NextLink href="/privacy">Privacy</NextLink>
         </Link>
         <Link asChild minH="44px" px={2} alignContent="center">
-          <NextLink href="/limitations">Support</NextLink>
+          <NextLink href="/limitations">Limitations</NextLink>
         </Link>
       </Flex>
     </Container>
