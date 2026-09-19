@@ -11,7 +11,7 @@ export const metadata = createPageMetadata(
 
 const GpxFileViewerPage = () => {
   return (
-    <Box bg="bg.muted" minH="100dvh">
+    <Box bg="bg.muted">
       <Container
         as="main"
         maxW="1600px"

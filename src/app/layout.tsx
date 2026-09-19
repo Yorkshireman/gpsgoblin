@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { Box, Flex } from '@chakra-ui/react';
+import { SiteHeader } from '@/components/SiteHeader';
 import { Provider } from '@/components/ui/provider';
 import { SiteFooter } from '@/components/SiteFooter';
 import { publicOrigin } from './siteMetadata';
@@ -59,8 +61,13 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
     >
       <body>
         <Provider>
-          {children}
-          <SiteFooter />
+          <Flex direction="column" minH="100dvh">
+            <SiteHeader />
+            <Box flex="1" minH={0}>
+              {children}
+            </Box>
+            <SiteFooter />
+          </Flex>
         </Provider>
       </body>
     </html>
