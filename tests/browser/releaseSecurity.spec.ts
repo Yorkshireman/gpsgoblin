@@ -200,12 +200,16 @@ test('Workers verification hosts are noindex without affecting the public origin
 
 test('static assets exclude private files and known credential signatures', async () => {
   const files = readdirSync('out', { recursive: true, encoding: 'utf8' });
+  const approvedPublicGpx = new Set(['examples/example-activity.gpx']);
   const forbidden =
     /(^|\/)(?:\.env(?:\.[^/]*)?|private-recordings|tests|\.git)(?:\/|$)|\.(?:gpx|pem|key)$/i;
   const credential =
     /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{80,}/;
   for (const file of files) {
-    expect(forbidden.test(file), `Private asset path: ${file}`).toBe(false);
+    expect(
+      forbidden.test(file) && !approvedPublicGpx.has(file),
+      `Private asset path: ${file}`
+    ).toBe(false);
     if (/\.(?:html|js|mjs|css|json|txt|xml|map)$/.test(file)) {
       // Report filenames only; never echo a matched credential into test logs.
       expect(

@@ -10,22 +10,28 @@ import { useRef } from 'react';
 
 type GpxFileControlsProps = Readonly<{
   canClear: boolean;
-  showDropzone: boolean;
-  isLoading: boolean;
   filename?: string;
-  onReset?: () => void;
+  isExample: boolean;
+  isLoading: boolean;
+  isLoadingExample: boolean;
   onClear: () => void;
   onCancel: () => void;
+  onReset?: () => void;
+  onTryExample?: () => void;
+  showDropzone: boolean;
 }>;
 
 export const GpxFileControls = ({
   canClear,
-  showDropzone,
-  isLoading,
   filename,
-  onReset,
+  isExample,
+  isLoading,
+  isLoadingExample,
   onClear,
-  onCancel
+  onCancel,
+  onReset,
+  onTryExample,
+  showDropzone
 }: GpxFileControlsProps) => {
   const chooser = useRef<HTMLButtonElement>(null);
 
@@ -47,25 +53,34 @@ export const GpxFileControls = ({
         </FileUpload.Dropzone>
       ) : null}
       <Flex gap={2} align="center" wrap="wrap" width="full">
-        {filename ? (
+        {filename || isExample ? (
           <Text
             fontWeight="medium"
-            minW={0}
-            title={filename}
             flex={{ base: '1 1 100%', md: '1 1 6rem' }}
-            whiteSpace={{ base: 'normal', md: 'nowrap' }}
+            minW={0}
             overflow={{ base: 'visible', md: 'hidden' }}
-            textOverflow={{ base: 'clip', md: 'ellipsis' }}
             overflowWrap="anywhere"
+            whiteSpace={{ base: 'normal', md: 'nowrap' }}
+            textOverflow={{ base: 'clip', md: 'ellipsis' }}
+            title={isExample ? 'Example activity' : filename}
           >
-            {filename}
+            {isExample ? 'Example activity' : filename}
           </Text>
         ) : null}
         <FileUpload.Trigger asChild>
           <Button ref={chooser} type="button" variant="outline">
-            {filename ? 'Change GPX file' : 'Choose GPX file'}
+            {isExample
+              ? 'Open your own file'
+              : filename
+                ? 'Change GPX file'
+                : 'Choose GPX file'}
           </Button>
         </FileUpload.Trigger>
+        {onTryExample ? (
+          <Button colorPalette="action" type="button" onClick={onTryExample}>
+            Try an example
+          </Button>
+        ) : null}
         {onReset ? (
           <Button
             type="button"
@@ -96,7 +111,11 @@ export const GpxFileControls = ({
         <Alert.Root role="status" status="info">
           <Spinner aria-hidden="true" size="sm" />
           <Alert.Content>
-            <Alert.Title>Opening GPX file</Alert.Title>
+            <Alert.Title>
+              {isLoadingExample
+                ? 'Opening example activity'
+                : 'Opening GPX file'}
+            </Alert.Title>
           </Alert.Content>
           <Button
             type="button"

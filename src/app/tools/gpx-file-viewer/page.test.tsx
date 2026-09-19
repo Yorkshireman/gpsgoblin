@@ -1,6 +1,12 @@
 import userEvent from '@testing-library/user-event';
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within
+} from '@testing-library/react';
 
 import GpxFileViewerPage from './page';
 import { createTestFile } from './pageTestFixtures';
@@ -61,6 +67,204 @@ jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
 }));
 
 describe('GPX file viewer', () => {
+  it('loads the example activity through the normal viewer flow', async () => {
+    const example = `
+      <gpx version="1.1" creator="GPSGoblin example" xmlns="http://www.topografix.com/GPX/1/1">
+        <trk><name>Example ridge walk</name><trkseg>
+          <trkpt lat="53.1" lon="-1.2"><ele>100</ele><time>2026-09-11T12:00:00Z</time></trkpt>
+          <trkpt lat="53.101" lon="-1.201"><ele>120</ele><time>2026-09-11T12:01:00Z</time></trkpt>
+        </trkseg></trk>
+      </gpx>
+    `;
+    const fetchBeforeTest = global.fetch;
+    const fetchExample = jest.fn().mockResolvedValue({
+      blob: async () => {
+        return new Blob([example], { type: 'application/gpx+xml' });
+      },
+      ok: true
+    });
+    global.fetch = fetchExample;
+    const user = userEvent.setup();
+
+    try {
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+
+      expect(fetchExample).toHaveBeenCalledWith(
+        '/examples/example-activity.gpx',
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      );
+      expect(await screen.findByText('Example ridge walk')).toBeVisible();
+      expect(
+        screen.getByText('Example activity', { exact: true })
+      ).toBeVisible();
+      expect(
+        screen.getByRole('button', { name: 'Open your own file' })
+      ).toBeVisible();
+    } finally {
+      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
+      global.fetch = fetchBeforeTest;
+    }
+  });
+
+  it('loads the example on a direct marked viewer visit', async () => {
+    const fetchBeforeTest = global.fetch;
+    const fetchExample = jest.fn().mockResolvedValue({
+      blob: async () => {
+        return new Blob(
+          [
+            '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>Direct example</name><trkseg><trkpt lat="53" lon="-1"><ele>100</ele><time>2026-09-11T12:00:00Z</time></trkpt><trkpt lat="53.01" lon="-1.01"><ele>120</ele><time>2026-09-11T12:01:00Z</time></trkpt></trkseg></trk></gpx>'
+          ],
+          { type: 'application/gpx+xml' }
+        );
+      },
+      ok: true
+    });
+    global.fetch = fetchExample;
+    cleanup();
+    window.history.replaceState(
+      {},
+      '',
+      '/tools/gpx-file-viewer#example-activity'
+    );
+
+    try {
+      render(
+        <ChakraProvider value={defaultSystem}>
+          <GpxFileViewerPage />
+        </ChakraProvider>
+      );
+
+      expect(await screen.findByText('Direct example')).toBeVisible();
+      expect(fetchExample).toHaveBeenCalledTimes(1);
+    } finally {
+      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
+      global.fetch = fetchBeforeTest;
+    }
+  });
+
+  it('keeps a personal file when a slower example request finishes later', async () => {
+    const fetchBeforeTest = global.fetch;
+    let finishExample: ((response: unknown) => void) | undefined;
+    global.fetch = jest.fn().mockImplementation(() => {
+      return new Promise((resolve) => {
+        finishExample = resolve;
+      });
+    });
+    const user = userEvent.setup();
+
+    try {
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+      expect(screen.getByText('Opening example activity')).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: 'Try an example' })
+      ).not.toBeInTheDocument();
+
+      await user.upload(
+        screen.getByLabelText('GPX file'),
+        createTestFile('singleTrack')
+      );
+      expect(await screen.findByText('Morning route')).toBeVisible();
+      expect(window.location.hash).toBe('');
+
+      finishExample?.({
+        blob: async () => {
+          return new Blob(
+            [
+              '<gpx version="1.1"><trk><name>Late example</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk></gpx>'
+            ],
+            { type: 'application/gpx+xml' }
+          );
+        },
+        ok: true
+      });
+      await Promise.resolve();
+
+      expect(screen.getByText('Morning route')).toBeVisible();
+      expect(screen.queryByText('Late example')).not.toBeInTheDocument();
+    } finally {
+      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
+      global.fetch = fetchBeforeTest;
+    }
+  });
+
+  it('offers retry and ordinary file selection when the example cannot load', async () => {
+    const fetchBeforeTest = global.fetch;
+    const fetchExample = jest
+      .fn()
+      .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({
+        blob: async () => {
+          return new Blob(
+            [
+              '<gpx version="1.1"><trk><name>Retry example</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk></gpx>'
+            ],
+            { type: 'application/gpx+xml' }
+          );
+        },
+        ok: true
+      });
+    global.fetch = fetchExample;
+    const user = userEvent.setup();
+
+    try {
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+
+      expect(
+        await screen.findByText('Unable to open example activity')
+      ).toBeVisible();
+      expect(
+        screen.getByRole('button', { name: 'Choose GPX file' })
+      ).toBeVisible();
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+      expect(await screen.findByText('Retry example')).toBeVisible();
+      expect(fetchExample).toHaveBeenCalledTimes(2);
+    } finally {
+      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
+      global.fetch = fetchBeforeTest;
+    }
+  });
+
+  it('identifies a personal-file replacement while the example stays visible', async () => {
+    const fetchBeforeTest = global.fetch;
+    global.fetch = jest.fn().mockResolvedValue({
+      blob: async () => {
+        return new Blob(
+          [
+            '<gpx version="1.1"><trk><name>Visible example</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk></gpx>'
+          ],
+          { type: 'application/gpx+xml' }
+        );
+      },
+      ok: true
+    });
+    const user = userEvent.setup();
+
+    try {
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+      expect(await screen.findByText('Visible example')).toBeVisible();
+      const read = jest
+        .spyOn(FileReader.prototype, 'readAsText')
+        .mockImplementation(() => {
+          return;
+        });
+      try {
+        await user.upload(
+          screen.getByLabelText('GPX file'),
+          createTestFile('singleTrack')
+        );
+        expect(screen.getByText('Opening GPX file')).toBeVisible();
+        expect(screen.getByText('Visible example')).toBeVisible();
+        await user.click(screen.getByRole('button', { name: 'Cancel import' }));
+        expect(window.location.hash).toBe('#example-activity');
+      } finally {
+        read.mockRestore();
+      }
+    } finally {
+      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
+      global.fetch = fetchBeforeTest;
+    }
+  });
+
   it('dismisses inspected point details and allows a point to be selected again', async () => {
     const user = userEvent.setup();
     await user.upload(

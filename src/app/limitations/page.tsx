@@ -40,6 +40,11 @@ const LimitationsPage = () => {
         Tested examples
       </Heading>
       <Text>
+        The built-in Bramble Ridge loop is wholly synthetic. Its route,
+        elevations and times were invented to demonstrate the viewer and do not
+        describe a real person or activity.
+      </Text>
+      <Text>
         Checks on macOS covered Chrome 153, Playwright Firefox 155 and WebKit
         26.6, including phone-sized layouts. These are desktop browser and
         engine checks, not tests on physical phones or native Safari.
