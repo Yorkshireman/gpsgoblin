@@ -1,8 +1,8 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.14
-**Date:** 19 September 2026
+**Version:** 0.15
+**Date:** 20 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
 **Owned production domain:** `https://gpsgoblin.com` — registered at GoDaddy; the Stage 1 viewer is live on Cloudflare Workers Static Assets. This is the canonical production origin.
@@ -334,6 +334,8 @@ For multisession/multisport data, make entity selection explicit. A complete mul
 ### 8.1 FIT→GPX and TCX→GPX
 
 Users select a source, review selectable geographic content and warnings, then download a valid GPX file.
+
+For the FIT-to-GPX converter in [issue #55](https://github.com/Yorkshireman/gpsgoblin/issues/55), the owner agreed on 20 September 2026 that **Preview converted GPX** is an optional action beside the primary **Download GPX** action. Open the actual generated GPX through the existing GPX validation/import pipeline and viewer components within the converter page, without downloading/reselecting the file or navigating to a separate tool. Clearly identify the converted file and keep **Download GPX** visible beside its identity throughout preview, including phone map views. Closing preview returns to the conversion summary with the original FIT, selected session and generated download retained in memory. Restore focus to the preview action. Preview settings must not change the generated download; changing the source or session must update or invalidate both preview and download together so neither shows stale output. A preview rendering failure must preserve an independently valid download and offer retry/close; a validation failure must prevent downloading invalid output and explain recovery. This remains session-only state, with no activity data in URLs or persistent storage. Verify downloading before, during and after preview and recovery at the four UX baseline viewports. This agrees the preview behaviour, not implementation or a change to release sequencing.
 
 Preserve supported coordinates, timestamps, elevation and segment boundaries. Do not fabricate timestamps or link disconnected sections into a continuous track. Do not discard a metric that is promised as supported without warning.
 
