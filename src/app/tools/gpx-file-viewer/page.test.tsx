@@ -10,6 +10,10 @@ import {
 
 import GpxFileViewerPage from './page';
 import { createTestFile } from './pageTestFixtures';
+import {
+  createExampleGpxResponse,
+  setupExampleActivityTestEnvironment
+} from './pageTestSupport';
 import type {
   ImportRequest,
   ImportResponse
@@ -67,29 +71,26 @@ jest.mock('@/features/gpx-viewer/import-processing/createImportWorker', () => ({
 }));
 
 describe('GPX file viewer', () => {
-  it('loads the example activity through the normal viewer flow', async () => {
-    const example = `
-      <gpx version="1.1" creator="GPSGoblin example" xmlns="http://www.topografix.com/GPX/1/1">
-        <trk><name>Example ridge walk</name><trkseg>
-          <trkpt lat="53.1" lon="-1.2"><ele>100</ele><time>2026-09-11T12:00:00Z</time></trkpt>
-          <trkpt lat="53.101" lon="-1.201"><ele>120</ele><time>2026-09-11T12:01:00Z</time></trkpt>
-        </trkseg></trk>
-      </gpx>
-    `;
-    const fetchBeforeTest = global.fetch;
-    const fetchExample = jest.fn().mockResolvedValue({
-      blob: async () => {
-        return new Blob([example], { type: 'application/gpx+xml' });
-      },
-      ok: true
-    });
-    global.fetch = fetchExample;
-    const user = userEvent.setup();
+  describe('example activity', () => {
+    let environment: ReturnType<typeof setupExampleActivityTestEnvironment>;
 
-    try {
+    beforeEach(() => {
+      environment = setupExampleActivityTestEnvironment();
+    });
+
+    afterEach(() => {
+      environment.restore();
+    });
+
+    it('loads the example activity through the normal viewer flow', async () => {
+      environment.fetchExample.mockResolvedValue(
+        createExampleGpxResponse('Example ridge walk')
+      );
+      const user = userEvent.setup();
+
       await user.click(screen.getByRole('button', { name: 'Try an example' }));
 
-      expect(fetchExample).toHaveBeenCalledWith(
+      expect(environment.fetchExample).toHaveBeenCalledWith(
         '/examples/example-activity.gpx',
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       );
@@ -100,34 +101,15 @@ describe('GPX file viewer', () => {
       expect(
         screen.getByRole('button', { name: 'Open your own file' })
       ).toBeVisible();
-    } finally {
-      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
-      global.fetch = fetchBeforeTest;
-    }
-  });
-
-  it('loads the example on a direct marked viewer visit', async () => {
-    const fetchBeforeTest = global.fetch;
-    const fetchExample = jest.fn().mockResolvedValue({
-      blob: async () => {
-        return new Blob(
-          [
-            '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>Direct example</name><trkseg><trkpt lat="53" lon="-1"><ele>100</ele><time>2026-09-11T12:00:00Z</time></trkpt><trkpt lat="53.01" lon="-1.01"><ele>120</ele><time>2026-09-11T12:01:00Z</time></trkpt></trkseg></trk></gpx>'
-          ],
-          { type: 'application/gpx+xml' }
-        );
-      },
-      ok: true
     });
-    global.fetch = fetchExample;
-    cleanup();
-    window.history.replaceState(
-      {},
-      '',
-      '/tools/gpx-file-viewer#example-activity'
-    );
 
-    try {
+    it('loads the example on a direct marked viewer visit', async () => {
+      environment.fetchExample.mockResolvedValue(
+        createExampleGpxResponse('Direct example')
+      );
+      cleanup();
+      environment.markDirectEntry();
+
       render(
         <ChakraProvider value={defaultSystem}>
           <GpxFileViewerPage />
@@ -135,24 +117,18 @@ describe('GPX file viewer', () => {
       );
 
       expect(await screen.findByText('Direct example')).toBeVisible();
-      expect(fetchExample).toHaveBeenCalledTimes(1);
-    } finally {
-      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
-      global.fetch = fetchBeforeTest;
-    }
-  });
-
-  it('keeps a personal file when a slower example request finishes later', async () => {
-    const fetchBeforeTest = global.fetch;
-    let finishExample: ((response: unknown) => void) | undefined;
-    global.fetch = jest.fn().mockImplementation(() => {
-      return new Promise((resolve) => {
-        finishExample = resolve;
-      });
+      expect(environment.fetchExample).toHaveBeenCalledTimes(1);
     });
-    const user = userEvent.setup();
 
-    try {
+    it('keeps a personal file when a slower example request finishes later', async () => {
+      let finishExample: ((response: unknown) => void) | undefined;
+      environment.fetchExample.mockImplementation(() => {
+        return new Promise((resolve) => {
+          finishExample = resolve;
+        });
+      });
+      const user = userEvent.setup();
+
       await user.click(screen.getByRole('button', { name: 'Try an example' }));
       expect(screen.getByText('Opening example activity')).toBeVisible();
       expect(
@@ -166,47 +142,19 @@ describe('GPX file viewer', () => {
       expect(await screen.findByText('Morning route')).toBeVisible();
       expect(window.location.hash).toBe('');
 
-      finishExample?.({
-        blob: async () => {
-          return new Blob(
-            [
-              '<gpx version="1.1"><trk><name>Late example</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk></gpx>'
-            ],
-            { type: 'application/gpx+xml' }
-          );
-        },
-        ok: true
-      });
+      finishExample?.(createExampleGpxResponse('Late example'));
       await Promise.resolve();
 
       expect(screen.getByText('Morning route')).toBeVisible();
       expect(screen.queryByText('Late example')).not.toBeInTheDocument();
-    } finally {
-      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
-      global.fetch = fetchBeforeTest;
-    }
-  });
+    });
 
-  it('offers retry and ordinary file selection when the example cannot load', async () => {
-    const fetchBeforeTest = global.fetch;
-    const fetchExample = jest
-      .fn()
-      .mockResolvedValueOnce({ ok: false })
-      .mockResolvedValueOnce({
-        blob: async () => {
-          return new Blob(
-            [
-              '<gpx version="1.1"><trk><name>Retry example</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk></gpx>'
-            ],
-            { type: 'application/gpx+xml' }
-          );
-        },
-        ok: true
-      });
-    global.fetch = fetchExample;
-    const user = userEvent.setup();
+    it('offers retry and ordinary file selection when the example cannot load', async () => {
+      environment.fetchExample
+        .mockResolvedValueOnce({ ok: false })
+        .mockResolvedValueOnce(createExampleGpxResponse('Retry example'));
+      const user = userEvent.setup();
 
-    try {
       await user.click(screen.getByRole('button', { name: 'Try an example' }));
 
       expect(
@@ -217,29 +165,15 @@ describe('GPX file viewer', () => {
       ).toBeVisible();
       await user.click(screen.getByRole('button', { name: 'Try again' }));
       expect(await screen.findByText('Retry example')).toBeVisible();
-      expect(fetchExample).toHaveBeenCalledTimes(2);
-    } finally {
-      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
-      global.fetch = fetchBeforeTest;
-    }
-  });
-
-  it('identifies a personal-file replacement while the example stays visible', async () => {
-    const fetchBeforeTest = global.fetch;
-    global.fetch = jest.fn().mockResolvedValue({
-      blob: async () => {
-        return new Blob(
-          [
-            '<gpx version="1.1"><trk><name>Visible example</name><trkseg><trkpt lat="0" lon="0" /></trkseg></trk></gpx>'
-          ],
-          { type: 'application/gpx+xml' }
-        );
-      },
-      ok: true
+      expect(environment.fetchExample).toHaveBeenCalledTimes(2);
     });
-    const user = userEvent.setup();
 
-    try {
+    it('identifies a personal-file replacement while the example stays visible', async () => {
+      environment.fetchExample.mockResolvedValue(
+        createExampleGpxResponse('Visible example')
+      );
+      const user = userEvent.setup();
+
       await user.click(screen.getByRole('button', { name: 'Try an example' }));
       expect(await screen.findByText('Visible example')).toBeVisible();
       const read = jest
@@ -259,10 +193,7 @@ describe('GPX file viewer', () => {
       } finally {
         read.mockRestore();
       }
-    } finally {
-      window.history.replaceState({}, '', '/tools/gpx-file-viewer');
-      global.fetch = fetchBeforeTest;
-    }
+    });
   });
 
   it('dismisses inspected point details and allows a point to be selected again', async () => {

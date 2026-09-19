@@ -1,5 +1,5 @@
 import {
-  advancedControls,
+  advancedControlsDisclosureTrigger,
   blockExternalTiles,
   expect,
   test
@@ -44,7 +44,7 @@ for (const viewport of [
       .getByText(/Suggested range ·/)
       .textContent();
     await page.getByRole('button', { name: 'Show full range' }).click();
-    await advancedControls(page).click();
+    await advancedControlsDisclosureTrigger(page).click();
     await expect(range).toHaveValue('full');
     await expect(
       page.getByRole('button', { name: /Above range:/ })
@@ -80,7 +80,7 @@ for (const viewport of [
     ).toBe(true);
     // Finish configuring before inspecting: expanded options use normal page
     // scrolling and need not fit alongside the graph on a short phone.
-    await advancedControls(page).click();
+    await advancedControlsDisclosureTrigger(page).click();
     await page
       .getByRole('region', { name: 'Measurement chart', exact: true })
       .evaluate((element) => {
@@ -101,7 +101,7 @@ for (const viewport of [
     await page.getByRole('slider', { name: 'Position on route' }).press('Home');
     await arrow.press('Space');
     await expect(selected).toContainText(/107:\d{2} min\/km/);
-    await advancedControls(page).click();
+    await advancedControlsDisclosureTrigger(page).click();
     await maximum.fill('15');
     const position = page.getByRole('slider', { name: 'Position on route' });
     await position.press('Home');

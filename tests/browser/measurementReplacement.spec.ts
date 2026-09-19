@@ -1,4 +1,4 @@
-import { advancedControls, expect, test } from './browserTest';
+import { advancedControlsDisclosureTrigger, expect, test } from './browserTest';
 
 declare global {
   interface Window {
@@ -40,7 +40,7 @@ test('successful replacement resets the previous selection and file-owned chart 
   await expect(
     page.getByRole('region', { name: 'Measurement chart', exact: true })
   ).toHaveAttribute('aria-busy', 'false');
-  await advancedControls(page).click();
+  await advancedControlsDisclosureTrigger(page).click();
   await page
     .getByRole('combobox', { name: 'Pace range' })
     .selectOption('custom');
@@ -60,7 +60,7 @@ test('successful replacement resets the previous selection and file-owned chart 
     '1 minute'
   );
   await chart.selectOption('pace');
-  await advancedControls(page).click();
+  await advancedControlsDisclosureTrigger(page).click();
   await expect(page.getByRole('combobox', { name: 'Pace range' })).toHaveValue(
     'suggested'
   );
