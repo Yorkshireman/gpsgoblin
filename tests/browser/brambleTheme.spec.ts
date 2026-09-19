@@ -91,6 +91,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
           '<gpx version="1.1"><trk><trkseg><trkpt lat="53.958" lon="-1.083" /></trkseg></trk></gpx>'
         )
       });
+      await expect(
+        page.getByText('one-point.gpx', { exact: true })
+      ).toBeVisible();
       const viewOnMap = page.getByRole('button', { name: 'View on map' });
       if (await viewOnMap.isVisible()) {
         await viewOnMap.click();

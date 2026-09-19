@@ -22,7 +22,7 @@
     "test:browser": "playwright test",
     "test:browser:hosting": "playwright test --config playwright.hosting.config.ts",
     "test:browser:compatibility": "playwright test --config playwright.compatibility.config.ts",
-    "tsc": "tsc --noEmit",
+    "tsc": "next typegen && tsc --noEmit",
     "profile:imports": "node --expose-gc scripts/profileGpxPipeline.mjs",
     "profile:browser-memory": "node scripts/profileBrowserMemory.mjs",
     "format": "prettier --write . --ignore-unknown",

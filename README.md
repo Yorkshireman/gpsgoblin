@@ -47,22 +47,38 @@ allowed in a trusted workspace. Agents format each edit batch explicitly when a
 watcher is not running.
 
 `pnpm format` formats all files in scope; `pnpm format:check` checks without writing.
-CI runs the check for every PR targeting `master`, pushes to `master`, and merge
-queue candidates. The protected `master` branch requires a pull request and a
-passing `Prettier` check, including for administrators; direct pushes, force
-pushes, deletions, and bypasses are disabled.
+
+CI runs the `Complete quality suite` check for every PR targeting `master`, push
+to `master`, and merge queue candidate. The protected `master` branch requires a
+pull request and this passing check, including for administrators; direct pushes,
+force pushes, deletions, and bypasses are disabled.
 
 ## Checks
 
 ```sh
-pnpm format:check
+pnpm test --runInBand
 pnpm tsc
 pnpm lint
-pnpm test
+pnpm knip
+pnpm format:check
 pnpm build
+pnpm exec playwright install --with-deps chrome
+pnpm test:browser --workers=2
 ```
 
-The production build is a static export written to `out/`.
+The production build is a static export written to `out/`. The type-check command
+generates Next.js route types first, so it also works from a clean checkout.
+
+The Playwright setup serves that export locally and blocks external OpenStreetMap
+tile requests by default. Browser cases that need owner-provided GPX recordings or
+an operator-disabled basemap remain explicit skips when their environment variables
+are absent. These skips are expected in CI; any ordinary test failure fails the
+required check.
+
+To troubleshoot the check, open its first failing step and run the matching command
+above from a frozen-lockfile install. If a browser cannot start locally, rerun the
+Playwright install command before the browser suite. Do not add private GPX files,
+credentials, or browser artifacts to CI logs or uploads.
 
 ## Stack
 
