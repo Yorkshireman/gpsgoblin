@@ -24,11 +24,11 @@ for (const viewport of [
     await page.screenshot({ path: testInfo.outputPath('initial.png') });
     const help = page.getByText('Help with this viewer', { exact: true });
     await expect(
-      page.getByRole('heading', { name: 'Supported data' })
+      page.getByRole('heading', { name: 'What you can see' })
     ).not.toBeVisible();
     await help.press('Enter');
     await expect(
-      page.getByRole('heading', { name: 'Supported data' })
+      page.getByRole('heading', { name: 'What files you can open' })
     ).toBeVisible();
     await help.press('Enter');
     await page.evaluate(() => {
@@ -44,6 +44,37 @@ for (const viewport of [
     await expect(
       page.getByRole('button', { name: 'Change GPX file' })
     ).toBeVisible();
+    const loadedHelp = page.getByText('Help with this viewer', { exact: true });
+    await loadedHelp.press('Enter');
+    const helpText = page.getByText(
+      'The viewer shows the measurements and controls available for this file.',
+      { exact: true }
+    );
+    const helpTextFontSize = await helpText.evaluate((element) => {
+      return getComputedStyle(element).fontSize;
+    });
+    await expect(
+      page.getByRole('heading', { name: 'What you can see' })
+    ).toBeVisible();
+    await loadedHelp.press('Enter');
+    const speedExplanation = page.getByText('How speed is calculated', {
+      exact: true
+    });
+    await speedExplanation.press('Enter');
+    const speedText = page.getByText(
+      'Speed comes from the distance and time between GPS readings. Small GPS errors can make it jump around, even when you move steadily.',
+      { exact: true }
+    );
+    await expect(speedText).toBeVisible();
+    expect(
+      await speedText.evaluate((element) => {
+        return getComputedStyle(element).fontSize;
+      })
+    ).toBe(helpTextFontSize);
+    await speedExplanation.press('Enter');
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
     await expect(page.getByText('Calculated distance')).toBeInViewport();
     if (viewport.width >= 1024) {
       await expect(

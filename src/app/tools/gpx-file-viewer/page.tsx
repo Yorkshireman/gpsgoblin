@@ -1,6 +1,7 @@
 import { GpxFilePicker } from '@/features/gpx-viewer';
 import { createPageMetadata } from '@/app/siteMetadata';
 import NextLink from 'next/link';
+import type { ReactNode } from 'react';
 import { Box, Container, Heading, Link, Stack, Text } from '@chakra-ui/react';
 
 export const metadata = createPageMetadata(
@@ -8,6 +9,54 @@ export const metadata = createPageMetadata(
   'GPX File Viewer — GPSGoblin',
   'View your GPX route, elevation, speed and pace. Select a point on the chart to find it on the map. Your file stays on your device.'
 );
+
+const ViewerHelp = ({ children }: Readonly<{ children: ReactNode }>) => {
+  return (
+    <Box as="details">
+      <Box
+        as="summary"
+        cursor="pointer"
+        fontWeight="medium"
+        fontSize="sm"
+        minH="44px"
+        alignContent="center"
+      >
+        Help with this viewer
+      </Box>
+      <Stack gap={3} maxW="prose" pt={3}>
+        {children}
+        <Link asChild minH="44px">
+          <NextLink href="/limitations">
+            Tested support and limitations
+          </NextLink>
+        </Link>
+        <Link asChild minH="44px">
+          <NextLink href="/privacy">
+            How your file and map requests are handled
+          </NextLink>
+        </Link>
+      </Stack>
+    </Box>
+  );
+};
+
+const ResultPrivacyAndLimitations = () => {
+  return (
+    <>
+      <Heading as="h2" size="xl">
+        Privacy and limitations
+      </Heading>
+      <Text>
+        Your file stays on your device. Online map backgrounds ask OpenStreetMap
+        for the area you are viewing.
+      </Text>
+      <Text>
+        This viewer does not edit, repair or convert your file. It does not show
+        extra device readings such as heart rate, cadence or power.
+      </Text>
+    </>
+  );
+};
 
 const GpxFileViewerPage = () => {
   return (
@@ -22,102 +71,86 @@ const GpxFileViewerPage = () => {
           <Heading as="h1" size={{ base: 'xl', md: '2xl' }}>
             GPX File Viewer
           </Heading>
-          <GpxFilePicker>
-            <Box as="details">
-              <Box
-                as="summary"
-                cursor="pointer"
-                fontWeight="medium"
-                fontSize="sm"
-                minH="44px"
-                alignContent="center"
-              >
-                Help with this viewer
-              </Box>
-              <Stack gap={3} maxW="prose" pt={3}>
-                <Heading as="h2" id="viewer-details-heading" size="xl">
-                  What you can see
-                </Heading>
-                <Text color="fg.muted">
-                  Choose Speed, Pace or Elevation under Chart, and kilometres or
-                  miles under Display units. Select a chart point to see its
-                  location. On a phone, use View on map to open the map and Back
-                  to chart to return to the same point.
-                </Text>
+          <GpxFilePicker
+            emptyStateHelp={
+              <ViewerHelp>
                 <Heading as="h2" size="xl">
                   How to open a GPX file
                 </Heading>
-                <Text>
-                  Choose or drop one .gpx file into the area above. If it
-                  contains several tracks, routes or waypoints, choose the one
-                  you want to inspect. Use Change GPX file to open another
-                  recording or Clear file to start again.
-                </Text>
+                <Text>Choose or drop one .gpx file into the area above.</Text>
                 <Heading as="h2" size="xl">
-                  Supported data
+                  What files you can open
                 </Heading>
                 <Text>
-                  Open GPX 1.1 tracks, separate track sections, planned routes
-                  and waypoints. Elevation needs height readings; speed and pace
-                  need usable times and positions. Missing readings are left
-                  unavailable. FIT, TCX and GPX 1.0 files are not supported.
+                  You can open GPX 1.1 tracks, separate track sections, planned
+                  routes and waypoints.
+                </Text>
+                <Text>
+                  <strong>Elevation</strong> needs height readings.{' '}
+                  <strong>Speed</strong> and <strong>Pace</strong> need usable
+                  times and positions. FIT, TCX and GPX 1.0 files are not
+                  supported.
+                </Text>
+                <Heading as="h2" size="xl">
+                  Your privacy
+                </Heading>
+                <Text>
+                  Your file stays on your device. Refreshing or leaving this
+                  tool closes it and resets your choices.
+                </Text>
+              </ViewerHelp>
+            }
+            resultsHelp={
+              <ViewerHelp>
+                <Heading as="h2" id="viewer-details-heading" size="xl">
+                  What you can see
+                </Heading>
+                <Text>
+                  The viewer shows the measurements and controls available for
+                  this file.
+                </Text>
+                <Text>
+                  If the <strong>Chart</strong> is shown, choose a point on it
+                  to find that location on the map. On a phone, use{' '}
+                  <strong>View on map</strong>, then{' '}
+                  <strong>Back to chart</strong> to return to the same point.
                 </Text>
                 <Heading as="h2" size="xl">
                   Understanding your results
                 </Heading>
                 <Text>
-                  Distance follows the recorded positions, so GPS errors can
-                  affect it. Duration is the time between the first and last
-                  point, including stops. Speed and pace are calculated from
-                  changes in position and time; they may differ from your
-                  device. Smoothing changes the chart, not your file.
+                  Distance follows the positions in the file. If this is a
+                  recorded activity, GPS errors can affect it. If a duration is
+                  shown, it is the time between the first and last point,
+                  including stops.
                 </Text>
                 <Text>
-                  Possible stops need your review before you leave them out.
-                  Gaps in a recording do not prove you stopped. The selected
-                  chart view shows whether stops and gaps contribute to its
-                  average.
+                  If <strong>Speed</strong> or <strong>Pace</strong> is shown,
+                  it is calculated from changes in position and time, so it may
+                  differ from your device. If <strong>Smoothing</strong> is
+                  available, it changes the chart, not your file.
                 </Text>
-                <Heading as="h2" size="xl">
-                  Privacy and limitations
+                <ResultPrivacyAndLimitations />
+              </ViewerHelp>
+            }
+            waypointHelp={
+              <ViewerHelp>
+                <Heading as="h2" id="viewer-details-heading" size="xl">
+                  What you can see
                 </Heading>
                 <Text>
-                  Your file is not uploaded. Online map backgrounds request the
-                  area you are viewing from OpenStreetMap. Refreshing or leaving
-                  this tool closes your file and resets your choices.
+                  This point shows its location and any elevation recorded in
+                  your file.
                 </Text>
                 <Text>
-                  This viewer does not edit, repair, convert or download a
-                  changed file. Extra device fields such as heart rate, cadence
-                  and power are not displayed.
+                  A waypoint is a single recorded point, rather than a completed
+                  activity or a planned route. It does not have distance or
+                  duration totals.
                 </Text>
-                <Link
-                  asChild
-                  minH="44px"
-                  colorPalette="action"
-                  variant="underline"
-                  textDecorationColor="currentColor"
-                  _hover={{ textDecorationThickness: '2px' }}
-                >
-                  <NextLink href="/limitations">
-                    Tested support and limitations
-                  </NextLink>
-                </Link>
-                <Link
-                  asChild
-                  minH="44px"
-                  colorPalette="action"
-                  variant="underline"
-                  textDecorationColor="currentColor"
-                  _hover={{ textDecorationThickness: '2px' }}
-                >
-                  <NextLink href="/privacy">
-                    How your file and map requests are handled
-                  </NextLink>
-                </Link>
-              </Stack>
-            </Box>
-          </GpxFilePicker>
+                <ResultPrivacyAndLimitations />
+              </ViewerHelp>
+            }
+          />
         </Stack>
       </Container>
     </Box>
