@@ -66,7 +66,8 @@ pnpm exec playwright install --with-deps chrome
 pnpm test:browser --workers=2
 ```
 
-The production build is a static export written to `out/`.
+The production build is a static export written to `out/`. The type-check command
+generates Next.js route types first, so it also works from a clean checkout.
 
 The Playwright setup serves that export locally and blocks external OpenStreetMap
 tile requests by default. Browser cases that need owner-provided GPX recordings or
