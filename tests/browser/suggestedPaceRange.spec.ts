@@ -1,4 +1,4 @@
-import { test, expect } from './browserTest';
+import { advancedControls, expect, test } from './browserTest';
 
 const recording = () => {
   let longitude = 0;
@@ -79,7 +79,7 @@ for (const viewport of [
         return document.documentElement.scrollWidth <= innerWidth;
       })
     ).toBe(true);
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     const range = page.getByRole('combobox', { name: 'Pace range' });
     await range.selectOption('custom');
     const maximum = page.getByRole('spinbutton', { name: 'Maximum (min/mi)' });

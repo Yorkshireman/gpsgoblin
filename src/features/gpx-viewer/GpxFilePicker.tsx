@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, FileUpload, Stack, Text } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { Alert, Button, FileUpload, Stack, Text } from '@chakra-ui/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DragEvent, ReactNode } from 'react';
 
 import type { ImportedGpxDocument } from '@/domain/activityDocument';
@@ -14,6 +14,10 @@ import type { SelectedGpxItem } from './selectedGpxItem';
 
 const oneFileMessage =
   'Open one GPX file at a time. Choose a single file to replace the current file.';
+const exampleActivityHash = '#example-activity';
+const exampleActivityPath = '/examples/example-activity.gpx';
+
+type ImportSource = 'example' | 'personal';
 
 const initialItem = (
   document: ImportedGpxDocument
@@ -41,6 +45,9 @@ export const GpxFilePicker = ({
 }>) => {
   const [filename, setFilename] = useState<string>();
   const [error, setError] = useState<string>();
+  const [failedSource, setFailedSource] = useState<ImportSource>();
+  const [loadedSource, setLoadedSource] = useState<ImportSource>();
+  const [loadingSource, setLoadingSource] = useState<ImportSource>();
   const [notice, setNotice] = useState<string>();
   const [workspace, setWorkspace] = useState<{
     document: ImportedGpxDocument;
@@ -48,7 +55,6 @@ export const GpxFilePicker = ({
     revision: number;
   }>();
   const document = workspace?.document;
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<SelectedGpxItem>();
   const activeImport = useRef<AbortController | undefined>(undefined);
   const activeMeasurements = useRef<MeasurementSession | undefined>(undefined);
@@ -60,55 +66,112 @@ export const GpxFilePicker = ({
     };
   }, []);
 
-  const cancelPending = () => {
+  const cancelPending = useCallback(() => {
     activeImport.current?.abort();
     activeImport.current = undefined;
-    setIsLoading(false);
+    setLoadingSource(undefined);
     return;
-  };
+  }, []);
+
+  const clearExampleMarker = useCallback(() => {
+    if (window.location.hash !== exampleActivityHash) return;
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${window.location.search}`
+    );
+    return;
+  }, []);
+
+  const importFile = useCallback(
+    async (
+      getFile: (signal: AbortSignal) => Promise<File>,
+      source: ImportSource
+    ) => {
+      cancelPending();
+      const controller = new AbortController();
+      activeImport.current = controller;
+      setLoadingSource(source);
+      setError(undefined);
+      setFailedSource(undefined);
+      setNotice(undefined);
+      try {
+        const file = await getFile(controller.signal);
+        const result = await openGpxFile(file, controller.signal);
+        if (activeImport.current !== controller || controller.signal.aborted) {
+          if (result.ok) result.measurements.dispose();
+          return;
+        }
+        if (!result.ok) {
+          setError(result.error);
+          setFailedSource(source);
+          return;
+        }
+        activeMeasurements.current?.dispose();
+        activeMeasurements.current = result.measurements;
+        setWorkspace((previous) => {
+          return {
+            document: result.document,
+            measurements: result.measurements,
+            revision: (previous?.revision ?? 0) + 1
+          };
+        });
+        setFilename(file.name);
+        setLoadedSource(source);
+        setSelectedItem(initialItem(result.document));
+        if (source === 'personal') clearExampleMarker();
+      } catch {
+        if (activeImport.current === controller && !controller.signal.aborted) {
+          setError(
+            source === 'example'
+              ? 'The example activity could not be opened. Try again or choose your own GPX file.'
+              : 'The file could not be read. Try again or choose another GPX file.'
+          );
+          setFailedSource(source);
+        }
+      } finally {
+        if (activeImport.current === controller) {
+          activeImport.current = undefined;
+          setLoadingSource(undefined);
+        }
+      }
+      return;
+    },
+    [cancelPending, clearExampleMarker]
+  );
+
+  const loadExample = useCallback(async () => {
+    if (window.location.hash !== exampleActivityHash) {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${window.location.pathname}${window.location.search}${exampleActivityHash}`
+      );
+    }
+    await importFile(async (signal) => {
+      const response = await fetch(exampleActivityPath, { signal });
+      if (!response.ok) throw new Error('Example request failed');
+      return new File([await response.blob()], 'example-activity.gpx', {
+        type: 'application/gpx+xml'
+      });
+    }, 'example');
+    return;
+  }, [importFile]);
+
+  useEffect(() => {
+    if (window.location.hash !== exampleActivityHash) return;
+    const startExample = window.setTimeout(() => {
+      void loadExample();
+    });
+    return () => {
+      window.clearTimeout(startExample);
+    };
+  }, [loadExample]);
 
   const handleFileAccept = async (details: FileUpload.FileAcceptDetails) => {
     const file = details.files[0];
     if (!file) return;
-    cancelPending();
-    const controller = new AbortController();
-    activeImport.current = controller;
-    setIsLoading(true);
-    setError(undefined);
-    setNotice(undefined);
-    try {
-      const result = await openGpxFile(file, controller.signal);
-      if (activeImport.current !== controller || controller.signal.aborted) {
-        if (result.ok) result.measurements.dispose();
-        return;
-      }
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      activeMeasurements.current?.dispose();
-      activeMeasurements.current = result.measurements;
-      setWorkspace((previous) => {
-        return {
-          document: result.document,
-          measurements: result.measurements,
-          revision: (previous?.revision ?? 0) + 1
-        };
-      });
-      setFilename(file.name);
-      setSelectedItem(initialItem(result.document));
-    } catch {
-      if (activeImport.current === controller && !controller.signal.aborted) {
-        setError(
-          'The file could not be read. Try again or choose another GPX file.'
-        );
-      }
-    } finally {
-      if (activeImport.current === controller) {
-        activeImport.current = undefined;
-        setIsLoading(false);
-      }
-    }
+    await importFile(async () => file, 'personal');
     return;
   };
 
@@ -129,15 +192,19 @@ export const GpxFilePicker = ({
     activeMeasurements.current = undefined;
     setWorkspace(undefined);
     setFilename(undefined);
+    setLoadedSource(undefined);
     setSelectedItem(undefined);
     setError(undefined);
+    setFailedSource(undefined);
     setNotice('File closed.');
+    clearExampleMarker();
     return;
   };
 
   const handleFileReject = (details: FileUpload.FileRejectDetails) => {
     cancelPending();
     setNotice(undefined);
+    setFailedSource('personal');
     const errors = details.files.flatMap((rejected) => rejected.errors);
     setError(
       errors.some((error) => error === 'TOO_MANY_FILES')
@@ -154,6 +221,7 @@ export const GpxFilePicker = ({
       event.stopPropagation();
       cancelPending();
       setNotice(undefined);
+      setFailedSource('personal');
       setError(oneFileMessage);
     }
     return;
@@ -187,17 +255,25 @@ export const GpxFilePicker = ({
         </Stack>
       ) : null}
       <GpxFileControls
+        canClear={Boolean(document || error || loadingSource)}
         filename={filename}
-        showDropzone={!document && !isLoading && !error}
-        canClear={Boolean(document || error || isLoading)}
-        isLoading={isLoading}
-        onReset={workspace ? resetView : undefined}
+        isExample={loadedSource === 'example' || loadingSource === 'example'}
+        isLoading={Boolean(loadingSource)}
+        isLoadingExample={loadingSource === 'example'}
         onClear={clearFile}
         onCancel={() => {
+          if (loadingSource === 'example') clearExampleMarker();
           cancelPending();
           setNotice('Import cancelled.');
           return;
         }}
+        onReset={workspace ? resetView : undefined}
+        onTryExample={
+          !workspace && !loadingSource && failedSource !== 'example'
+            ? loadExample
+            : undefined
+        }
+        showDropzone={!document && !loadingSource && !error}
       />
       {notice ? (
         <Text role="status" fontSize="sm">
@@ -208,10 +284,25 @@ export const GpxFilePicker = ({
         <Alert.Root status="error">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Unable to open GPX file</Alert.Title>
+            <Alert.Title>
+              {failedSource === 'example'
+                ? 'Unable to open example activity'
+                : 'Unable to open GPX file'}
+            </Alert.Title>
             <Alert.Description>{error}</Alert.Description>
             {document ? (
               <Text fontSize="sm">Your previous file is still open.</Text>
+            ) : null}
+            {failedSource === 'example' ? (
+              <Button
+                alignSelf="start"
+                colorPalette="action"
+                mt={2}
+                type="button"
+                onClick={loadExample}
+              >
+                Try again
+              </Button>
             ) : null}
           </Alert.Content>
         </Alert.Root>

@@ -41,17 +41,29 @@ const Home = () => {
             explore elevation, speed and pace when your file has the readings
             needed.
           </Text>
-          <Button
-            asChild
-            colorPalette="action"
-            variant="surface"
-            maxW="full"
-            whiteSpace="normal"
-          >
-            <NextLink href="/tools/gpx-file-viewer">
-              Open GPX File Viewer
-            </NextLink>
-          </Button>
+          <Stack direction="row" flexWrap="wrap" gap={3}>
+            <Button
+              asChild
+              colorPalette="action"
+              variant="surface"
+              maxW="full"
+              whiteSpace="normal"
+            >
+              <NextLink href="/tools/gpx-file-viewer">
+                Open GPX File Viewer
+              </NextLink>
+            </Button>
+            <Button
+              asChild
+              colorPalette="action"
+              maxW="full"
+              whiteSpace="normal"
+            >
+              <NextLink href="/tools/gpx-file-viewer#example-activity">
+                Try an example
+              </NextLink>
+            </Button>
+          </Stack>
           <Text fontSize="sm" color="fg.muted">
             Supports GPX 1.1. Free to use; your original file stays unchanged.
           </Text>

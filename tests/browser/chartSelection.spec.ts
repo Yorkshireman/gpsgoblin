@@ -43,6 +43,12 @@ test('clicking the drawn speed line selects its source point and map location', 
   await expect(
     page.getByLabel('Selected measurement', { exact: true })
   ).toContainText('At 0.1 km');
+  const marker = speed.locator('.recharts-reference-dot circle').last();
+  await expect(marker).toBeVisible();
+  expect(await marker.getAttribute('fill')).not.toBe(
+    await trace.getAttribute('stroke')
+  );
+  await expect(marker).toHaveAttribute('stroke-width', '3');
   if ((page.viewportSize()?.width ?? 1280) < 1024)
     await page.getByRole('button', { name: 'View on map' }).click();
   await expect(

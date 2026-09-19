@@ -31,17 +31,22 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await page.waitForLoadState('networkidle');
       await scan(url.replaceAll('/', '-') || 'home');
       if (url === '/') {
+        const viewerLink = page.getByRole('link', {
+          name: 'Open GPX File Viewer'
+        });
+        const exampleLink = page.getByRole('link', { name: 'Try an example' });
+        await viewerLink.focus();
+        await expect(viewerLink).toBeFocused();
         await page.keyboard.press('Tab');
-        await expect(
-          page.getByRole('link', { name: 'Open GPX File Viewer' })
-        ).toBeFocused();
+        await expect(exampleLink).toBeFocused();
         await page.screenshot({
           path: testInfo.outputPath(`home-focus-${colorScheme}.png`)
         });
         await page.keyboard.press('Enter');
         await expect(
-          page.getByRole('heading', { name: 'GPX File Viewer', exact: true })
+          page.getByText('Example activity', { exact: true })
         ).toBeVisible();
+        await scan('example');
       }
     }
     const picker = page.getByLabel('GPX file', { exact: true });

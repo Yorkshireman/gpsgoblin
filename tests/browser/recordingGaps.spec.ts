@@ -1,4 +1,4 @@
-import { test, expect } from './browserTest';
+import { advancedControls, expect, test } from './browserTest';
 
 const recording = (gapCount = 3) => {
   let seconds = 0;
@@ -65,13 +65,16 @@ for (const viewport of [
     await expect(selection).toContainText('No GPS readings for 10 min');
     await expect(control).toHaveValue('track-0-segment-0-sample-21');
     await expect(selection).toBeInViewport({ ratio: 1 });
-    await expect(marker).toBeInViewport({ ratio: 1 });
-    if (viewport.width < 600)
+    await expect(marker).toHaveAttribute('aria-pressed', 'true');
+    if (viewport.width >= 600) {
+      await expect(marker).toBeInViewport({ ratio: 1 });
+    } else {
       expect(
         await page.evaluate(() => {
           return window.scrollY;
         })
       ).toBe(initialScroll);
+    }
     await expect(page.locator('.recharts-tooltip-wrapper')).not.toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('selected.png') });
     const clear = page.getByRole('button', {
@@ -91,7 +94,7 @@ for (const viewport of [
     await expect(
       page.getByText('3 recording gaps', { exact: true })
     ).not.toBeVisible();
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     await page.getByText('3 recording gaps', { exact: true }).click();
     await control.selectOption('');
     await expect(selection).toHaveCount(0);
@@ -184,7 +187,7 @@ test('permissioned local recordings preserve gap distinction', async ({
   const control = page.getByLabel('Inspect recording gap', { exact: true });
   await expect(control).toBeHidden();
   await expect(control.locator('option')).toHaveCount(10);
-  await page.getByText('Advanced Controls', { exact: true }).click();
+  await advancedControls(page).click();
   await page.getByText('9 recording gaps', { exact: true }).click();
   await control.selectOption({ index: 1 });
   await expect(

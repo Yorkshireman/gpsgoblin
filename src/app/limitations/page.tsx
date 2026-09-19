@@ -40,6 +40,11 @@ const LimitationsPage = () => {
         Tested examples
       </Heading>
       <Text>
+        The built-in example is a 14.8 km Tour du Mont Blanc stage from Les
+        Houches to Les Contamines via Col du Tricot. It contains 1,800 recorded
+        points and is published as a public-domain sample by viewmygpx.
+      </Text>
+      <Text>
         Checks on macOS covered Chrome 153, Playwright Firefox 155 and WebKit
         26.6, including phone-sized layouts. These are desktop browser and
         engine checks, not tests on physical phones or native Safari.

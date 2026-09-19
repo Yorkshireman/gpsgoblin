@@ -1,4 +1,4 @@
-import { test, expect } from './browserTest';
+import { advancedControls, expect, test } from './browserTest';
 
 // Invented movement and a sustained confined interval; no personal recording.
 const recording = () => {
@@ -49,9 +49,7 @@ for (const viewport of [
     await expect(
       page.getByText('Review possible stops (1)', { exact: true })
     ).not.toBeVisible();
-    const advanced = page
-      .locator('summary')
-      .filter({ hasText: /^Advanced Controls$/ });
+    const advanced = advancedControls(page);
     await advanced.press('Enter');
     await expect(
       page.getByRole('combobox', { name: 'Stops', exact: true })
@@ -114,19 +112,19 @@ for (const viewport of [
       .getByRole('button', { name: 'Back to chart', exact: true })
       .click();
     await expect(marker).toBeFocused();
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     await page.getByRole('combobox', { name: 'Show by' }).selectOption('time');
     await expect(
       page.getByText('Estimated moving time (min)', { exact: true })
     ).toBeVisible();
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     await page
       .getByRole('combobox', { name: 'Chart', exact: true })
       .selectOption('pace');
     await expect(
       page.getByRole('heading', { name: 'Moving pace', exact: true })
     ).toBeVisible();
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     await page
       .getByRole('combobox', { name: 'Pace range', exact: true })
       .selectOption('full');
@@ -136,7 +134,7 @@ for (const viewport of [
     await page
       .getByRole('spinbutton', { name: 'Maximum (min/km)' })
       .fill('0.1');
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     await expect(
       page.getByRole('button', { name: /Above range:/ }).first()
     ).toBeVisible();
@@ -168,7 +166,7 @@ for (const viewport of [
     await expect(
       page.getByText('Elapsed time (min)', { exact: true })
     ).toBeVisible();
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     await page.getByText('Review possible stops (1)', { exact: true }).click();
     await page
       .getByLabel('Inspect possible stop', { exact: true })
@@ -191,7 +189,7 @@ for (const viewport of [
     await page
       .getByRole('combobox', { name: 'Show by' })
       .selectOption('distance');
-    await page.getByText('Advanced Controls', { exact: true }).click();
+    await advancedControls(page).click();
     await expect(
       page.getByText('Distance (mi)', { exact: true })
     ).toBeVisible();
@@ -227,9 +225,7 @@ for (const kind of ['sparse', 'gap'] as const) {
       await page
         .getByRole('combobox', { name: 'Chart', exact: true })
         .selectOption(chart);
-      const advanced = page
-        .locator('summary')
-        .filter({ hasText: /^Advanced Controls$/ });
+      const advanced = advancedControls(page);
       await advanced.press('Enter');
       await expect(
         page.getByRole('combobox', { name: 'Stops', exact: true })
@@ -266,7 +262,7 @@ test('permissioned summit stop and dialog navigation preserve totals, source acc
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/tools/gpx-file-viewer.html');
   await page.getByLabel('GPX file', { exact: true }).setInputFiles(file);
-  await page.getByText('Advanced Controls', { exact: true }).click();
+  await advancedControls(page).click();
   await page.getByText('Review possible stops (5)', { exact: true }).click();
   const selector = page.getByLabel('Inspect possible stop', { exact: true });
   await selector.selectOption({ index: 3 });
@@ -339,7 +335,7 @@ test('permissioned lunch ride hides stop controls after replacing a filtered rec
   await expect(
     page.getByRole('heading', { name: 'Speed', exact: true })
   ).toBeVisible();
-  await page.getByText('Advanced Controls', { exact: true }).click();
+  await advancedControls(page).click();
   await expect(page.getByRole('combobox', { name: 'Show by' })).toBeVisible();
   await expect(
     page.getByRole('combobox', { name: 'Stops', exact: true })
