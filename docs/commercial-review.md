@@ -6,7 +6,7 @@ The [product spec](product-spec.md), especially sections 2, 3.3 and 23, owns str
 
 ## Current decision
 
-**Next:** complete and merge the prominent example experience, [issue #46](https://github.com/Yorkshireman/gpsgoblin/issues/46). Implementation is in progress on branch `46-prominent-gpx-example`; it is not yet merged or released. This is the owner's fixed next priority, not the output of an RPM or demand ranking. Documentation PRs #47 and #48 were merged; neither implemented the example.
+**Next:** complete and merge the prominent example experience, [issue #46](https://github.com/Yorkshireman/gpsgoblin/issues/46). Implementation is proposed in [PR #50](https://github.com/Yorkshireman/gpsgoblin/pull/50); it is not yet merged or released. This is the owner's fixed next priority, not the output of an RPM or demand ranking. Documentation PRs #47 and #48 were merged; neither implemented the example.
 
 **Why now:** let visitors inspect a real result without first obtaining a personal file. It serves both people who already have a file and those evaluating whether export is worthwhile.
 
@@ -20,7 +20,7 @@ The [product spec](product-spec.md), especially sections 2, 3.3 and 23, owns str
 
 | Area            | Evidence / current knowledge                                                                                                                            | Missing evidence or next assessment                                                                                                    |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Product         | The GPX viewer is live at gpsgoblin.com. PR #47 merged example requirements; implementation for #46 is in progress but not yet merged or released.      | Verify the implementation PR, merge and production release before treating the example as shipped.                                     |
+| Product         | The GPX viewer is live at gpsgoblin.com. PR #47 merged example requirements; PR #50 proposes the implementation but is not yet merged or released.      | Verify PR #50, its merge and the production release before treating the example as shipped.                                            |
 | Audience        | Owner-approved primary hypothesis: people with a file and an immediate task; initially GPX routes and recordings. Export-dependent users are secondary. | No comparative audience profitability study or user-testing results supplied.                                                          |
 | Acquisition     | Search-led tool pages are the intended channel.                                                                                                         | Search Console impressions, queries, clicks, date ranges and tool visits not reviewed here. No traffic figure or keyword-volume claim. |
 | Usefulness      | Local import and no-account UX are specified; the example has defined acceptance criteria.                                                              | Successful task completion, import-failure rates and user feedback not reviewed here. No new telemetry authorised.                     |
