@@ -1,7 +1,7 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.13
+**Version:** 0.14
 **Date:** 19 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
@@ -287,6 +287,10 @@ Display file/entity identity locally, useful source metadata, available headline
 
 Offer only charts supported by the data: elevation, pace/speed, HR, cadence, power and temperature where implemented and interpretable. All three viewers reuse core infrastructure but need not display identical panels.
 
+When an additional format-specific viewer is selected for implementation under section 3.3, build it as another entry point into one capability-driven viewer experience rather than as a separate product design. Reuse the same information hierarchy, file workflow, result controls, responsive behaviour, accessibility patterns and visual language wherever the user's task is the same. Parser adapters and the canonical model expose the selected entity's capabilities; the viewer uses those capabilities, rather than the filename extension, to decide which summaries, maps, charts and controls are available. This direction does not make FIT or TCX the next commercial priority or decide their order.
+
+Shared behaviour does not require identical pages or a lowest-common-denominator interface. Keep format-specific structure and meaning visible: for example, GPX tracks, routes and waypoints; TCX activities, courses and laps; and FIT sessions, laps, events and supported measurements. Omit unavailable panels instead of showing empty maps or charts, and provide format-specific selection, metadata, help and error copy where that helps the user understand or recover. A capability implemented for one format should become available to other formats when their canonical data meets the same requirements, without duplicating the viewer feature.
+
 Allow a selected chart position to highlight a corresponding map position when a valid mapping exists. Discontinuities remain visible; do not draw a confident continuous line across a recording gap.
 
 A failure to load the basemap must not prevent parsing, textual results, conversion or charts. Provide a clear map-unavailable state, and local route geometry on a neutral background where practical.
@@ -321,7 +325,7 @@ The owner approved bringing the #13 viewer feature forward on 14 September 2026 
 
 ### 7.3 FIT and TCX viewers
 
-Surface supported session/lap structure, recorded summaries and richer metrics without forcing them into GPX's common minimum. Do not lose useful non-geographic training information just because a map is unavailable.
+When either viewer is approved for implementation, use the shared capability-driven experience described in section 7.1 so it remains visually and behaviourally consistent with the GPX viewer wherever their capabilities overlap. Surface supported session/lap structure, recorded summaries and richer metrics without forcing them into GPX's common minimum. Do not lose useful non-geographic training information just because a map is unavailable.
 
 For multisession/multisport data, make entity selection explicit. A complete multisport analysis interface is not required in the initial viewer release, but source structure must be preserved and limitations stated.
 
