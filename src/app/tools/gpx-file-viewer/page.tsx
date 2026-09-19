@@ -110,8 +110,8 @@ const GpxFileViewerPage = () => {
                   this file.
                 </Text>
                 <Text>
-                  If a chart is shown, choose a point on it to find that
-                  location on the map. On a phone, use{' '}
+                  If the <strong>Chart</strong> is shown, choose a point on it
+                  to find that location on the map. On a phone, use{' '}
                   <strong>View on map</strong>, then{' '}
                   <strong>Back to chart</strong> to return to the same point.
                 </Text>
@@ -119,9 +119,10 @@ const GpxFileViewerPage = () => {
                   Understanding your results
                 </Heading>
                 <Text>
-                  Distance follows the recorded positions, so GPS errors can
-                  affect it. If a duration is shown, it is the time between the
-                  first and last point, including stops.
+                  Distance follows the positions in the file. If this is a
+                  recorded activity, GPS errors can affect it. If a duration is
+                  shown, it is the time between the first and last point,
+                  including stops.
                 </Text>
                 <Text>
                   If <strong>Speed</strong> or <strong>Pace</strong> is shown,
