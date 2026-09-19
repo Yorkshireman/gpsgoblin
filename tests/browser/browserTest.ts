@@ -2,7 +2,8 @@ import {
   test as base,
   expect,
   type Browser,
-  type BrowserContext
+  type BrowserContext,
+  type Page
 } from '@playwright/test';
 
 export const uxBaselineViewports = [
@@ -13,6 +14,10 @@ export const uxBaselineViewports = [
 ] as const;
 
 type UXBaselineViewport = (typeof uxBaselineViewports)[number];
+
+export const advancedControls = (page: Page) => {
+  return page.locator('summary').filter({ hasText: /^Advanced Controls$/ });
+};
 
 // Default to local geometry in automated runs. Individual basemap tests can
 // override this at page level with synthetic tiles or explicit failure responses.
