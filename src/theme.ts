@@ -48,15 +48,6 @@ const linkRecipe = defineRecipe({
     textDecoration: 'underline',
     textDecorationColor: 'currentColor',
     textUnderlineOffset: '3px'
-  },
-  variants: {
-    variant: {
-      plain: {},
-      underline: {}
-    }
-  },
-  defaultVariants: {
-    variant: 'plain'
   }
 });
 

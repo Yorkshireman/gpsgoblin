@@ -32,10 +32,12 @@ const initialItem = (
 
 export const GpxFilePicker = ({
   emptyStateHelp,
-  resultsHelp
+  resultsHelp,
+  waypointHelp
 }: Readonly<{
   emptyStateHelp?: ReactNode;
   resultsHelp?: ReactNode;
+  waypointHelp?: ReactNode;
 }>) => {
   const [filename, setFilename] = useState<string>();
   const [error, setError] = useState<string>();
@@ -223,7 +225,7 @@ export const GpxFilePicker = ({
           onItemChange={setSelectedItem}
           selectedItem={selectedItem}
         >
-          {resultsHelp}
+          {selectedItem?.kind === 'waypoint' ? waypointHelp : resultsHelp}
         </GpxDocumentResults>
       ) : (
         emptyStateHelp

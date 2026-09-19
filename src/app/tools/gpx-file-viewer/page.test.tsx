@@ -207,7 +207,9 @@ describe('GPX file viewer', () => {
     expect(
       screen.getByText('Select a point on the chart to see it on the map.')
     ).toBeVisible();
-    expect(screen.getByText(/Speed comes from the distance/)).not.toBeVisible();
+    for (const speed of screen.getAllByText('Speed', { selector: 'strong' })) {
+      expect(speed).not.toBeVisible();
+    }
     expect(screen.getByText('1 min')).toBeVisible();
     expect(screen.getByLabelText('Chart selection tip')).toBeVisible();
     expect(
@@ -823,6 +825,16 @@ describe('GPX file viewer', () => {
       expect(within(details).queryByText(/Elevation:/)).not.toBeInTheDocument();
       expect(screen.queryByText('Calculated distance')).not.toBeInTheDocument();
       expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByText('Help with this viewer', { exact: true })
+      );
+      expect(
+        screen.getByText(
+          'This point shows its location and any elevation recorded in your file.'
+        )
+      ).toBeVisible();
+      expect(screen.queryByText(/If a chart is shown/)).not.toBeInTheDocument();
     });
   });
 });

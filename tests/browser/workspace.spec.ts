@@ -47,7 +47,7 @@ for (const viewport of [
     const loadedHelp = page.getByText('Help with this viewer', { exact: true });
     await loadedHelp.press('Enter');
     const helpText = page.getByText(
-      'Choose Speed, Pace or Elevation under Chart. Choose kilometres or miles under Display units.',
+      'The viewer shows the measurements and controls available for this file.',
       { exact: true }
     );
     const helpTextFontSize = await helpText.evaluate((element) => {
