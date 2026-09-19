@@ -82,7 +82,25 @@ When multiple files in a directory implement one coherent module, use `index.ts`
 
 Before product planning, implementation or review, read `docs/product-spec.md` and consult the sections relevant to the task. It is the source of truth for GPSGoblin's product requirements, agreed stack, release stages and open decisions.
 
-Preserve the distinction between agreed requirements, recommended defaults and unresolved release gates. Follow the incremental release sequence; implement only the requested stage or scope. Surface conflicts with the specification before changing product direction, and keep unresolved decisions explicit.
+Preserve the distinction between agreed requirements, recommended defaults and unresolved release gates. Follow specification section 3.3; the stage table is not an automatic queue. Implement only authorised scope. Surface conflicts before changing product direction, and keep unresolved decisions explicit.
+
+## Commercial project management: “what next?”
+
+Whenever the owner asks what to do next, including after a PR merge and ticket closure:
+
+1. Read `docs/product-spec.md` and `docs/commercial-review.md`. The spec owns strategy and constraints; the review records dated evidence, hypotheses and decisions, not a competing strategy.
+2. Inspect current repository state, recent merged PRs, open PRs and relevant open issues using the issue-tracker instructions. Distinguish specified, implemented, merged and publicly released work. Verify completion rather than trusting stale notes. Disclose access gaps and make recommendations provisional where necessary.
+3. Honour explicit owner priorities: the example experience (#46) remains first until implemented and verified, regardless of commercial ranking. A documentation merge or ticket closure alone does not prove implementation. Surface necessary safety/correctness blockers. Do not repeatedly research alternatives just to reconfirm this fixed priority.
+4. Identify the likely constraint: acquisition, task completion, monetisation or operating costs. Cite evidence and dates; say when it is unknown. Check accessible data before asking the owner. Missing analytics is not zero usage or permission to install tracking.
+5. After the example, compare a small shortlist (normally 2–3 options), including research, discoverability/distribution and monetisation readiness where relevant, not just coding. Assess user need, reachable demand, competition, acquisition route, plausible revenue contribution, recurring cost and confidence. Development effort is secondary, not irrelevant. Do not invent demand, RPM forecasts, numeric scores or guaranteed returns.
+6. Recommend one bounded next action with the strongest evidence-backed prospect of increasing sustainable long-term operating profit. Separate essential quality fixes from optional enrichment. Tickets are candidates, not automatic priorities; GPX depth, more pages, RPM and engagement are not ends in themselves. If uncertainty prevents a defensible choice, recommend a bounded investigation whose output is a specific decision.
+7. Reuse a matching ticket or propose a scoped ticket with acceptance criteria, intended commercial outcome and assessment plan. Inspect existing criteria and avoid duplicates. A recommendation does not authorise ticket mutations, implementation, spending, telemetry, deployment or merging; follow the current request and `/agent` rule.
+
+Respond concisely using **Next; Why now; Evidence and uncertainty; Why not the alternatives; Done means.** Distinguish technical acceptance from commercial success. Challenge weak assumptions, but obtain owner approval before changing strategy.
+
+Review priorities after each merged ticket when asked; refresh commercial evidence monthly and at meaningful release checkpoints. This is an on-demand workflow, not an automation. Sparse early data is not failure; do not reverse strategy on a few days of results or require statistical significance before a reasonable small investment.
+
+During authorised delivery, update `docs/commercial-review.md` in the same ticket PR when intended outcomes, evidence or decisions materially change. Record checks actually run, pending evidence and reassessment triggers; label pre-merge/pre-release status accurately. Verify merge/release status on subsequent authorised review. During read-only discussion, propose updates without writing them. Keep the snapshot compact, retain dated material decisions and link technical details rather than duplicating them.
 
 ## UX requirements
 

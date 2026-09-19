@@ -1,7 +1,7 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.11
+**Version:** 0.13
 **Date:** 19 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
@@ -38,6 +38,8 @@ Useful tools and their explanatory pages are the primary planned search-acquisit
 
 Users must not have to visit the homepage or understand the wider product to use an individual tool.
 
+**Primary medium-term audience hypothesis — agreed focus, not proven profitability:** people who already have a GPS/activity file and an immediate task to view, inspect or convert it. Initially serve GPX files, including planned routes as well as recorded activities. The secondary audience has an activity in another service and needs a specific benefit worth exporting for; support them with guidance without making export willingness the test of the whole product. Useful one-off visits can have commercial value; repeat use is not mandatory for every visitor. Reassess this audience hypothesis using evidence.
+
 ### 2.2 Success and cost discipline — agreed
 
 The owner would regard **£50 per month of operating profit** as success, while preferring substantially more. This is a success threshold, not a revenue forecast.
@@ -52,7 +54,11 @@ Keep ongoing maintenance and supplier dependence low. Apart from a domain, no pa
 
 There is no approved numerical development-time budget. Earlier informal estimates such as a couple of weekends are not planning commitments for the full suite.
 
+Owner clarification (19 September 2026): **profit is the highest-level objective**. Traffic, engagement and repeat use are means to that end, not competing top-level goals. AI-assisted development makes development time a secondary prioritisation constraint, not a reason by itself to reject a valuable feature. Recurring monetary costs, including servers and suppliers, remain material constraints. This does not waive correctness, security, maintainability or the no-unapproved-spend rule.
+
 ### 2.3 Evidence boundary
+
+Optimise sustainable long-term total operating profit, not page RPM alone. Estimated advertising revenue equals page views divided by 1,000 multiplied by page RPM, using consistent reporting scope and currency; subtract operating costs to assess profit. Neither future traffic nor RPM is known. Compare reachable traffic, monetisation and recurring cost together; low cost alone does not establish commercial value. Do not manufacture page views or sacrifice useful task completion to improve an isolated metric.
 
 Search demand, attainable rankings, visitor retention, advertising approval and advertising yield remain business hypotheses to test. No independently validated keyword-volume dataset, traffic forecast, competitor revenue or profitability probability is attached to this specification.
 
@@ -79,7 +85,9 @@ The paths above are recommended defaults; settle them before their first indexab
 
 GPX Merge is included only if a bounded implementation is genuinely inexpensive after the shared file infrastructure exists. If safe preservation and export prove substantial, defer it explicitly.
 
-### 3.2 Delivery stages — agreed
+### 3.2 Delivery stages — capability map and baseline sequence
+
+These stages retain the intended suite and technical release gates, not an immutable implementation queue. Section 3.3 governs next-action selection. Propose evidence-backed sequencing changes for owner approval, preserve genuine technical dependencies and do not silently discard agreed capabilities or implement unapproved scope.
 
 | Stage | Deliverable                                                 | Exit condition                                                                            |
 | ----- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -93,6 +101,19 @@ GPX Merge is included only if a bounded implementation is genuinely inexpensive 
 Each stage leaves a working, tested application. Publish completed tools independently. Unfinished routes must not masquerade as products or be submitted in the sitemap. Advertising is not a prerequisite for publishing a useful tool.
 
 The full V1 ambition includes the advanced tools. Release sequencing is not permission to silently discard them; reassess scope with evidence at stage boundaries.
+
+### 3.3 Current short-to-medium-term priority — agreed
+
+Owner decision (19 September 2026), refined after commercial review:
+
+1. **Ship the prominent example experience** on the homepage and GPX viewer (section 4.5; issue #46). It remains next regardless of the commercial ranking of alternatives, until implemented and verified.
+2. **Then choose the strongest commercial next action**, following the mandatory “what next?” workflow in `AGENTS.md` and section 23. GPX enhancements compete with other viewers, converters, export guidance, acquisition improvements, monetisation readiness and bounded research. None is automatically next.
+
+This removes the earlier gate requiring GPX to persuade people to export before another tool can be built. Fix shortcomings that prevent useful, trustworthy viewing; assess richer analysis as optional investment against alternatives. No feature count, conversion threshold or revenue target gates recommending another tool. Do not require new tracking to make progress or bring the entire comparison suite forward by default.
+
+Broader format support and automatic routing remain opportunities, not an immutable sequence. Reuse established import, example and UX patterns without making perfection of GPX a dependency. FIT-versus-TCX order and the first post-example investment remain undecided.
+
+These decisions supersede the v0.12 GPX-depth-first roadmap and earlier integration-first proposals. Garmin/Wahoo API research is background material, not implementation approval. Account connections remain deferred; Bluetooth and cable/device retrieval are outside this workstream. Changing these boundaries requires an explicit owner decision.
 
 ## 4. Shared user experience
 
@@ -152,7 +173,7 @@ These requirements apply across tools and release stages. Exact layouts, breakpo
 
 ### 4.5 Prominent example experience — agreed; next implementation priority
 
-Owner decision (19 September 2026): [issue #46](https://github.com/Yorkshireman/gpsgoblin/issues/46) is the next feature to implement for the existing homepage and GPX viewer, ahead of further feature work. It is a Stage 1 enhancement; it does not reorder the later tool stages or depend on provider-import research.
+Owner decision (19 September 2026): [issue #46](https://github.com/Yorkshireman/gpsgoblin/issues/46) is the next feature to implement for the existing homepage and GPX viewer, ahead of further feature work. It is the first Stage 1 enhancement in section 3.3 and does not depend on provider-import research.
 
 Let visitors experience the viewer before obtaining their own file: **Try an example → inspect the result → open your own file**.
 
@@ -166,6 +187,28 @@ Let visitors experience the viewer before obtaining their own file: **Try an exa
 - Validate visibility, keyboard/touch operation and loading, example, error and replacement states in all four viewports required by the UX workflow. Reuse the importer so later tools can adopt the pattern without a speculative framework.
 
 File-obtaining guides, provider connections, Bluetooth transfers and FIT/TCX acceptance are separate work and are not prerequisites for this enhancement. The example must demonstrate only released capabilities. Its intended commercial role is to show value before asking the visitor to retrieve a file; no conversion or revenue uplift is claimed as established evidence.
+
+### 4.6 GPX value and manual file acquisition — agreed direction
+
+Treat repeated manual exporting as an inherent source of friction; proof of a traffic decrease is not required before reducing unnecessary steps. Its magnitude and the commercial benefit of any improvement remain unmeasured. The aim is both to make the result worth obtaining and to make obtaining it easier, not to expect instructions alone to compensate for weak value.
+
+- Before selecting a GPX enhancement, state the concrete task it solves for the primary audience and compare its commercial case with alternatives. For export-dependent capabilities, also explain why the result warrants retrieving a file. Use production behaviour as the baseline; another chart or feature count does not establish incentive. Exact choices require scoped tickets.
+- Make released benefits discoverable through the example and concise, truthful page copy. The example should let people experience value before they commit effort; avoid promises about unreleased analysis or superiority over their existing service without evidence.
+- Provide a plainly named route to help, such as **How to get your GPX file**, near file selection and the example's own-file action. Keep source-specific instructions easy to find without placing a long guide ahead of the tool or forcing users who already have a file through it.
+- For each documented source, verify the current export path against official guidance and, where possible, the actual workflow. Explain supported desktop/mobile differences, the exact export format to choose, where to find the download and how to open it in GPSGoblin. Record verification dates and known limitations; do not invent mobile export options or promise availability from every provider.
+- Prefer exporting directly from the service where the activity already exists. Do not require uploading to an intermediary website just to export again. Do not introduce Bluetooth or cable/device-connection instructions as the proposed solution for this milestone.
+- Match guidance to released format support. While the viewer accepts GPX, do not direct people to upload FIT/TCX or suggest that changing a filename converts it. Explain when an export lacks measurements needed for a demonstrated benefit; do not promise to recover absent data.
+- Keep normal file selection, drag-and-drop, recovery and replacement straightforward on desktop and phones. Retain the local-processing/privacy requirements and no-account default. Manual selection is not a server upload; public wording must not imply that GPSGoblin receives the file.
+
+Apply these requirements when guidance or GPX improvements are selected; they are not a mandatory next milestone or a gate on other tools. Reuse verified patterns without a speculative framework. Guides and subsequent capabilities are separate from issue #46. Existing correctness and UX gates still apply.
+
+### 4.7 Automatic viewer selection — agreed concept; timing subject to review
+
+Once multiple viewers exist, consider a **Not sure what type of file you have?** entry against other opportunities: choose/drop a file once, identify its supported format, and open the appropriate viewer with the file already loaded. Do not require every planned format before considering it. Timing needs owner approval; publish actual supported types and keep direct format-specific pages available.
+
+Reuse the shared validation/import adapters and canonical model. Validate actual content/signatures and supported subtypes rather than trusting an extension or MIME type alone. Do not ask for a second selection or upload, expose activity data in URLs, or send it to a server for detection. Exact placement and navigation/state handoff are implementation decisions for the later ticket.
+
+Unsupported, ambiguous or malformed files need understandable recovery guidance, not a guessed viewer, silent conversion or false claim that every activity format is supported. Test routing for every released format, misleading extensions, invalid files and file/data preservation through navigation before release.
 
 ## 5. Canonical data model
 
@@ -749,13 +792,19 @@ If a candidate cannot meet the no-unapproved-spend constraint, report the confli
 
 Review actual search visibility, successful tool usage, user-reported problems, supplier costs, revenue and maintenance effort. Distinguish poor distribution from a tool people reach but cannot use successfully.
 
-Choose additional tools/guides from observed demand and shared implementation leverage. Do not expand merely to increase the number of indexable URLs.
+After the fixed example priority, compare a short list of opportunities against user demand, competition, reachable acquisition, successful task completion, plausible revenue contribution, recurring cost and confidence. Development effort is secondary. Include research and distribution, not only features. Do not expand merely to increase indexable URLs or deepen GPX by default. Recommend one bounded action and obtain owner approval for changes to strategy or implementation scope.
 
-Recommended default: review monthly and at each stage boundary. No automatic kill date, feature spending limit or ranking target has been agreed. Set investment decisions using results and effort, not a promise that traffic will eventually appear.
+Maintain [the commercial review](commercial-review.md) as a dated snapshot of facts, hypotheses, unknowns, material decisions and assessment plans. Follow the mandatory workflow in `AGENTS.md` whenever asked “what next?”. Review priorities after each merged ticket; refresh commercial evidence monthly and at meaningful release checkpoints. This is a workflow cadence, not a scheduled automation. Do not claim an unmerged or unreleased feature produced results.
+
+Separate acquisition (search impressions, clicks, tool visits), usefulness (successful imports/task completion, errors, feedback), and commercial outcomes (actual revenue, page RPM and operating costs when available). Use reviewed existing data sources; missing analytics is unknown, not zero. Do not enable tracking or suppliers without approval. Advertising remains optional for launch, but evaluate monetisation readiness alongside development rather than deferring it until an arbitrary feature count.
+
+For small traffic volumes, use bounded research, representative user observations and small releases; do not invent statistically reliable conclusions, numeric prioritisation scores or profitability forecasts. A review after a merge is not a reason to reverse strategy on a few days of sparse data. Record each investment's expected outcome and what evidence or observation window would justify continuing, investigating or changing direction. No automatic kill date, feature spending limit or ranking target has been agreed.
 
 Stop or reduce further investment if acquisition remains weak and there is no convincing low-cost improvement. A low-cost functioning site can remain online without an obligation to keep expanding it.
 
 ## 24. Instructions for the first Codex implementation session
+
+Historical first-release instructions only: Stage 1 is already live. Returning agents must inspect actual state and follow section 3.3 and the “what next?” workflow, not restart this bootstrap plan.
 
 Read this specification, inspect the actual repository before assuming anything exists, and preserve completed work.
 
