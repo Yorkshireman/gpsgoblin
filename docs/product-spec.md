@@ -1,7 +1,7 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.15
+**Version:** 0.16
 **Date:** 20 September 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
@@ -109,9 +109,11 @@ Owner decision (19 September 2026), refined after commercial review:
 1. **Ship the prominent example experience** on the homepage and GPX viewer (section 4.5; issue #46). It remains next regardless of the commercial ranking of alternatives, until implemented and verified.
 2. **Then choose the strongest commercial next action**, following the mandatory “what next?” workflow in `AGENTS.md` and section 23. GPX enhancements compete with other viewers, converters, export guidance, acquisition improvements, monetisation readiness and bounded research. None is automatically next.
 
+Owner clarification (20 September 2026): the acquisition strategy deliberately includes a small number of useful, indexable problem-solving guides that lead to a released tool when it can help. Existing Search Console impressions or user reports are useful topic evidence, but they are not an indefinite prerequisite for a bounded publish-and-measure content experiment: a page that does not exist cannot reveal its full query opportunity in site data. The recommended first content direction is the two-page GPX help pilot in section 4.6, pending a scoped delivery decision. This does not approve a general blog, mass content production or near-duplicate provider/device/sport pages.
+
 This removes the earlier gate requiring GPX to persuade people to export before another tool can be built. Fix shortcomings that prevent useful, trustworthy viewing; assess richer analysis as optional investment against alternatives. No feature count, conversion threshold or revenue target gates recommending another tool. Do not require new tracking to make progress or bring the entire comparison suite forward by default.
 
-Broader format support and automatic routing remain opportunities, not an immutable sequence. Reuse established import, example and UX patterns without making perfection of GPX a dependency. FIT-versus-TCX order and the first post-example investment remain undecided.
+Broader format support and automatic routing remain opportunities, not an immutable sequence. Reuse established import, example and UX patterns without making perfection of GPX a dependency. FIT-versus-TCX order remains undecided. The two-page help pilot is the recommended post-example investment; its implementation and publication still require a scoped delivery decision.
 
 These decisions supersede the v0.12 GPX-depth-first roadmap and earlier integration-first proposals. Garmin/Wahoo API research is background material, not implementation approval. Account connections remain deferred; Bluetooth and cable/device retrieval are outside this workstream. Changing these boundaries requires an explicit owner decision.
 
@@ -201,6 +203,13 @@ Treat repeated manual exporting as an inherent source of friction; proof of a tr
 - Keep normal file selection, drag-and-drop, recovery and replacement straightforward on desktop and phones. Retain the local-processing/privacy requirements and no-account default. Manual selection is not a server upload; public wording must not imply that GPSGoblin receives the file.
 
 Apply these requirements when guidance or GPX improvements are selected; they are not a mandatory next milestone or a gate on other tools. Reuse verified patterns without a speculative framework. Guides and subsequent capabilities are separate from issue #46. Existing correctness and UX gates still apply.
+
+The recommended first acquisition-content experiment is a bounded two-page pilot:
+
+1. **How to get and open a GPX file** — a comparative end-to-end guide for verified Garmin Connect, Strava, komoot and Polar Flow export paths, including desktop/mobile differences, the correct format choice, download or ZIP handling and opening the result in the released viewer. Include Wahoo only as an honest unsupported FIT stop-case until a verified GPX path or released FIT support exists.
+2. **Why a GPX file is empty or missing data** — a recovery guide for missing GPS positions, incomplete exports, ZIP downloads, unsupported FIT/TCX/GPX 1.0 files, absent elevation/time readings and provider data that GPX does not contain.
+
+Each page must solve its task without requiring a tool click. Link to the viewer only when it is a valid next step, and add a compact **How to get your GPX file** route near file selection without moving long guidance above the tool. Recheck provider instructions against official sources at delivery and distinguish documentation verification from an account workflow actually exercised. Add no CMS, provider integration, analytics, advertising or broad content framework for this pilot. Review search acquisition after release, but do not present indexing, traffic, task completion or profit as guaranteed. [Content acquisition research](gpx-content-acquisition-research.md).
 
 ### 4.7 Automatic viewer selection — agreed concept; timing subject to review
 
@@ -649,7 +658,7 @@ Keep generic pages sport-neutral. Create sport-specific pages only for distinct 
 
 Provide absolute canonical URLs and a sitemap of published routes using `https://gpsgoblin.com` as their origin. Use the same origin for Open Graph page URLs, site-hosted sharing assets and applicable structured-data site/page URLs; set the Open Graph site name to GPSGoblin. Use descriptive tool titles with the GPSGoblin brand, for example **“GPX File Viewer — GPSGoblin”**. Provide appropriate robots directives and structured data only where truthful and applicable. The production robots file must reference the sitemap on `https://gpsgoblin.com`. Exclude preview hosts, the default `workers.dev` hostname, unfinished tools and user-specific results from the sitemap. Never fabricate reviews or expect structured data to guarantee a search enhancement.
 
-Keep the tool above lengthy copy. Do not impose an SEO word count or populate a blog to delay release. Publish focused guides later when they address a real user/search need.
+Keep the tool above lengthy copy. Do not impose an SEO word count or populate a blog to delay release. Publish focused guides when they address a real user/search need. A bounded guide can itself test an evidenced problem when existing site data cannot reveal demand for a page that has never existed; record the hypothesis and assessment plan instead of requiring prior Search Console impressions. Do not create near-duplicate pages for provider, device, sport or wording variants. Expand a guide set only when its workflows and recovery advice are materially distinct and evidence supports the additional page.
 
 The GPSGoblin homepage should explain the collection using the agreed descriptive tagline and list available tools. Recommended supporting pages: about/contact, privacy, relevant cookie/consent information and limitations/terms that reflect the actual service. A contact method is optional for launch. If added later, use a simple owner-approved channel; support-ticket infrastructure is not required.
 
