@@ -43,7 +43,7 @@ test('chart detail adapts to width while every original measurement stays select
   expect(vertices(widePath).length).toBeLessThan(12500);
   expect(widePath.match(/M/g)).toHaveLength(5);
   const position = page.getByRole('slider', { name: 'Position on route' });
-  await expect(position).toHaveAttribute('max', '49999');
+  await expect(position).toHaveAttribute('aria-valuemax', '49999');
   await position.press('Home');
   await position.press('ArrowRight');
   await position.press('ArrowRight');
@@ -73,7 +73,7 @@ test('chart detail adapts to width while every original measurement stays select
   const narrowPath = (await trace.getAttribute('d')) ?? '';
   expect(narrowPath.match(/M/g)).toHaveLength(5);
   await expect(selected).toContainText('00:00:02 UTC');
-  await expect(position).toHaveAttribute('max', '49999');
+  await expect(position).toHaveAttribute('aria-valuemax', '49999');
   await position.press('End');
   await expect(selected).toContainText('13:53:19 UTC');
   await page.getByRole('button', { name: 'View on map' }).click();

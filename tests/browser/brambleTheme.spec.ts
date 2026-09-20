@@ -3,6 +3,8 @@ import { blockExternalTiles, expect, test } from './browserTest';
 
 const expected = {
   light: {
+    action: 'rgb(37, 78, 36)',
+    controlBorder: 'rgb(72, 83, 59)',
     page: 'rgb(235, 238, 218)',
     panel: 'rgb(255, 254, 244)',
     muted: 'rgb(72, 83, 59)',
@@ -12,6 +14,8 @@ const expected = {
     infoText: 'rgb(23, 61, 166)'
   },
   dark: {
+    action: 'rgb(185, 217, 139)',
+    controlBorder: 'rgb(203, 213, 191)',
     page: 'rgb(21, 29, 23)',
     panel: 'rgb(32, 43, 34)',
     muted: 'rgb(203, 213, 191)',
@@ -28,6 +32,7 @@ const fixture = {
   buffer: Buffer.from(`<gpx version="1.1"><trk><trkseg>
     <trkpt lat="53.958" lon="-1.083"><ele>10</ele><time>2026-01-01T00:00:00Z</time></trkpt>
     <trkpt lat="53.960" lon="-1.080"><ele>20</ele><time>2026-01-01T00:01:00Z</time></trkpt>
+    <trkpt lat="53.962" lon="-1.077"><ele>30</ele><time>2026-01-01T00:02:00Z</time></trkpt>
     </trkseg></trk></gpx>`)
 };
 
@@ -74,6 +79,61 @@ for (const colorScheme of ['light', 'dark'] as const) {
         .poll(async () => background(page.locator('body')))
         .toBe(expected[colorScheme].page);
       await page.getByLabel('GPX file', { exact: true }).setInputFiles(fixture);
+      const clearFile = page.getByRole('button', { name: 'Clear file' });
+      await expect(clearFile).toHaveCSS(
+        'border-color',
+        expected[colorScheme].controlBorder
+      );
+      await clearFile.hover();
+      await expect(clearFile).toHaveCSS(
+        'border-color',
+        expected[colorScheme].controlBorder
+      );
+      await clearFile.focus();
+      await expect(clearFile).toBeFocused();
+      await expect(clearFile).toHaveCSS(
+        'outline-color',
+        expected[colorScheme].action
+      );
+      await expect(clearFile).toHaveCSS('outline-style', 'solid');
+      for (const name of ['Smoothing', 'Position on route']) {
+        const slider = page.getByRole('slider', { name });
+        const root = slider.locator(
+          'xpath=ancestor::*[@data-scope="slider" and @data-part="root"]'
+        );
+        await expect(root.locator('[data-part="track"]')).toHaveCSS(
+          'border-color',
+          expected[colorScheme].controlBorder
+        );
+        await expect(root.locator('[data-part="range"]')).toHaveCSS(
+          'background-color',
+          expected[colorScheme].action
+        );
+        await expect(root.locator('[data-part="thumb"]')).toHaveCSS(
+          'border-color',
+          expected[colorScheme].action
+        );
+        await slider.focus();
+        await expect(root.locator('[data-part="thumb"]')).toHaveCSS(
+          'outline-color',
+          expected[colorScheme].action
+        );
+        await expect(root.locator('[data-part="thumb"]')).toHaveCSS(
+          'outline-style',
+          'solid'
+        );
+        await slider.press('Home');
+        await expect(slider).toHaveAttribute('aria-valuenow', '0');
+        if (name === 'Position on route') {
+          await slider.press('ArrowRight');
+          await expect(slider).toHaveAttribute('aria-valuenow', '1');
+        }
+        await slider.press('End');
+        await expect(slider).toHaveAttribute(
+          'aria-valuenow',
+          (await slider.getAttribute('aria-valuemax')) ?? ''
+        );
+      }
       await page
         .getByRole('slider', { name: 'Position on route' })
         .press('End');

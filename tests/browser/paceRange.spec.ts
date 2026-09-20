@@ -146,7 +146,7 @@ for (const viewport of [
     await expect(trace).toHaveAttribute('d', automaticPath ?? '');
     await expect(
       page.getByRole('slider', { name: 'Position on route' })
-    ).toHaveAttribute('max', '4');
+    ).toHaveAttribute('aria-valuemax', '4');
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth

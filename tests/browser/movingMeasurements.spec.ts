@@ -295,7 +295,7 @@ test('permissioned summit stop and dialog navigation preserve totals, source acc
   ).toBeVisible();
   await expect(page.getByText('2 h 16 min 7 s', { exact: true })).toBeVisible();
   const position = page.getByRole('slider', { name: 'Position on route' });
-  await expect(position).toHaveAttribute('max', '8141');
+  await expect(position).toHaveAttribute('aria-valuemax', '8141');
   await position.press('End');
   await expect(
     page.getByLabel('Selected measurement', { exact: true })

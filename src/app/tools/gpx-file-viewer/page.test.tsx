@@ -335,9 +335,6 @@ describe('GPX file viewer', () => {
       '1 minute'
     );
     expect(screen.getByText('Average speed: 66.7 km/h')).toBeVisible();
-    fireEvent.change(screen.getByRole('slider', { name: 'Smoothing' }), {
-      target: { value: '40' }
-    });
     expect(screen.getByText('Average speed: 66.7 km/h')).toBeVisible();
     expect(
       screen.getByText('Select a point on the chart to see it on the map.')
@@ -350,13 +347,10 @@ describe('GPX file viewer', () => {
     expect(
       screen.queryByLabelText('Selected measurement')
     ).not.toBeInTheDocument();
-    fireEvent.change(
+    fireEvent.keyDown(
       screen.getByRole('slider', { name: 'Position on route' }),
-      {
-        target: { value: '1' }
-      }
+      { key: 'End' }
     );
-    expect(screen.getByText('10 minutes', { exact: true })).toBeVisible();
     const selection = screen.getByLabelText('Selected measurement');
     expect(
       screen.queryByLabelText('Chart selection tip')

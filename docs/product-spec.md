@@ -107,13 +107,13 @@ The full V1 ambition includes the advanced tools. Release sequencing is not perm
 Owner decision (19 September 2026), refined after commercial review:
 
 1. **The prominent example experience shipped and was verified** on the homepage and GPX viewer through issue #46 (section 4.5).
-2. **Deliver the bounded two-page GPX help pilot** through issue #58, the strongest commercial next action selected through the mandatory “what next?” workflow in `AGENTS.md` and section 23. Publication and commercial assessment remain separate from local implementation.
+2. **The bounded two-page GPX help pilot shipped and was publicly verified** through issue #58 and PR #59, the strongest commercial next action selected through the mandatory “what next?” workflow in `AGENTS.md` and section 23. Commercial assessment remains separate from technical release.
 
 Owner clarification (20 September 2026): the acquisition strategy deliberately includes a small number of useful, indexable problem-solving guides that lead to a released tool when it can help. Existing Search Console impressions or user reports are useful topic evidence, but they are not an indefinite prerequisite for a bounded publish-and-measure content experiment: a page that does not exist cannot reveal its full query opportunity in site data. The owner authorised the two-page GPX help pilot in section 4.6 through issue #58. This does not approve a general blog, mass content production or near-duplicate provider/device/sport pages.
 
 This removes the earlier gate requiring GPX to persuade people to export before another tool can be built. Fix shortcomings that prevent useful, trustworthy viewing; assess richer analysis as optional investment against alternatives. No feature count, conversion threshold or revenue target gates recommending another tool. Do not require new tracking to make progress or bring the entire comparison suite forward by default.
 
-Broader format support and automatic routing remain opportunities, not an immutable sequence. Reuse established import, example and UX patterns without making perfection of GPX a dependency. FIT-versus-TCX order remains undecided. The two-page help pilot is the approved post-example investment; merge, deployment and observed commercial results remain pending until separately verified.
+Broader format support and automatic routing remain opportunities, not an immutable sequence. Reuse established import, example and UX patterns without making perfection of GPX a dependency. FIT-versus-TCX order remains undecided. The two-page help pilot is the delivered post-example investment; observed commercial results remain pending until separately verified.
 
 These decisions supersede the v0.12 GPX-depth-first roadmap and earlier integration-first proposals. Garmin/Wahoo API research is background material, not implementation approval. Account connections remain deferred; Bluetooth and cable/device retrieval are outside this workstream. Changing these boundaries requires an explicit owner decision.
 
@@ -211,7 +211,7 @@ The recommended first acquisition-content experiment is a bounded two-page pilot
 
 Each page must solve its task without requiring a tool click. Link to the viewer only when it is a valid next step, and add compact routes to both help tasks in the homepage's viewer summary and near file selection without moving long guidance above the tool. Recheck provider instructions against official sources at delivery and distinguish documentation verification from an account workflow actually exercised. Add no CMS, provider integration, analytics, advertising or broad content framework for this pilot. Review search acquisition after release, but do not present indexing, traffic, task completion or profit as guaranteed. [Content acquisition research](gpx-content-acquisition-research.md).
 
-Delivery status (20 September 2026): the owner authorised [issue #58](https://github.com/Yorkshireman/gpsgoblin/issues/58). Local implementation and verification are being completed on its ticket branch; merge, production deployment, public-route verification and the assessment window have not yet occurred.
+Delivery status (20 September 2026): [issue #58](https://github.com/Yorkshireman/gpsgoblin/issues/58) was delivered through [PR #59](https://github.com/Yorkshireman/gpsgoblin/pull/59). CI and the Cloudflare deployment completed successfully; both public routes, their canonical URLs and sitemap entries were verified. Search Console and commercial outcomes remain unavailable. Review available acquisition evidence around 18 October 2026, with another review around 15 November if observations are sparse.
 
 ### 4.7 Automatic viewer selection — agreed concept; timing subject to review
 
