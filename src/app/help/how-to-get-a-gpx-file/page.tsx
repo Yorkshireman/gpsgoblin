@@ -209,7 +209,8 @@ const HowToGetAGpxFilePage = () => {
               Choose <strong>Download GPX file</strong>.
             </List.Item>
             <List.Item>
-              On Android, check Downloads. On iPhone or iPad, use the prompt to
+              On the website, check your browser&apos;s Downloads folder. On
+              Android, check Downloads. On iPhone or iPad, use the prompt to
               save the file or open it in another app.
             </List.Item>
           </List.Root>
