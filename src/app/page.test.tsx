@@ -17,5 +17,11 @@ describe('homepage', () => {
     expect(
       screen.getByRole('link', { name: 'Try an example' })
     ).toHaveAttribute('href', '/tools/gpx-file-viewer#example-activity');
+    expect(
+      screen.getByRole('link', { name: 'How to get a GPX file' })
+    ).toHaveAttribute('href', '/help/how-to-get-a-gpx-file');
+    expect(
+      screen.getByRole('link', { name: 'Troubleshoot a GPX file' })
+    ).toHaveAttribute('href', '/help/gpx-file-empty-or-missing-data');
   });
 });

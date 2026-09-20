@@ -15,6 +15,8 @@ test('exported pages enforce headers and hydrate on direct clean URLs', async ({
   });
   for (const url of [
     '/',
+    '/help/how-to-get-a-gpx-file',
+    '/help/gpx-file-empty-or-missing-data',
     '/tools/gpx-file-viewer',
     '/privacy',
     '/limitations',

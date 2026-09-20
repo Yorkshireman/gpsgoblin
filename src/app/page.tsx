@@ -1,5 +1,6 @@
 import NextLink from 'next/link';
 import { Button, Container, Heading, Stack, Text } from '@chakra-ui/react';
+import { GpxHelpLinks } from '@/components/GpxHelpLinks';
 import { createPageMetadata } from './siteMetadata';
 
 export const metadata = createPageMetadata(
@@ -67,6 +68,7 @@ const Home = () => {
           <Text fontSize="sm" color="fg.muted">
             Supports GPX 1.1. Free to use; your original file stays unchanged.
           </Text>
+          <GpxHelpLinks />
         </Stack>
       </Stack>
     </Container>

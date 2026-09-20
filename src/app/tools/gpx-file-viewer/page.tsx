@@ -1,5 +1,6 @@
 import { GpxFilePicker } from '@/features/gpx-viewer';
 import { createPageMetadata } from '@/app/siteMetadata';
+import { GpxHelpLinks } from '@/components/GpxHelpLinks';
 import NextLink from 'next/link';
 import type { ReactNode } from 'react';
 import { Box, Container, Heading, Link, Stack, Text } from '@chakra-ui/react';
@@ -73,32 +74,35 @@ const GpxFileViewerPage = () => {
           </Heading>
           <GpxFilePicker
             emptyStateHelp={
-              <ViewerHelp>
-                <Heading as="h2" size="xl">
-                  How to open a GPX file
-                </Heading>
-                <Text>Choose or drop one .gpx file into the area above.</Text>
-                <Heading as="h2" size="xl">
-                  What files you can open
-                </Heading>
-                <Text>
-                  You can open GPX 1.1 tracks, separate track sections, planned
-                  routes and waypoints.
-                </Text>
-                <Text>
-                  <strong>Elevation</strong> needs height readings.{' '}
-                  <strong>Speed</strong> and <strong>Pace</strong> need usable
-                  times and positions. FIT, TCX and GPX 1.0 files are not
-                  supported.
-                </Text>
-                <Heading as="h2" size="xl">
-                  Your privacy
-                </Heading>
-                <Text>
-                  Your file stays on your device. Refreshing or leaving this
-                  tool closes it and resets your choices.
-                </Text>
-              </ViewerHelp>
+              <>
+                <GpxHelpLinks />
+                <ViewerHelp>
+                  <Heading as="h2" size="xl">
+                    How to open a GPX file
+                  </Heading>
+                  <Text>Choose or drop one .gpx file into the area above.</Text>
+                  <Heading as="h2" size="xl">
+                    What files you can open
+                  </Heading>
+                  <Text>
+                    You can open GPX 1.1 tracks, separate track sections,
+                    planned routes and waypoints.
+                  </Text>
+                  <Text>
+                    <strong>Elevation</strong> needs height readings.{' '}
+                    <strong>Speed</strong> and <strong>Pace</strong> need usable
+                    times and positions. FIT, TCX and GPX 1.0 files are not
+                    supported.
+                  </Text>
+                  <Heading as="h2" size="xl">
+                    Your privacy
+                  </Heading>
+                  <Text>
+                    Your file stays on your device. Refreshing or leaving this
+                    tool closes it and resets your choices.
+                  </Text>
+                </ViewerHelp>
+              </>
             }
             resultsHelp={
               <ViewerHelp>

@@ -23,6 +23,8 @@ for (const colorScheme of ['light', 'dark'] as const) {
     };
     for (const url of [
       '/',
+      '/help/how-to-get-a-gpx-file',
+      '/help/gpx-file-empty-or-missing-data',
       '/privacy',
       '/limitations',
       '/tools/gpx-file-viewer'

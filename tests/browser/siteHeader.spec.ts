@@ -16,6 +16,11 @@ const fixture = {
 const publishedPages = [
   ['/', 'Free tools for GPS and activity files'],
   ['/tools/gpx-file-viewer', 'GPX File Viewer'],
+  ['/help/how-to-get-a-gpx-file', 'How to get and open a GPX file'],
+  [
+    '/help/gpx-file-empty-or-missing-data',
+    'Why a GPX file is empty or missing data'
+  ],
   ['/privacy', 'Privacy'],
   ['/limitations', 'Support and limitations']
 ] as const;
