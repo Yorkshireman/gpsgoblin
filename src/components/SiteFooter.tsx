@@ -22,6 +22,14 @@ export const SiteFooter = () => {
           <NextLink href="/tools/gpx-file-viewer">GPX File Viewer</NextLink>
         </Link>
         <Link asChild minH="44px" px={2} alignContent="center">
+          <NextLink href="/help/how-to-get-a-gpx-file">Get a GPX file</NextLink>
+        </Link>
+        <Link asChild minH="44px" px={2} alignContent="center">
+          <NextLink href="/help/gpx-file-empty-or-missing-data">
+            GPX troubleshooting
+          </NextLink>
+        </Link>
+        <Link asChild minH="44px" px={2} alignContent="center">
           <NextLink href="/privacy">Privacy</NextLink>
         </Link>
         <Link asChild minH="44px" px={2} alignContent="center">

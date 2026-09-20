@@ -420,6 +420,20 @@ describe('GPX file viewer', () => {
     );
   });
 
+  describe('help', () => {
+    it('keeps file selection prominent beside routes to relevant GPX help', () => {
+      expect(
+        screen.getByRole('button', { name: 'Choose GPX file' })
+      ).toBeVisible();
+      expect(
+        screen.getByRole('link', { name: 'How to get a GPX file' })
+      ).toHaveAttribute('href', '/help/how-to-get-a-gpx-file');
+      expect(
+        screen.getByRole('link', { name: 'Troubleshoot a GPX file' })
+      ).toHaveAttribute('href', '/help/gpx-file-empty-or-missing-data');
+    });
+  });
+
   describe('file input', () => {
     it('shows the file picker button', () => {
       expect(
