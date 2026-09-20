@@ -128,6 +128,15 @@ const typographyViewports = [
   { width: 375, height: 667 }
 ];
 
+const viewerFixture = {
+  buffer: Buffer.from(`<gpx version="1.1"><trk><trkseg>
+    <trkpt lat="53.958" lon="-1.083"><ele>10</ele><time>2026-01-01T00:00:00Z</time></trkpt>
+    <trkpt lat="53.960" lon="-1.080"><ele>20</ele><time>2026-01-01T00:01:00Z</time></trkpt>
+    </trkseg></trk></gpx>`),
+  mimeType: 'application/gpx+xml',
+  name: 'large-text-route.gpx'
+};
+
 for (const colorScheme of ['light', 'dark'] as const) {
   for (const viewport of typographyViewports) {
     test(`keeps the homepage action usable at 200% text in ${colorScheme} mode at ${viewport.width} × ${viewport.height}`, async ({
@@ -175,6 +184,23 @@ for (const colorScheme of ['light', 'dark'] as const) {
             exact: true
           })
         ).toBeVisible();
+        await page
+          .getByLabel('GPX file', { exact: true })
+          .setInputFiles(viewerFixture);
+        await expect(
+          page.getByRole('button', { name: 'Clear file' })
+        ).toBeVisible();
+        await expect(
+          page.getByRole('slider', { name: 'Smoothing' })
+        ).toBeVisible();
+        await expect(
+          page.getByRole('slider', { name: 'Position on route' })
+        ).toBeVisible();
+        expect(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth
+          )
+        ).toBe(true);
       } finally {
         await context.close();
       }
