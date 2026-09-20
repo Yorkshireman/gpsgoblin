@@ -34,9 +34,13 @@ test('all-day and multi-day recordings retain every sample and recover from fail
   const position = page.getByRole('slider', { name: 'Position on route' });
   for (const pointCount of [43201, 172801]) {
     await picker.setInputFiles(recording(pointCount));
-    await expect(position).toHaveAttribute('max', String(pointCount - 1), {
-      timeout: 60000
-    });
+    await expect(position).toHaveAttribute(
+      'aria-valuemax',
+      String(pointCount - 1),
+      {
+        timeout: 60000
+      }
+    );
     await expect(
       page.getByText(pointCount === 43201 ? '12 h' : '48 h', { exact: true })
     ).toBeVisible();
@@ -72,14 +76,14 @@ test('all-day and multi-day recordings retain every sample and recover from fail
       'The file is damaged or incomplete. Download a new copy and try again.'
     )
   ).toBeVisible();
-  await expect(position).toHaveAttribute('max', '172800');
+  await expect(position).toHaveAttribute('aria-valuemax', '172800');
   await expect(
     page.getByLabel('Selected measurement', { exact: true })
   ).toContainText('3 January 2026 at 00:00:00 UTC');
   await page.getByRole('button', { name: 'Clear file' }).click();
   await expect(page.getByText('File closed.')).toBeVisible();
   await picker.setInputFiles(recording(3));
-  await expect(position).toHaveAttribute('max', '2');
+  await expect(position).toHaveAttribute('aria-valuemax', '2');
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth
@@ -101,7 +105,9 @@ test('extension-heavy input stays local without interpreting vendor measurements
     .getByLabel('GPX file', { exact: true })
     .setInputFiles(recording(24001, 24001, true));
   const position = page.getByRole('slider', { name: 'Position on route' });
-  await expect(position).toHaveAttribute('max', '24000', { timeout: 60000 });
+  await expect(position).toHaveAttribute('aria-valuemax', '24000', {
+    timeout: 60000
+  });
   await position.press('End');
   const selected = page.getByLabel('Selected measurement', { exact: true });
   await expect(selected).toContainText('100.0 m');
@@ -132,7 +138,9 @@ test('thousands of segments preserve chart gaps and missing measurements', async
     .getByLabel('GPX file', { exact: true })
     .setInputFiles(recording(50000, 20));
   const position = page.getByRole('slider', { name: 'Position on route' });
-  await expect(position).toHaveAttribute('max', '49999', { timeout: 60000 });
+  await expect(position).toHaveAttribute('aria-valuemax', '49999', {
+    timeout: 60000
+  });
   await page
     .getByRole('combobox', { name: 'Chart', exact: true })
     .selectOption('elevation');

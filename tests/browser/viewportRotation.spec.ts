@@ -19,7 +19,7 @@ test('loaded view stays within the viewport across rotation with long track name
   });
   const position = page.getByRole('slider', { name: 'Position on route' });
   await position.press('End');
-  await expect(position).toHaveValue('1');
+  await expect(position).toHaveAttribute('aria-valuenow', '1');
 
   for (const viewport of [
     { width: 956, height: 440 },
@@ -40,7 +40,7 @@ test('loaded view stays within the viewport across rotation with long track name
         });
       })
       .toBeLessThanOrEqual(1);
-    await expect(position).toHaveValue('1');
+    await expect(position).toHaveAttribute('aria-valuenow', '1');
     await expect(
       page.getByLabel('View', { exact: true }).locator('option:checked')
     ).toHaveText(`Track: ${trackName.trim()}`);

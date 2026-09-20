@@ -94,6 +94,11 @@ export const GpxFileControls = ({
         ) : null}
         {canClear ? (
           <Button
+            _focus={{
+              outline: '3px solid',
+              outlineColor: 'action.focusRing',
+              outlineOffset: '2px'
+            }}
             colorPalette="gray"
             type="button"
             variant="outline"
