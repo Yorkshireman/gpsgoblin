@@ -121,6 +121,10 @@ const themeConfig = defineConfig({
           muted: { value: '{colors.bramble.mutedText}' },
           subtle: { value: '{colors.bramble.mutedText}' }
         },
+        gray: {
+          border: modeColour('{colors.gray.500}', '{colors.gray.300}'),
+          subtle: { value: '{colors.bramble.panel}' }
+        },
         selection: selectionPalette
       }
     },

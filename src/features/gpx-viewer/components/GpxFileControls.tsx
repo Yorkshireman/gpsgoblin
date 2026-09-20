@@ -99,7 +99,6 @@ export const GpxFileControls = ({
               outlineColor: 'action.focusRing',
               outlineOffset: '2px'
             }}
-            borderColor="border.emphasized"
             colorPalette="gray"
             type="button"
             variant="outline"

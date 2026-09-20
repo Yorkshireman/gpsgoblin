@@ -4,6 +4,8 @@ import { blockExternalTiles, expect, test } from './browserTest';
 const expected = {
   light: {
     action: 'rgb(37, 78, 36)',
+    clearBorder: 'rgb(113, 113, 122)',
+    clearFocus: 'rgb(37, 78, 36)',
     controlBorder: 'rgb(72, 83, 59)',
     page: 'rgb(235, 238, 218)',
     panel: 'rgb(255, 254, 244)',
@@ -15,6 +17,8 @@ const expected = {
   },
   dark: {
     action: 'rgb(185, 217, 139)',
+    clearBorder: 'rgb(212, 212, 216)',
+    clearFocus: 'rgb(185, 217, 139)',
     controlBorder: 'rgb(203, 213, 191)',
     page: 'rgb(21, 29, 23)',
     panel: 'rgb(32, 43, 34)',
@@ -79,21 +83,35 @@ for (const colorScheme of ['light', 'dark'] as const) {
         .poll(async () => background(page.locator('body')))
         .toBe(expected[colorScheme].page);
       await page.getByLabel('GPX file', { exact: true }).setInputFiles(fixture);
+      await expect(
+        page.getByRole('slider', { name: 'Position on route' })
+      ).toBeVisible();
       const clearFile = page.getByRole('button', { name: 'Clear file' });
       await expect(clearFile).toHaveCSS(
         'border-color',
-        expected[colorScheme].controlBorder
+        expected[colorScheme].clearBorder
       );
-      await clearFile.hover();
-      await expect(clearFile).toHaveCSS(
-        'border-color',
-        expected[colorScheme].controlBorder
-      );
+      if (await page.evaluate(() => matchMedia('(hover: hover)').matches)) {
+        await clearFile.hover();
+        await expect
+          .poll(async () =>
+            clearFile.evaluate((element) => element.matches(':hover'))
+          )
+          .toBe(true);
+        await expect(clearFile).toHaveCSS(
+          'background-color',
+          expected[colorScheme].panel
+        );
+        await expect(clearFile).toHaveCSS(
+          'border-color',
+          expected[colorScheme].clearBorder
+        );
+      }
       await clearFile.focus();
       await expect(clearFile).toBeFocused();
       await expect(clearFile).toHaveCSS(
         'outline-color',
-        expected[colorScheme].action
+        expected[colorScheme].clearFocus
       );
       await expect(clearFile).toHaveCSS('outline-style', 'solid');
       for (const name of ['Smoothing', 'Position on route']) {
