@@ -110,6 +110,18 @@ Before planning, implementing or reviewing user-facing behaviour—including dis
 
 Write all user-facing copy for an average person with no knowledge of GPX internals or our calculations. Every message must help them understand a result, choose an action or recover from a problem; remove it if it serves none of these purposes. Apply the copy review and completion criteria in the UX workflow to labels, help, warnings, errors and accessible text.
 
+### Public copy workflow
+
+For new or substantially revised indexable pages, work in this order:
+
+1. Draft from the product specification, verified primary sources and the affected user task. Preserve release-scoped claims and known limitations.
+2. Once a complete draft exists, use the `copy-editing` skill. Prioritise clarity, natural voice, evidence, specificity and reading the result aloud. Apply its sales-oriented emotion, benefit and CTA sweeps only when they help the reader understand, choose or recover; never manufacture urgency, emotion, social proof, numbers or claims.
+3. After the human copy pass, use the `seo-audit` skill. Limit changes to evidenced search intent, crawlability, indexation, titles/descriptions, headings, internal links and useful static content. Treat keyword placement, character counts, content length, author/contact signals, structured data and competitor patterns as diagnostic heuristics rather than product requirements.
+
+The writing pass owns the prose. SEO findings may identify a mismatch or missing answer, but must not make natural copy formulaic, repeat phrases for ranking, introduce a word-count target or create a thin page variant. `AGENTS.md`, the product specification, verified source facts and the UX workflow override both skills. When a skill conflicts with them, keep the project requirement and record the rejected heuristic in the review evidence.
+
+Before completion, read the copy as one page rather than isolated strings. It must sound natural aloud, retain useful uncertainty, avoid repeated explanations and answer the reader's task without requiring a tool click. Then perform the SEO audit without silently rewriting the approved prose.
+
 ## Agent skills
 
 ### Issue tracker
