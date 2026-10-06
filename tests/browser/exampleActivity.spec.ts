@@ -40,10 +40,43 @@ for (const viewport of uxBaselineViewports) {
         name: 'Try an example'
       });
       await expect(
-        page.getByRole('link', { name: 'Open GPX File Viewer' })
-      ).toBeVisible();
-      await expect(homepageExample).toBeVisible();
-      await homepageExample.scrollIntoViewIfNeeded();
+        page.getByRole('heading', {
+          level: 1,
+          name: 'See exactly where you went'
+        })
+      ).toBeInViewport();
+      await expect(
+        page.getByRole('link', { name: 'View your GPX file' })
+      ).toBeInViewport();
+      await expect(homepageExample).toBeInViewport();
+      expect(
+        await page.locator('main a').evaluateAll((links) => {
+          return links
+            .filter((link) => {
+              return (
+                getComputedStyle(link).backgroundColor !== 'rgba(0, 0, 0, 0)'
+              );
+            })
+            .map((link) => link.textContent);
+        })
+      ).toEqual(['View your GPX file']);
+      const illustration = page.locator('main [aria-hidden="true"] svg');
+      await expect(illustration).toBeVisible();
+      const [illustrationBox, exampleBox, headingBox] = await Promise.all([
+        illustration.boundingBox(),
+        homepageExample.boundingBox(),
+        page.getByRole('heading', { level: 1 }).boundingBox()
+      ]);
+      if (!illustrationBox || !exampleBox || !headingBox)
+        throw new Error('Expected the homepage content to be laid out.');
+      if (viewport.width >= 1024)
+        expect(illustrationBox.x).toBeGreaterThan(
+          headingBox.x + headingBox.width
+        );
+      else
+        expect(illustrationBox.y).toBeGreaterThanOrEqual(
+          exampleBox.y + exampleBox.height
+        );
       if (viewport.width < 600) await homepageExample.tap();
       else {
         await homepageExample.focus();
@@ -97,7 +130,7 @@ for (const viewport of uxBaselineViewports) {
       await page.goBack();
       await expect(
         page.getByRole('heading', {
-          name: 'Free tools for GPS and activity files'
+          name: 'See exactly where you went'
         })
       ).toBeVisible();
 
