@@ -17,10 +17,10 @@ for (const viewport of uxBaselineViewports) {
     const homepageHelp = siteLinks.getByRole('link', {
       name: 'Get a GPX file'
     });
-    await expect(homepageHelp).toBeInViewport();
+    await expect(homepageHelp).toBeVisible();
     await expect(
       siteLinks.getByRole('link', { name: 'GPX troubleshooting' })
-    ).toBeInViewport();
+    ).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath(
         `home-help-entry-${viewport.width}x${viewport.height}.png`

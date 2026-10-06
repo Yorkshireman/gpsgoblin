@@ -60,6 +60,23 @@ for (const viewport of uxBaselineViewports) {
             .map((link) => link.textContent);
         })
       ).toEqual(['View your GPX file']);
+      const illustration = page.locator('main [aria-hidden="true"] svg');
+      await expect(illustration).toBeVisible();
+      const [illustrationBox, exampleBox, headingBox] = await Promise.all([
+        illustration.boundingBox(),
+        homepageExample.boundingBox(),
+        page.getByRole('heading', { level: 1 }).boundingBox()
+      ]);
+      if (!illustrationBox || !exampleBox || !headingBox)
+        throw new Error('Expected the homepage content to be laid out.');
+      if (viewport.width >= 1024)
+        expect(illustrationBox.x).toBeGreaterThan(
+          headingBox.x + headingBox.width
+        );
+      else
+        expect(illustrationBox.y).toBeGreaterThanOrEqual(
+          exampleBox.y + exampleBox.height
+        );
       if (viewport.width < 600) await homepageExample.tap();
       else {
         await homepageExample.focus();

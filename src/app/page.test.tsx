@@ -5,7 +5,7 @@ import Home from './page';
 
 describe('homepage', () => {
   it('leads with the viewer action and offers the example below it', () => {
-    render(
+    const { container } = render(
       <ChakraProvider value={defaultSystem}>
         <Home />
       </ChakraProvider>
@@ -34,5 +34,8 @@ describe('homepage', () => {
       viewerLink.compareDocumentPosition(exampleLink) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
+    expect(
+      container.querySelector('svg')?.closest('[aria-hidden="true"]')
+    ).not.toBeNull();
   });
 });

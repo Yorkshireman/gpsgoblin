@@ -74,6 +74,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(
         page.getByText('Free tools for GPS and activity files')
       ).toHaveCSS('color', expected[colorScheme].muted);
+      await expect(page.locator('main svg path').last()).toHaveCSS(
+        'stroke',
+        expected[colorScheme].action
+      );
       const exampleLink = page.getByRole('link', { name: 'Try an example' });
       await exampleLink.focus();
       await expect(exampleLink).toHaveCSS(
