@@ -40,10 +40,26 @@ for (const viewport of uxBaselineViewports) {
         name: 'Try an example'
       });
       await expect(
-        page.getByRole('link', { name: 'Open GPX File Viewer' })
-      ).toBeVisible();
-      await expect(homepageExample).toBeVisible();
-      await homepageExample.scrollIntoViewIfNeeded();
+        page.getByRole('heading', {
+          level: 1,
+          name: 'See your GPX route on a map'
+        })
+      ).toBeInViewport();
+      await expect(
+        page.getByRole('link', { name: 'View your GPX file' })
+      ).toBeInViewport();
+      await expect(homepageExample).toBeInViewport();
+      expect(
+        await page.locator('main a').evaluateAll((links) => {
+          return links
+            .filter((link) => {
+              return (
+                getComputedStyle(link).backgroundColor !== 'rgba(0, 0, 0, 0)'
+              );
+            })
+            .map((link) => link.textContent);
+        })
+      ).toEqual(['View your GPX file']);
       if (viewport.width < 600) await homepageExample.tap();
       else {
         await homepageExample.focus();
@@ -97,7 +113,7 @@ for (const viewport of uxBaselineViewports) {
       await page.goBack();
       await expect(
         page.getByRole('heading', {
-          name: 'Free tools for GPS and activity files'
+          name: 'See your GPX route on a map'
         })
       ).toBeVisible();
 

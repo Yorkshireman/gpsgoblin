@@ -1,5 +1,12 @@
 import NextLink from 'next/link';
-import { Button, Container, Heading, Stack, Text } from '@chakra-ui/react';
+import {
+  Button,
+  Container,
+  Heading,
+  Link,
+  Stack,
+  Text
+} from '@chakra-ui/react';
 import { GpxHelpLinks } from '@/components/GpxHelpLinks';
 import { createPageMetadata } from './siteMetadata';
 
@@ -17,56 +24,44 @@ const Home = () => {
       px={{ base: 4, md: 6 }}
       py={{ base: 8, md: 16 }}
     >
-      <Stack gap={5} align="start">
-        <Heading as="h1" size={{ base: '3xl', md: '4xl' }}>
-          Free tools for GPS and activity files
-        </Heading>
-        <Text maxW="prose">
-          Explore a walk, ride, run or planned route. Your file stays on your
-          device, with no account needed.
-        </Text>
-        <Stack
-          gap={3}
-          borderWidth="1px"
-          bg="bg.panel"
-          rounded="lg"
-          p={{ base: 5, md: 8 }}
-          mt={3}
-          align="start"
-        >
-          <Heading as="h2" size="xl">
-            GPX File Viewer
-          </Heading>
-          <Text maxW="prose">
-            View tracks, routes and waypoints on a map. Check distance and
-            explore elevation, speed and pace when your file has the readings
-            needed.
+      <Stack gap={6} align="start" maxW="prose">
+        <Stack gap={3}>
+          <Text color="fg.muted" fontWeight="semibold">
+            Free tools for GPS and activity files
           </Text>
-          <Stack direction="row" flexWrap="wrap" gap={3}>
-            <Button
-              asChild
-              colorPalette="action"
-              variant="surface"
-              maxW="full"
-              whiteSpace="normal"
-            >
-              <NextLink href="/tools/gpx-file-viewer">
-                Open GPX File Viewer
-              </NextLink>
-            </Button>
-            <Button
-              asChild
-              colorPalette="action"
-              maxW="full"
-              whiteSpace="normal"
-            >
+          <Heading as="h1" size={{ base: '3xl', md: '4xl' }}>
+            See your GPX route on a map
+          </Heading>
+          <Text>
+            Check how far it goes. Depending on what’s in your file, you can
+            also explore elevation, time, speed and pace. Your file stays on
+            your device, and you don’t need an account.
+          </Text>
+        </Stack>
+        <Stack gap={1} align="start" width="full">
+          <Button
+            asChild
+            colorPalette="action"
+            size="lg"
+            width={{ base: 'full', sm: 'auto' }}
+            whiteSpace="normal"
+          >
+            <NextLink href="/tools/gpx-file-viewer">
+              View your GPX file
+            </NextLink>
+          </Button>
+          <Text>
+            Don’t have a file yet?{' '}
+            <Link asChild colorPalette="action" minH="44px">
               <NextLink href="/tools/gpx-file-viewer#example-activity">
                 Try an example
               </NextLink>
-            </Button>
-          </Stack>
+            </Link>
+          </Text>
+        </Stack>
+        <Stack gap={1} align="start" width="full">
           <Text fontSize="sm" color="fg.muted">
-            Supports GPX 1.1. Free to use; your original file stays unchanged.
+            Works with GPX 1.1 files and leaves your original file unchanged.
           </Text>
           <GpxHelpLinks />
         </Stack>

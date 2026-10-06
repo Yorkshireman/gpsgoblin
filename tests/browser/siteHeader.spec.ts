@@ -14,7 +14,7 @@ const fixture = {
 };
 
 const publishedPages = [
-  ['/', 'Free tools for GPS and activity files'],
+  ['/', 'See your GPX route on a map'],
   ['/tools/gpx-file-viewer', 'GPX File Viewer'],
   ['/help/how-to-get-a-gpx-file', 'How to get and open a GPX file'],
   [
@@ -117,7 +117,7 @@ for (const viewport of uxBaselineViewports) {
     await expect(page).toHaveURL(/\/$/);
     await expect(
       page.getByRole('heading', {
-        name: 'Free tools for GPS and activity files'
+        name: 'See your GPX route on a map'
       })
     ).toBeVisible();
     await page.screenshot({
