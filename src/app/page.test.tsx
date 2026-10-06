@@ -14,7 +14,7 @@ describe('homepage', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'See your GPX route on a map'
+        name: 'See exactly where you went'
       })
     ).toBeInTheDocument();
     expect(
@@ -34,12 +34,5 @@ describe('homepage', () => {
       viewerLink.compareDocumentPosition(exampleLink) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
-
-    expect(
-      screen.getByRole('link', { name: 'How to get a GPX file' })
-    ).toHaveAttribute('href', '/help/how-to-get-a-gpx-file');
-    expect(
-      screen.getByRole('link', { name: 'Troubleshoot a GPX file' })
-    ).toHaveAttribute('href', '/help/gpx-file-empty-or-missing-data');
   });
 });

@@ -7,7 +7,6 @@ import {
   Stack,
   Text
 } from '@chakra-ui/react';
-import { GpxHelpLinks } from '@/components/GpxHelpLinks';
 import { createPageMetadata } from './siteMetadata';
 
 export const metadata = createPageMetadata(
@@ -25,17 +24,23 @@ const Home = () => {
       py={{ base: 8, md: 16 }}
     >
       <Stack gap={6} align="start" maxW="prose">
-        <Stack gap={3}>
+        <Stack gap={4}>
           <Text color="fg.muted" fontWeight="semibold">
             Free tools for GPS and activity files
           </Text>
-          <Heading as="h1" size={{ base: '3xl', md: '4xl' }}>
-            See your GPX route on a map
+          <Heading
+            as="h1"
+            lineHeight="1.1"
+            size={{ base: '5xl', md: '6xl' }}
+            textWrap="balance"
+          >
+            See exactly where you went
           </Heading>
           <Text>
-            Check how far it goes. Depending on what’s in your file, you can
-            also explore elevation, time, speed and pace. Your file stays on
-            your device, and you don’t need an account.
+            Open a GPX file from your run, ride or hike and get your route on a
+            map, with distance, elevation, time, speed and pace when your
+            recording includes them. Your file stays on your device, and there’s
+            no account to create.
           </Text>
         </Stack>
         <Stack gap={1} align="start" width="full">
@@ -58,12 +63,6 @@ const Home = () => {
               </NextLink>
             </Link>
           </Text>
-        </Stack>
-        <Stack gap={1} align="start" width="full">
-          <Text fontSize="sm" color="fg.muted">
-            Works with GPX 1.1 files and leaves your original file unchanged.
-          </Text>
-          <GpxHelpLinks />
         </Stack>
       </Stack>
     </Container>

@@ -58,7 +58,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await page.goto('/');
       await expect(
         page.getByRole('heading', {
-          name: 'See your GPX route on a map'
+          name: 'See exactly where you went'
         })
       ).toBeVisible();
       await expect
@@ -73,11 +73,6 @@ for (const colorScheme of ['light', 'dark'] as const) {
         .toBe(expected[colorScheme].action);
       await expect(
         page.getByText('Free tools for GPS and activity files')
-      ).toHaveCSS('color', expected[colorScheme].muted);
-      await expect(
-        page.getByText(
-          'Works with GPX 1.1 files and leaves your original file unchanged.'
-        )
       ).toHaveCSS('color', expected[colorScheme].muted);
       const exampleLink = page.getByRole('link', { name: 'Try an example' });
       await exampleLink.focus();

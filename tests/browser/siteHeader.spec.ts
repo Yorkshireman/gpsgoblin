@@ -14,7 +14,7 @@ const fixture = {
 };
 
 const publishedPages = [
-  ['/', 'See your GPX route on a map'],
+  ['/', 'See exactly where you went'],
   ['/tools/gpx-file-viewer', 'GPX File Viewer'],
   ['/help/how-to-get-a-gpx-file', 'How to get and open a GPX file'],
   [
@@ -117,7 +117,7 @@ for (const viewport of uxBaselineViewports) {
     await expect(page).toHaveURL(/\/$/);
     await expect(
       page.getByRole('heading', {
-        name: 'See your GPX route on a map'
+        name: 'See exactly where you went'
       })
     ).toBeVisible();
     await page.screenshot({

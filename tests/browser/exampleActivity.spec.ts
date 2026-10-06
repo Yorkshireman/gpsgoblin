@@ -42,7 +42,7 @@ for (const viewport of uxBaselineViewports) {
       await expect(
         page.getByRole('heading', {
           level: 1,
-          name: 'See your GPX route on a map'
+          name: 'See exactly where you went'
         })
       ).toBeInViewport();
       await expect(
@@ -113,7 +113,7 @@ for (const viewport of uxBaselineViewports) {
       await page.goBack();
       await expect(
         page.getByRole('heading', {
-          name: 'See your GPX route on a map'
+          name: 'See exactly where you went'
         })
       ).toBeVisible();
 

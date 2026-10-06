@@ -39,7 +39,7 @@ test('homepage uses the selected local type roles without a font-service request
   await page.goto('/');
   await expect(
     page.getByRole('heading', {
-      name: 'See your GPX route on a map'
+      name: 'See exactly where you went'
     })
   ).toBeVisible();
   await page.evaluate(async () => {
@@ -67,7 +67,7 @@ test('keeps the homepage usable when both font downloads fail', async ({
   await page.goto('/');
   await expect(
     page.getByRole('heading', {
-      name: 'See your GPX route on a map'
+      name: 'See exactly where you went'
     })
   ).toBeVisible();
   await expect(
@@ -99,7 +99,7 @@ test('keeps the homepage usable while font downloads are slow', async ({
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(
     page.getByRole('heading', {
-      name: 'See your GPX route on a map'
+      name: 'See exactly where you went'
     })
   ).toBeVisible();
   await expect(
@@ -159,7 +159,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
         await expect(
           page.getByRole('heading', {
-            name: 'See your GPX route on a map'
+            name: 'See exactly where you went'
           })
         ).toBeVisible();
         const viewerLink = page.getByRole('link', {
