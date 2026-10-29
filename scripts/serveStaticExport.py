@@ -54,4 +54,10 @@ class ExportHandler(SimpleHTTPRequestHandler):
         return translated
 
 
-ThreadingHTTPServer(('127.0.0.1', args.port), ExportHandler).serve_forever()
+class ExportServer(ThreadingHTTPServer):
+    # Parallel browsers open many asset connections at once. The default backlog
+    # of five can reset queued connections, leaving pages without scripts or CSS.
+    request_queue_size = 128
+
+
+ExportServer(('127.0.0.1', args.port), ExportHandler).serve_forever()
