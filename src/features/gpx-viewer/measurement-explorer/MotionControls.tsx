@@ -41,11 +41,6 @@ export const MotionControls = ({
           {smoothingSeconds === 0 ? ' (off)' : ''}
         </span>
       </Slider.Label>
-      {pending ? (
-        <Text as="span" role="status" fontSize="xs" color="fg.muted">
-          Updating…
-        </Text>
-      ) : null}
       <Slider.Control minH="11">
         <Slider.Track bg="bg" borderColor="border.emphasized" borderWidth="1px">
           <Slider.Range bg="action.solid" />
