@@ -58,7 +58,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await page.goto('/');
       await expect(
         page.getByRole('heading', {
-          name: 'Free tools for GPS and activity files'
+          name: 'See exactly where you went'
         })
       ).toBeVisible();
       await expect
@@ -66,17 +66,24 @@ for (const colorScheme of ['light', 'dark'] as const) {
         .toBe(expected[colorScheme].page);
       await expect
         .poll(async () => {
-          return page
-            .getByRole('heading', { name: 'GPX File Viewer' })
-            .locator('..')
-            .evaluate((element) => getComputedStyle(element).backgroundColor);
+          return background(
+            page.getByRole('link', { name: 'View your GPX file' })
+          );
         })
-        .toBe(expected[colorScheme].panel);
+        .toBe(expected[colorScheme].action);
       await expect(
-        page.getByText(
-          'Supports GPX 1.1. Free to use; your original file stays unchanged.'
-        )
+        page.getByText('Free tools for GPS and activity files')
       ).toHaveCSS('color', expected[colorScheme].muted);
+      await expect(page.locator('main svg path').last()).toHaveCSS(
+        'stroke',
+        expected[colorScheme].action
+      );
+      const exampleLink = page.getByRole('link', { name: 'Try an example' });
+      await exampleLink.focus();
+      await expect(exampleLink).toHaveCSS(
+        'outline-color',
+        expected[colorScheme].action
+      );
 
       await page.goto('/tools/gpx-file-viewer');
       await expect

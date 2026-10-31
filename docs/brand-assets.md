@@ -41,6 +41,25 @@ accessible home link. It is deliberately limited to this home link so it does
 not displace page titles, viewer controls or results with a larger navigation
 system.
 
+## Homepage route illustration
+
+The homepage pairs its introduction with a decorative illustration: a dashed
+route between hollow start and finish circles, over a faint dashed elevation
+line. It was added through [issue #62](https://github.com/Yorkshireman/gpsgoblin/issues/62)
+in response to the 4 October 2026 UX audit's request for homepage imagery.
+
+The source artwork is in the Figma file "GPS goblin audit actions"
+(`BbFouKlewkRosf2QoH63hr`): the circles in frame `12:443` and the route and
+elevation lines in vectors `14:565` and `14:569`. The homepage copies their
+exact path data into an inline SVG rather than using the exported files, which
+fix the stroke to `#254e24`. The inline version draws in `currentColor` with
+the `action.fg` token, so it uses route green in light mode and the light action
+green in dark mode. The elevation line uses the same colour at 20% opacity.
+
+It is hidden from assistive technology and does not represent real data. It
+sits beside the introduction from 1024 px wide and below the main actions, up
+to 20rem wide, on smaller screens.
+
 ## Verification record
 
 The active local SVG is covered by the static-export favicon check and rendered

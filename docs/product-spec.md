@@ -1,8 +1,8 @@
 # GPSGoblin — GPS & Activity File Toolkit Product Specification
 
 **Status:** First consolidated specification; agreed product direction with explicitly identified implementation decisions and release gates.
-**Version:** 0.17
-**Date:** 20 September 2026
+**Version:** 0.18
+**Date:** 6 October 2026
 **Owner:** Yorkshireman
 **Product name:** GPSGoblin — settled.
 **Owned production domain:** `https://gpsgoblin.com` — registered at GoDaddy; the Stage 1 viewer is live on Cloudflare Workers Static Assets. This is the canonical production origin.
@@ -175,11 +175,11 @@ These requirements apply across tools and release stages. Exact layouts, breakpo
 
 ### 4.5 Prominent example experience — agreed; delivered
 
-Delivered through [issue #46](https://github.com/Yorkshireman/gpsgoblin/issues/46) and PR #50 on 19 September 2026. The production homepage, viewer entry and public example asset were verified after deployment. The requirements below remain the accepted behaviour.
+Delivered through [issue #46](https://github.com/Yorkshireman/gpsgoblin/issues/46) and PR #50 on 19 September 2026. The production homepage, viewer entry and public example asset were verified after deployment. The requirements below remain the accepted behaviour. [Issue #62](https://github.com/Yorkshireman/gpsgoblin/issues/62) revised the homepage placement after a UX audit on 4 October 2026 found that the example button drew attention away from opening a person's own file.
 
 Let visitors experience the viewer before obtaining their own file: **Try an example → inspect the result → open your own file**.
 
-- On the homepage, place a prominent **Try an example** action beside **Open GPX File Viewer**. One activation opens the viewer with the sample loaded, without manual download/re-upload.
+- On the homepage, make **View your GPX file** the single primary action and place a **Try an example** link directly below it, visible without scrolling. One activation opens the viewer with the sample loaded, without manual download/re-upload.
 - On the empty GPX viewer, place **Try an example** alongside **Choose GPX file**, outside collapsed help. Preserve normal file selection and drag-and-drop; an ordinary viewer visit must not automatically load an example.
 - Use one interesting, public-safe GPX 1.1 activity with valid coordinates, elevation and usable timestamps, demonstrating the existing map, elevation, speed and pace. Document provenance/licence; use synthetic or explicitly permissioned/sanitised data, never a personal recording without permission.
 - Use the normal import, validation, worker and calculation pipeline, not a separate mocked result. Serve/bundle the public sample as a first-party static asset. This adds no backend, account, paid supplier, new format or unapproved telemetry.
@@ -196,7 +196,7 @@ Treat repeated manual exporting as an inherent source of friction; proof of a tr
 
 - Before selecting a GPX enhancement, state the concrete task it solves for the primary audience and compare its commercial case with alternatives. For export-dependent capabilities, also explain why the result warrants retrieving a file. Use production behaviour as the baseline; another chart or feature count does not establish incentive. Exact choices require scoped tickets.
 - Make released benefits discoverable through the example and concise, truthful page copy. The example should let people experience value before they commit effort; avoid promises about unreleased analysis or superiority over their existing service without evidence.
-- Provide plainly named routes to obtaining and troubleshooting a GPX file in the homepage's viewer summary and near file selection. Keep source-specific instructions easy to find without placing a long guide ahead of the tool or forcing users who already have a file through it.
+- Provide plainly named routes to obtaining and troubleshooting a GPX file in the site footer and near file selection. [Issue #62](https://github.com/Yorkshireman/gpsgoblin/issues/62) removed the duplicate homepage links; on short phone screens the footer routes are one scroll away. Keep source-specific instructions easy to find without placing a long guide ahead of the tool or forcing users who already have a file through it.
 - For each documented source, verify the current export path against official guidance and, where possible, the actual workflow. Explain supported desktop/mobile differences, the exact export format to choose, where to find the download and how to open it in GPSGoblin. Record verification dates and known limitations; do not invent mobile export options or promise availability from every provider.
 - Prefer exporting directly from the service where the activity already exists. Do not require uploading to an intermediary website just to export again. Do not introduce Bluetooth or cable/device-connection instructions as the proposed solution for this milestone.
 - Match guidance to released format support. While the viewer accepts GPX, do not direct people to upload FIT/TCX or suggest that changing a filename converts it. Explain when an export lacks measurements needed for a demonstrated benefit; do not promise to recover absent data.
@@ -209,7 +209,7 @@ The recommended first acquisition-content experiment is a bounded two-page pilot
 1. **How to get and open a GPX file** — a comparative end-to-end guide for verified Garmin Connect, Strava, komoot and Polar Flow export paths, including desktop/mobile differences, the correct format choice, download or ZIP handling and opening the result in the released viewer. Include Wahoo only as an honest unsupported FIT stop-case until a verified GPX path or released FIT support exists.
 2. **Why a GPX file is empty or missing data** — a recovery guide for missing GPS positions, incomplete exports, ZIP downloads, unsupported FIT/TCX/GPX 1.0 files, absent elevation/time readings and provider data that GPX does not contain.
 
-Each page must solve its task without requiring a tool click. Link to the viewer only when it is a valid next step, and add compact routes to both help tasks in the homepage's viewer summary and near file selection without moving long guidance above the tool. Recheck provider instructions against official sources at delivery and distinguish documentation verification from an account workflow actually exercised. Add no CMS, provider integration, analytics, advertising or broad content framework for this pilot. Review search acquisition after release, but do not present indexing, traffic, task completion or profit as guaranteed. [Content acquisition research](gpx-content-acquisition-research.md).
+Each page must solve its task without requiring a tool click. Link to the viewer only when it is a valid next step, and add compact routes to both help tasks in the site footer and near file selection without moving long guidance above the tool. Recheck provider instructions against official sources at delivery and distinguish documentation verification from an account workflow actually exercised. Add no CMS, provider integration, analytics, advertising or broad content framework for this pilot. Review search acquisition after release, but do not present indexing, traffic, task completion or profit as guaranteed. [Content acquisition research](gpx-content-acquisition-research.md).
 
 Delivery status (20 September 2026): [issue #58](https://github.com/Yorkshireman/gpsgoblin/issues/58) was delivered through [PR #59](https://github.com/Yorkshireman/gpsgoblin/pull/59). CI and the Cloudflare deployment completed successfully; both public routes, their canonical URLs and sitemap entries were verified. Search Console and commercial outcomes remain unavailable. Review available acquisition evidence around 18 October 2026, with another review around 15 November if observations are sparse.
 

@@ -13,12 +13,13 @@ for (const viewport of uxBaselineViewports) {
     const page = await context.newPage();
 
     await page.goto('/');
-    const homepageHelp = page.getByRole('link', {
-      name: 'How to get a GPX file'
+    const siteLinks = page.getByRole('navigation', { name: 'Site links' });
+    const homepageHelp = siteLinks.getByRole('link', {
+      name: 'Get a GPX file'
     });
     await expect(homepageHelp).toBeVisible();
     await expect(
-      page.getByRole('link', { name: 'Troubleshoot a GPX file' })
+      siteLinks.getByRole('link', { name: 'GPX troubleshooting' })
     ).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath(

@@ -34,7 +34,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await scan(url.replaceAll('/', '-') || 'home');
       if (url === '/') {
         const viewerLink = page.getByRole('link', {
-          name: 'Open GPX File Viewer'
+          name: 'View your GPX file'
         });
         const exampleLink = page.getByRole('link', { name: 'Try an example' });
         await viewerLink.focus();
